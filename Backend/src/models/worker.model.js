@@ -1,4 +1,7 @@
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
+import { platformCharge } from "../constants";
 
 const workerSchema = new mongoose.Schema(
   {
@@ -52,13 +55,11 @@ const workerSchema = new mongoose.Schema(
           enum: [
             "plumber",
             "electrician",
-            "carpenter",
-            "painter",
-            "Tv",
-            "Fridge",
-            "Ac",
+            "tv",
+            "fridge",
+            "ac",
             "washing machine",
-            "Laptop",
+            "laptop",
           ],
         },
       ],
@@ -94,6 +95,14 @@ const workerSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    suspendedUntil: { 
+      type: Date, 
+      default: null 
+    },
+    walletBalance: {
+      type: Number,
+      default: 0
+    }
   },
   { timestamps: true }
 );
@@ -137,5 +146,16 @@ workerSchema.methods.generateRefreshToken = function(){
         }
     )
 }
+
+workerSchema.methods.deductPlatformFee = async function() {
+  this.walletBalance -= platformCharge;
+  await this.save();
+}
+
+workerSchema.methods.canGoOnline = function() {
+  return this.walletBalance >= 0 && (!this.suspendedUntil || this.suspendedUntil < new Date());
+}
+
+
 
 export const Worker = mongoose.model("Worker", workerSchema);

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import { searchCharge } from "../constants";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 
@@ -42,10 +41,6 @@ const customerSchema = new mongoose.Schema({
     },
     refreshToken: {
         type: String
-    },
-    walletBalance: {
-        type: Number,
-        default: searchCharge
     },
     hasCompletedOnboarding: {
         type: Boolean,

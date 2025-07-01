@@ -13,7 +13,7 @@ const serviceRequestSchema  = new mongoose.Schema({
     },
     category: {
         type: String,
-        enum: ["plumber", "electrician", "carpenter", "painter", "Tv", "Fridge", "Ac", "washing machine", "Laptop"],
+        enum: ["plumber", "electrician", "carpenter", "painter", "tv", "fridge", "ac", "washing machine", "laptop"],
         required: true
     },
     description: {
@@ -26,8 +26,13 @@ const serviceRequestSchema  = new mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        enum: ["searching","pending", "onway", "arrived","verified", "cancelled", "completed", "rejected"],
+        enum: ["searching","notConnected","connected", "onway", "arrived","verified","repairAmountQuoted", "cancelled","accepted", "rejected"],
         default: "searching",
+    },
+    jobStatus:{
+        type: String,
+        enum: ["pending", "completed"],
+        default: "pending"
     },
     customerLocation: {
         type: {
@@ -65,6 +70,10 @@ const serviceRequestSchema  = new mongoose.Schema({
         type: Date,
         default: null
     },
+    verifiedAt: {
+    type: Date,
+    default: null
+    },
     cancelledAt: {
         type: Date,
         default: null
@@ -77,7 +86,7 @@ const serviceRequestSchema  = new mongoose.Schema({
     cancellationReason: {
         type: String,
         default: "",
-        enum: ["customerNotResponding", "workerNotResponding", "notAbleToServeIssue", "other"]
+        enum: ["customerNotResponding", "workerNotResponding", "notAbleToServeIssue","byMistake", "other"]
     },
     completedAt: {
         type: Date,
@@ -87,6 +96,20 @@ const serviceRequestSchema  = new mongoose.Schema({
         type: Date,
         default: null
     },
+    paymentStatus: {
+        type: String,
+        enum: ["pending", "paid", "failed"],
+        default: "pending"
+    },
+    paymentType: {
+        type: String,
+        enum: ["online", "cash", null],
+        default: null
+    },
+    paidAt: {
+        type: Date,
+        default: null
+    }
 },{timestamps: true});
 
 serviceRequestSchema.index({ customerLocation: "2dsphere" });
