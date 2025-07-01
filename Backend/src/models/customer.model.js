@@ -42,10 +42,6 @@ const customerSchema = new mongoose.Schema({
     refreshToken: {
         type: String
     },
-    hasCompletedOnboarding: {
-        type: Boolean,
-        default: false
-    }
 },{timestamps: true});
 
 customerSchema.pre("save", async function (next) {
