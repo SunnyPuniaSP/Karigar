@@ -87,14 +87,6 @@ const workerSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
-    penaltyScore: {
-      type: Number,
-      default: 0,
-    },
-    hasCompletedOnboarding: {
-      type: Boolean,
-      default: false,
-    },
     suspendedUntil: { 
       type: Date, 
       default: null 

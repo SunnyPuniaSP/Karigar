@@ -42,6 +42,10 @@ const customerSchema = new mongoose.Schema({
     refreshToken: {
         type: String
     },
+    suspendedUntil: { 
+      type: Date, 
+      default: null 
+    },
 },{timestamps: true});
 
 customerSchema.pre("save", async function (next) {
