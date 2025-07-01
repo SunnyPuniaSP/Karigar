@@ -1,5 +1,6 @@
-platformCharge=9
-DB_NAME="Project 0"
+const platformCharge=9
+const DB_NAME="Project 0"
 export {
-    platformCharge
+    platformCharge,
+    DB_NAME
 }
