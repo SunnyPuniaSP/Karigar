@@ -1,5 +1,4 @@
-searchCharge=39;
-
+platformCharge=9
 export {
-    searchCharge
+    platformCharge
 }
