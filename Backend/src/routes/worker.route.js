@@ -22,7 +22,7 @@ router.route("/register").post(upload.single("profilePhoto"),registerWorker)
 router.route("/login").post(loginWorker)
 
 //secured routes
-router.route("/logout").post(verifyJWT,  logoutWorker)
+router.route("/logout").post(verifyJWT, logoutWorker)
 router.route("/refresh-token").post(refreshAccessToken)
 router.route("/change-password").post(verifyJWT, changeCurrentPassword)
 router.route("/current-user").get(verifyJWT, getCurrentWorker)
