@@ -26,7 +26,7 @@ const serviceRequestSchema  = new mongoose.Schema({
     },
     orderStatus: {
         type: String,
-        enum: ["searching","notConnected","connected", "onway", "arrived","verified","repairAmountQuoted", "cancelled","accepted", "rejected"],
+        enum: ["searching","connected", "onway", "arrived","verified","repairAmountQuoted", "cancelled","accepted", "rejected"],
         default: "searching",
     },
     jobStatus:{
@@ -86,7 +86,7 @@ const serviceRequestSchema  = new mongoose.Schema({
     cancellationReason: {
         type: String,
         default: "",
-        enum: ["customerNotResponding", "workerNotResponding", "notAbleToServeIssue","byMistake", "other"]
+        enum: ["customerNotResponding", "workerNotResponding", "notAbleToServeIssue","byMistake","notConnected", "other"]
     },
     completedAt: {
         type: Date,
