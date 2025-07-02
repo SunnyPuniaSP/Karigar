@@ -107,7 +107,7 @@ const loginCustomer = asyncHandler(async (req, res) => {
 
 const logoutCustomer = asyncHandler(async(req, res) => {
     await Customer.findByIdAndUpdate(
-        req.user._id,
+        req.customer._id,
         {
             $unset: {
                 refreshToken: 1 
@@ -134,7 +134,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
     if (!incomingRefreshToken) {
-        throw new ApiError(401, "unauthorized request")
+        throw new ApiError(401, "Unauthorized request")
     }
 
     try {
@@ -182,7 +182,7 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
 
     
 
-    const customer = await Customer.findById(req.user?._id)
+    const customer = await Customer.findById(req.customer?._id)
     const isPasswordCorrect = await customer.isPasswordCorrect(oldPassword)
 
     if (!isPasswordCorrect) {
@@ -202,7 +202,7 @@ const getCurrentCustomer= asyncHandler(async(req, res) => {
     .status(200)
     .json(new ApiResponse(
         200,
-        req.user,
+        req.customer,
         "User fetched successfully"
     ))
 })
@@ -222,7 +222,7 @@ const updateProfilePhoto= asyncHandler(async(req, res) => {
     }
 
     const customer = await Customer.findByIdAndUpdate(
-        req.user?._id,
+        req.customer?._id,
         {
             $set:{
                 profilePhoto: profilePhoto.url
@@ -242,11 +242,11 @@ const updateEmail = asyncHandler(async(req, res) => {
     const {email} = req.body
 
     if (!email) {
-        throw new ApiError(400, "email is required")
+        throw new ApiError(400, "Email is required")
     }
 
     const customer = await Customer.findByIdAndUpdate(
-        req.user?._id,
+        req.customer?._id,
         {
             $set: {
                 email: email
@@ -269,7 +269,7 @@ const updatePhone = asyncHandler(async(req, res) => {
     }
 
     const customer = await Customer.findByIdAndUpdate(
-        req.user?._id,
+        req.customer?._id,
         {
             $set: {
                 phone: phone
@@ -292,7 +292,7 @@ const updateAddress = asyncHandler(async(req, res) => {
     }
 
     const customer = await Customer.findByIdAndUpdate(
-        req.user?._id,
+        req.customer?._id,
         {
             $set: {
                 address: address
@@ -315,7 +315,7 @@ const updateFullName = asyncHandler(async(req, res) => {
     }
 
     const customer = await Customer.findByIdAndUpdate(
-        req.user?._id,
+        req.customer?._id,
         {
             $set: {
                 fullName: fullName

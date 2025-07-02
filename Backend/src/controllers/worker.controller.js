@@ -28,7 +28,7 @@ const registerWorker = asyncHandler(async (req, res) => {
 
     // Ensure workingCategory is an array
     if (!Array.isArray(workingCategory)) {
-        throw new ApiError(400, "workingCategory must be an array");
+        throw new ApiError(400, "WorkingCategory must be an array");
     }
 
     // Optional: Validate each category is valid
@@ -65,7 +65,7 @@ const registerWorker = asyncHandler(async (req, res) => {
     const createdWorker = await Worker.findById(worker._id).select("-password -refreshToken");
 
     if (!createdWorker) {
-        throw new ApiError(500, "worker creation failed");
+        throw new ApiError(500, "Worker creation failed");
     }
 
     return res.status(201).json(
@@ -122,7 +122,7 @@ const loginWorker = asyncHandler(async (req, res) => {
 
 const logoutWorker = asyncHandler(async(req, res) => {
     await Worker.findByIdAndUpdate(
-        req.user._id,
+        req.worker._id,
         {
             $unset: {
                 refreshToken: 1 
@@ -149,7 +149,7 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
     const incomingRefreshToken = req.cookies.refreshToken || req.body.refreshToken
 
     if (!incomingRefreshToken) {
-        throw new ApiError(401, "unauthorized request")
+        throw new ApiError(401, "Unauthorized request")
     }
 
     try {
@@ -197,7 +197,7 @@ const changeCurrentPassword = asyncHandler(async(req, res) => {
 
     
 
-    const worker = await Worker.findById(req.user?._id)
+    const worker = await Worker.findById(req.worker?._id)
     const isPasswordCorrect = await worker.isPasswordCorrect(oldPassword)
 
     if (!isPasswordCorrect) {
@@ -217,7 +217,7 @@ const getCurrentWorker = asyncHandler(async(req, res) => {
     .status(200)
     .json(new ApiResponse(
         200,
-        req.user,
+        req.worker,
         "Worker fetched successfully"
     ))
 })
@@ -237,7 +237,7 @@ const updateProfilePhoto= asyncHandler(async(req, res) => {
     }
 
     const worker = await Worker.findByIdAndUpdate(
-        req.user?._id,
+        req.worker?._id,
         {
             $set:{
                 profilePhoto: profilePhoto.url
@@ -257,11 +257,11 @@ const updateEmail = asyncHandler(async(req, res) => {
     const {email} = req.body
 
     if (!email) {
-        throw new ApiError(400, "email is required")
+        throw new ApiError(400, "Email is required")
     }
 
     const worker = await Worker.findByIdAndUpdate(
-        req.user?._id,
+        req.worker?._id,
         {
             $set: {
                 email: email
@@ -284,7 +284,7 @@ const updatePhone = asyncHandler(async(req, res) => {
     }
 
     const worker = await Worker.findByIdAndUpdate(
-        req.user?._id,
+        req.worker?._id,
         {
             $set: {
                 phone: phone
@@ -307,7 +307,7 @@ const updateAddress = asyncHandler(async(req, res) => {
     }
 
     const worker = await Worker.findByIdAndUpdate(
-        req.user?._id,
+        req.worker?._id,
         {
             $set: {
                 address: address
@@ -330,7 +330,7 @@ const updateFullName = asyncHandler(async(req, res) => {
     }
 
     const worker = await Worker.findByIdAndUpdate(
-        req.user?._id,
+        req.worker?._id,
         {
             $set: {
                 fullName: fullName
