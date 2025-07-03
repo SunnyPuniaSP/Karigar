@@ -4,6 +4,9 @@ import cookieParser from "cookie-parser"
 
 const app = express()
 
+app.use(express.urlencoded({ extended: true }));
+
+
 app.use(cors({
     origin: process.env.CORS_ORIGIN,
     credentials: true
@@ -18,12 +21,12 @@ app.use(cookieParser())
 //routes import
 import customerRouter from "./routes/customer.route.js"
 import workerRouter from "./routes/worker.route.js"
-
+import transactionRouter from "./routes/transaction.route.js"
 
 //routes declaration
 app.use("/api/v1/customer", customerRouter)
 app.use("/api/v1/worker", workerRouter)
-
+app.use("/api/v1/transaction", transactionRouter)  
 
 // http://localhost:8000/api/v1/users/register
 
