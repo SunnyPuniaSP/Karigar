@@ -6,17 +6,9 @@ const feedbackSchema = new mongoose.Schema({
         ref: "ServiceRequest",
         required: true,
     },
-    reviewerId: {
+    customerId: {
         type: mongoose.Schema.Types.ObjectId,
-        required: true,
-    },
-    reviewerType: {
-        type: String,
-        enum: ["customer", "worker"],
-        required: true,
-    },
-    revieweeId: {
-        type: mongoose.Schema.Types.ObjectId,
+        ref: "Customer",
         required: true,
     },
     rating: {
