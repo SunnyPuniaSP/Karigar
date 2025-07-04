@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { visitingCharge } from "../constants";
 
 const serviceRequestSchema  = new mongoose.Schema({
     customerId:{
@@ -58,6 +59,10 @@ const serviceRequestSchema  = new mongoose.Schema({
         type: Date,
         default: () => new Date(Date.now() + 15*60000) // 15 mins
     },
+    visitingCharge: {
+        type: Number,   
+        default: visitingCharge
+    },
     quoteAmount: { 
         type: Number, 
         default: null 
@@ -67,6 +72,10 @@ const serviceRequestSchema  = new mongoose.Schema({
         default: null
     },
     arrivedAt: {
+        type: Date,
+        default: null
+    },
+    connectedAt: {
         type: Date,
         default: null
     },

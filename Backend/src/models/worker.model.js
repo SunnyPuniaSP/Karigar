@@ -65,6 +65,27 @@ const workerSchema = new mongoose.Schema(
       ],
       required: true,
     },
+    startLocation: {
+      type: {
+        type: String,
+        enum: ["Point"],
+      },
+      coordinates: {
+        type: [Number],
+        validate: {
+          validator: function (value) {
+            if (!value) return true; // allow missing
+            return (
+              Array.isArray(value) &&
+              value.length === 2 &&
+              typeof value[0] === "number" &&
+              typeof value[1] === "number"
+            );
+          },
+          message: "Coordinates must be [longitude, latitude]",
+        },
+      },
+    }, 
     currentLocation: {
       type: {
         type: String,
