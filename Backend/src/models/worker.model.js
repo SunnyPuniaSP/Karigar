@@ -127,6 +127,18 @@ const workerSchema = new mongoose.Schema(
       type: Number,
       default: 0,
     },
+    rating:{
+      type:Number,
+      default:null,
+    },
+    ratingsCount: {
+      type: Number,
+      default: 0,
+    },
+    ratingsPoints: {
+      type: Number,
+      default: 0,
+    }
   },
   { timestamps: true }
 );

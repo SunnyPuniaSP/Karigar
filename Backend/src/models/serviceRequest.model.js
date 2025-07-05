@@ -118,7 +118,15 @@ const serviceRequestSchema  = new mongoose.Schema({
     paidAt: {
         type: Date,
         default: null
-    }
+    },
+    workerRated: {
+        type: Boolean,
+        default: false
+    },
+    ratedWith: {
+        type: Number,
+        default: null
+    },
 },{timestamps: true});
 
 serviceRequestSchema.index({ customerLocation: "2dsphere" });

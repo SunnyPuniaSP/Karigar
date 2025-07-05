@@ -622,6 +622,53 @@ const cancelledBySystemAsUnattended = asyncHandler(async (req, res) => {
   );
 })
 
+const rateWorker = asyncHandler(async (req, res) => {
+  const { serviceRequestId } = req.params;
+  const { rating } = req.body;
+  const customerId = req.customer?._id;
+
+  // Validate rating
+  if (typeof rating !== "number" || rating < 1 || rating > 5) {
+    throw new ApiError(400, "Rating must be a number between 1 and 5");
+  }
+
+  // Find the service request
+  const serviceRequest = await ServiceRequest.findById(serviceRequestId);
+  if (!serviceRequest) {
+    throw new ApiError(404, "Service request not found");
+  }
+
+  // Check if the request belongs to this customer
+  if (serviceRequest.customerId?.toString() !== customerId) {
+    throw new ApiError(400, "Service request not belonging to this customer");
+  }
+
+  // Check if the service request is completed
+  if (serviceRequest.orderStatus !== "completed") {
+    throw new ApiError(400, "Service request is not completed yet");
+  }
+
+  // Update worker's rating
+  const worker = await Worker.findById(serviceRequest.workerId);
+  if (!worker) {
+    throw new ApiError(404, "Worker not found");
+  }
+
+  worker.ratingsCount += 1;
+  worker.ratingsPoints += rating;
+  worker.rating = worker.ratingsPoints / worker.ratingsCount;
+
+  await worker.save();
+
+  const updatedServiceRequest = await ServiceRequest.findById(serviceRequestId).select("_id customerId workerId category description  orderStatus audioNoteUrl wokerRated ratedWith");
+
+  return res.status(200).json(
+    new ApiResponse(200, updatedServiceRequest, "Worker rated successfully")
+  );
+})
+
+
+
 export {
   createServiceRequest,
   findRequests,
@@ -635,5 +682,6 @@ export {
   cancelledByCustomerAsWorkerNotRespondingOrLate,
   cancelledByCustomerAsByMistake,
   cancelBySystemAsNotConnected,
-  cancelledBySystemAsUnattended
+  cancelledBySystemAsUnattended,
+  rateWorker
 };
