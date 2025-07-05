@@ -57,7 +57,7 @@ const serviceRequestSchema  = new mongoose.Schema({
     },
     searchExpiresAt: {
         type: Date,
-        default: () => new Date(Date.now() + 15*60000) // 15 mins
+        default: () => new Date(Date.now() + 10*60000) // 15 mins
     },
     visitingCharge: {
         type: Number,   
@@ -95,7 +95,7 @@ const serviceRequestSchema  = new mongoose.Schema({
     cancellationReason: {
         type: String,
         default: "",
-        enum: ["customerNotResponding", "workerNotResponding", "notAbleToServeIssue","byMistake","notConnected", "other"]
+        enum: ["customerNotResponding", "workerNotRespondingOrLate", "workerNotAbleToServe","byMistake","notConnected","unattendedRequests"]
     },
     completedAt: {
         type: Date,

@@ -11,7 +11,7 @@ const cancellationSchema = new mongoose.Schema({
     enum: ["customer", "worker", "system"],
     required: true
   },
-  userId: {
+  customerId: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "Customer",
     required: true
@@ -25,14 +25,6 @@ const cancellationSchema = new mongoose.Schema({
     type: String,
     enum: ["customerNotResponding", "workerNotResponding", "notAbleToServeIssue", "byMistake", "other"],
     required: true
-  },
-  cancellationTime: {
-    type: Date,
-    default: Date.now
-  },
-  notes: {
-    type: String,
-    default: ""
   }
 }, { timestamps: true });
 
