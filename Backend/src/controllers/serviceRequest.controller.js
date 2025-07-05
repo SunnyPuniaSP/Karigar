@@ -667,6 +667,44 @@ const rateWorker = asyncHandler(async (req, res) => {
   );
 })
 
+const reportWorker = asyncHandler(async (req, res) => {
+  const { serviceRequestId } = req.params;
+
+  // Find the service request
+  const serviceRequest = await ServiceRequest.findById(serviceRequestId);
+  if (!serviceRequest) {
+    throw new ApiError(404, "Service request not found");
+  }
+
+  const worker = await Worker.findById(serviceRequest.workerId);
+
+  if (!worker) {
+    throw new ApiError(404, "Worker not found");
+  }
+
+  let newSuspendedUntil;
+
+  if (worker.suspendedUntil && worker.suspendedUntil > new Date()) {
+    // Already suspended, add 7 days to existing suspension
+    newSuspendedUntil = new Date(worker.suspendedUntil.getTime() + 7 * 24 * 60 * 60 * 1000);
+  } else {
+    // Not suspended or suspension expired, suspend for 7 days from now
+    newSuspendedUntil = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+  }
+
+  worker.suspendedUntil = newSuspendedUntil;
+  await worker.save();
+
+  serviceRequest.workerReported = true;
+  await serviceRequest.save();
+
+  const updatedServiceRequest = await ServiceRequest.findById(serviceRequestId).select("_id customerId workerId category description orderStatus audioNoteUrl wokerReported");
+
+  return res.status(200).json(
+    new ApiResponse(200, updatedServiceRequest, "Worker reported successfully")
+  );
+})
+
 
 
 export {
@@ -683,5 +721,6 @@ export {
   cancelledByCustomerAsByMistake,
   cancelBySystemAsNotConnected,
   cancelledBySystemAsUnattended,
-  rateWorker
+  rateWorker,
+  reportWorker
 };

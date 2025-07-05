@@ -127,6 +127,10 @@ const serviceRequestSchema  = new mongoose.Schema({
         type: Number,
         default: null
     },
+    workerReported: {
+        type: Boolean,
+        default: false
+    },
 },{timestamps: true});
 
 serviceRequestSchema.index({ customerLocation: "2dsphere" });
