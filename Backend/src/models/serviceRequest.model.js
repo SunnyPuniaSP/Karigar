@@ -80,8 +80,8 @@ const serviceRequestSchema  = new mongoose.Schema({
         default: null
     },
     verifiedAt: {
-    type: Date,
-    default: null
+        type: Date,
+        default: null
     },
     cancelledAt: {
         type: Date,
