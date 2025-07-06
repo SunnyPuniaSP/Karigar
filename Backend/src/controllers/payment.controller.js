@@ -53,6 +53,40 @@ const createOrder = asyncHandler(async (req, res) => {
     );
 })
 
+const createOrderForWorker = asyncHandler(async (req, res) => {
+    const workerId = req.worker?._id;
+    const {amount} = req.body;
+    const currency = 'INR';
+    if (!workerId) {
+        throw new ApiError(400, 'Worker ID is required');
+    }
+
+    const worker = await Worker.findById(workerId);
+    if (!worker) {
+        throw new ApiError(404, 'Worker not found');
+    }
+
+    if (!amount || !currency) {
+        throw new ApiError(400, 'Amount and currency are required');
+    }
+
+    const options = {
+        amount: amount * 100, // Amount in paise
+        currency: currency,
+        receipt: `receipt_${new Date().getTime()}`
+    };
+
+    const order = await razorpayInstance.orders.create(options);
+    if (!order) {
+        throw new ApiError(500, 'Failed to create order');
+    }
+    
+    return res.status(200).json(
+        new ApiResponse(200, order, "Order created successfully")
+    );
+
+})
+
 const verifyPayment = asyncHandler(async (req, res) => {
   const { razorpayPaymentId, razorpayOrderId, razorpaySignature } = req.body;
   const { serviceRequestId } = req.params;
@@ -85,6 +119,40 @@ const verifyPayment = asyncHandler(async (req, res) => {
   );
 });
 
+const verifyPaymentForWorker = asyncHandler(async (req, res) => {
+    const { razorpayPaymentId, razorpayOrderId, razorpaySignature, amount } = req.body;
+    const workerId = req.worker?._id;
+    
+    if (!workerId) {
+        throw new ApiError(400, 'Worker ID is required');
+    }
+    
+    if (!razorpayPaymentId || !razorpayOrderId || !razorpaySignature || !amount) {
+        throw new ApiError(400, 'Razorpay payment details are required');
+    }
+    
+    const generatedSignature = crypto
+        .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
+        .update(`${razorpayOrderId}|${razorpayPaymentId}`)
+        .digest('hex');
+    
+    if (generatedSignature !== razorpaySignature) {
+        throw new ApiError(400, 'Invalid payment signature');
+    }
+    
+    const worker = await Worker.findById(workerId);
+    if (!worker) {
+        throw new ApiError(404, 'Worker not found');
+    }
+    
+    worker.walletBalance += parseFloat(amount);
+    await worker.save();
+    
+    return res.status(200).json(
+        new ApiResponse(200, { success: true }, "Payment verified successfully")
+    );
+})
+
 const paymentReceivedByCash= asyncHandler(async (req, res) => {
     const { serviceRequestId } = req.params;
 
@@ -111,5 +179,7 @@ const paymentReceivedByCash= asyncHandler(async (req, res) => {
 export {
     createOrder,
     verifyPayment,
-    paymentReceivedByCash
+    paymentReceivedByCash,
+    createOrderForWorker,
+    verifyPaymentForWorker
 };
