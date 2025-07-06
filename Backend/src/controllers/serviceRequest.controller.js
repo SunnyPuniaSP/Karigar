@@ -218,7 +218,9 @@ const rejectRepairQuote = asyncHandler(async (req, res) => {
 })
 
 const updateWorkerLocation = asyncHandler(async (req, res) => {
-  const { workerId, serviceRequestId, coordinates } = req.body; // coordinates = [lng, lat]
+  const { serviceRequestId } = req.params;
+  const workerId = req.worker?._id;
+  const { coordinates } = req.body; // coordinates = [lng, lat]
 
   if (!workerId || !serviceRequestId || !coordinates || coordinates.length !== 2) {
     throw new ApiError(400, "workerId, serviceRequestId and valid coordinates are required");
