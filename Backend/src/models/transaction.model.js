@@ -19,7 +19,7 @@ const transactionSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  platformFee: {  // Added field
+  platformFee: {  
     type: Boolean,
     default: false,
   },
