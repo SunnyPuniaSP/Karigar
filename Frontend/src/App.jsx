@@ -1,9 +1,11 @@
-import React from 'react'
-
+import React from "react";
+import CustomerLogin from "./components/CustomerLogin";
+import CustomerSignUp from "./components/CustomerSignUp";
+import WorkerSignUp from "./components/WorkerSignUp";
 const App = () => {
   return (
-    <div>App</div>
-  )
-}
+   <WorkerSignUp/>
+  );
+};
 
-export default App
+export default App;
