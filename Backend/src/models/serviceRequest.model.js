@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import { visitingCharge } from "../constants";
+import { visitingCharge } from "../constants.js";
 
 const serviceRequestSchema  = new mongoose.Schema({
     customerId:{

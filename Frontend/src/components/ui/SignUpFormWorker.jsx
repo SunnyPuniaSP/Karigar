@@ -16,7 +16,7 @@ const categories = [
   "laptop",
 ];
 
-export function SignUpFormWorker({ className, ...props }) {
+export function SignUpFormWorker({ className, handleSubmit, ...props }) {
   const [selectedCategories, setSelectedCategories] = useState([]);
 
   const handleCheckboxChange = (value) => {
@@ -25,15 +25,24 @@ export function SignUpFormWorker({ className, ...props }) {
     );
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Selected Categories:", selectedCategories);
-    // send selectedCategories to your backend
-  };
+
 
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={(e) => {
+          e.preventDefault();
+          const formData = new FormData(e.target);
+          const data = {
+            fullName: formData.get("fullName"),
+            email: formData.get("email"),
+            phone: formData.get("phone"),
+            address: formData.get("address"),
+            password: formData.get("password"),
+            yearOfExperience: Number(formData.get("yearOfExperience")),
+            workingCategory: selectedCategories,
+          };
+          handleSubmit(data);
+        }}>
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <a
@@ -53,12 +62,13 @@ export function SignUpFormWorker({ className, ...props }) {
           <div className="flex flex-col gap-6">
             <div className="grid gap-3">
               <Label htmlFor="fullName">Full Name</Label>
-              <Input id="fullName" type="text" placeholder="" required />
+              <Input id="fullName" name="fullName" type="text" placeholder="" required />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="email">Email</Label>
               <Input
                 id="email"
+                name="email"
                 type="email"
                 placeholder="m@example.com"
                 required
@@ -66,20 +76,21 @@ export function SignUpFormWorker({ className, ...props }) {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" type="text" placeholder="" required />
+              <Input id="phone" name="phone" type="tel" placeholder="" required />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="address">Address</Label>
-              <Input id="address" type="text" placeholder="" required />
+              <Input id="address" name="address" type="text" placeholder="" required />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" type="Password" placeholder="" required />
+              <Input id="password" name="password" type="Password" placeholder="" required />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="yearOfExperience">Year Of Experience</Label>
               <Input
                 id="yearOfExperience"
+                name="yearOfExperience"
                 type="number"
                 placeholder=""
                 required
@@ -92,10 +103,11 @@ export function SignUpFormWorker({ className, ...props }) {
                   <div key={category} className="flex items-center space-x-2">
                     <Checkbox
                       id={category}
+                      name="category"
                       checked={selectedCategories.includes(category)}
                       onCheckedChange={() => handleCheckboxChange(category)}
                     />
-                    <label htmlFor={category} className="text-sm capitalize">
+                    <label htmlFor={category} className="text-sm ">
                       {category}
                     </label>
                   </div>

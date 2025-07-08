@@ -9,6 +9,11 @@ const __dirname = dirname(__filename);
 
 // https://vite.dev/config/
 export default defineConfig({
+  server:{
+    proxy:{
+      '/api':'http://localhost:8000', // Adjust the port as per your backend server
+    }
+  },
   plugins: [react(), tailwindcss()],
   resolve: {
     alias: {
