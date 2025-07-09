@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { NavLink } from "react-router-dom";
 
 export function SignUpFormCustomer({ className, handleSubmit, ...props }) {
   return (
@@ -32,10 +33,7 @@ export function SignUpFormCustomer({ className, handleSubmit, ...props }) {
             </a>
             <h1 className="text-xl font-bold">Welcome to KARIGAR</h1>
             <div className="text-center text-sm">
-              Already have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Login
-              </a>
+              Already have an account?{" "} <NavLink to="/customer/login"  className="underline">Link</NavLink>
             </div>
           </div>
           <div className="flex flex-col gap-6">

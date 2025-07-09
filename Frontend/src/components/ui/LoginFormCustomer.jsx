@@ -4,8 +4,9 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
+import { NavLink } from "react-router-dom"
 
-export function LoginForm({
+export function LoginFormCustomer({
   className,
   handleSubmit,
   ...props
@@ -29,10 +30,7 @@ export function LoginForm({
             </a>
             <h1 className="text-xl font-bold">Welcome to KARIGAR</h1>
             <div className="text-center text-sm">
-              Don&apos;t have an account?{" "}
-              <a href="#" className="underline underline-offset-4">
-                Sign up
-              </a>
+              Don&apos;t have an account?{" "} <NavLink to="/customer/sign-up" className="underline underline-offset-4">Sign up</NavLink>
             </div>
           </div>
           <div className="flex flex-col gap-6">

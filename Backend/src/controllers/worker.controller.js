@@ -19,9 +19,6 @@ const generateAccessAndRefreshTokens = async(workerId)=>{
 }
 
 const registerWorker = asyncHandler(async (req, res) => {
-    console.log("Request body:", req.body);
-
-
     const { fullName, email, password, phone, address, workingCategory, yearOfExperience} = req.body;
 
     if (!fullName || !email || !password || !phone || !address || !workingCategory || !yearOfExperience) {

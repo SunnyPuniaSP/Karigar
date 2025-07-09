@@ -1,5 +1,5 @@
 import React from "react";
-import { LoginForm } from "../ui/LoginForm";
+import { LoginFormCustomer } from "../ui/LoginFormCustomer";
 import axios from "axios";
 
 const CustomerLogin = () => {
@@ -11,7 +11,8 @@ const CustomerLogin = () => {
         alert("Login successful! Welcome back.");
       })
       .catch((error) => {
-        const message = error.data?.message || "Login failed. Please try again.";
+        const message =
+          error.data?.message || "Login failed. Please try again.";
         console.error("Registration failed:", error);
         alert(message);
       });
@@ -19,7 +20,7 @@ const CustomerLogin = () => {
   return (
     <div className="bg-background flex min-h-svh flex-col items-center justify-center gap-6 p-6 md:p-10">
       <div className="w-full max-w-sm">
-        <LoginForm handleSubmit={handleSubmit} />
+        <LoginFormCustomer handleSubmit={handleSubmit} />
       </div>
     </div>
   );
