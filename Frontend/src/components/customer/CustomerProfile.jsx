@@ -10,8 +10,13 @@ import {
   SheetFooter,
 } from "@/components/ui/sheet";
 import { Pencil } from "lucide-react";
+import axios from "axios";
+import { useDispatch } from "react-redux";
+import { setCustomerDetails } from "@/store/customerAuthSlice";
 
 const CustomerProfile = () => {
+    
+  const dispatch=useDispatch();
   const { fullName, email, phone, address, profilePhoto } = useSelector((state) => state);
 
   const [formData, setFormData] = useState({ fullName, email, phone, address });
@@ -21,8 +26,15 @@ const CustomerProfile = () => {
   };
 
   const handleSave = () => {
-    console.log("Saving profile:", formData);
-  };
+  axios.post("/api/v1/customer/update-customer-details", formData)
+    .then((res) => {
+      dispatch(setCustomerDetails(res.data.data));
+    })
+    .catch(() => {
+      alert("Something went wrong. Unable to update your details.");
+    });
+};
+
 
   const defaultPhoto = "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3";
 

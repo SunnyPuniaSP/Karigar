@@ -11,8 +11,7 @@ import { useSelector } from 'react-redux';
 const Header = () => {
   const dispatch=useDispatch();
   const navigate=useNavigate();
-  const {profilePhoto}=useSelector(state=>state);
-  console.log("store data at navbar : ",useSelector(state=>state))
+  const profilePhoto=useSelector(state=>state.profilePhoto);
   const logout=()=>{
     dispatch(clearCustomerDetails());
     navigate("/customer")
