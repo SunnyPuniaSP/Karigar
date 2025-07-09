@@ -1,8 +1,9 @@
 import React from "react";
 import customerhomehero from "../../assets/customerhomehero.png";
 import { Button } from "../ui/button";
-import { NavLink } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 const Home = () => {
+  const navigate=useNavigate();
   return (
     <div>
       <div className="flex justify-center items-center p-5 gap-5">
@@ -16,7 +17,7 @@ const Home = () => {
           </p>
 
           <div className="display flex gap-5">
-            <Button className="w-75">Book a Service</Button>
+            <Button className="w-75" onClick={()=>navigate("/customer/auth/select-category")}>Book a Service</Button>
             <Button variant="secondary" className="w-75">
               Track Current Request
             </Button>

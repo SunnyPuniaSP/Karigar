@@ -21,6 +21,9 @@ import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./store/store.js";
 import { Provider } from "react-redux";
 import CustomerProfile from "./components/customer/CustomerProfile";
+import SelectCategory from "./components/customer/SelectCategory";
+import ServiceRequestForm from "./components/customer/ServiceRequestForm";
+
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/">
@@ -32,6 +35,9 @@ const router = createBrowserRouter(
         <Route path="auth/" element={<CustomerLayout />}>
           <Route path="home" element={<Home />} />
           <Route path="profile" element={<CustomerProfile />} />
+          <Route path="select-category" element={<SelectCategory/>}/>
+          <Route path="select-category/:category/more-info" element={<ServiceRequestForm/>}/>
+
         </Route>
       </Route>
       <Route path="worker/">
