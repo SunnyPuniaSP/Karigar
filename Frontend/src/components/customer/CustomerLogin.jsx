@@ -2,14 +2,20 @@ import React from "react";
 import { LoginFormCustomer } from "../ui/LoginFormCustomer";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setCustomerDetails } from "../../store/customerAuthSlice.js";
 
 const CustomerLogin = () => {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
+
   const handleSubmit = (data) => {
     console.log("Sending data:", data);
     axios
       .post("/api/v1/customer/login", data)
-      .then(() => {
+      .then((res) => {
+        const { data } = res;
+        dispatch(setCustomerDetails(data.data.customer));
         navigate("/customer/auth/home");
       })
       .catch((error) => {

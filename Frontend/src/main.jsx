@@ -13,7 +13,8 @@ import WorkerSignUp from './components/worker/WorkerSignUp'
 import WorkerLogin from './components/worker/WorkerLogin'
 import Home from './components/customer/Home'
 import CustomerLayout from './components/customer/CustomerLayout'
-
+import { Provider } from 'react-redux'
+import { store } from './store/store.js' 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/">
@@ -37,6 +38,9 @@ const router = createBrowserRouter(
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>
-    <RouterProvider router={router}/>
+    <Provider store={store}>
+      <RouterProvider router={router}/>
+    </Provider>
+    
   </StrictMode>,
 )
