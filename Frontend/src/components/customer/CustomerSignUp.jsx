@@ -6,7 +6,18 @@ const CustomerSignUp = () => {
     console.log("Sending data:", data);
     axios.post("/api/v1/customer/register",data)
     .then(() => {
-      alert("Registration successful! Please login.");
+      const logindata = {
+        email: data.email,
+        password: data.password
+      };
+      axios.post("/api/v1/customer/login", logindata)
+      .then(() => {
+        alert("Registration successful! automatic login successful");
+      })
+      .catch((error) => {
+        console.error("Login failed:", error);
+        alert("Registration successful but login failed. Please try logging in manually.");
+      });
     })
     .catch((error) => {
       console.error("Registration failed:", error);

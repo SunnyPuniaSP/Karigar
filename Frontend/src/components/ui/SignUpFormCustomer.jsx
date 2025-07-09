@@ -33,7 +33,7 @@ export function SignUpFormCustomer({ className, handleSubmit, ...props }) {
             </a>
             <h1 className="text-xl font-bold">Welcome to KARIGAR</h1>
             <div className="text-center text-sm">
-              Already have an account?{" "} <NavLink to="/customer/login"  className="underline">Link</NavLink>
+              Already have an account?{" "} <NavLink to="/customer/login"  className="underline">Login</NavLink>
             </div>
           </div>
           <div className="flex flex-col gap-6">

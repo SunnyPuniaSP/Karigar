@@ -40,7 +40,7 @@ export function LoginFormWorker({
             </div>
             <div className="grid gap-3">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="passwrod" placeholder="" required />
+              <Input id="password" name="password" type="password" placeholder="" required />
             </div>
             <Button type="submit" className="w-full">
               Login
