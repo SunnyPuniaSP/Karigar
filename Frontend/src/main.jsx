@@ -11,6 +11,8 @@ import CustomerLogin from './components/customer/CustomerLogin'
 import CustomerSignUp from './components/customer/CustomerSignUp'
 import WorkerSignUp from './components/worker/WorkerSignUp'
 import WorkerLogin from './components/worker/WorkerLogin'
+import Home from './components/customer/Home'
+import CustomerLayout from './components/customer/CustomerLayout'
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -20,6 +22,9 @@ const router = createBrowserRouter(
         <Route path='' element={<LandingPageCustomer/>} />
         <Route path='login' element={<CustomerLogin/>} />
         <Route path='sign-up' element={<CustomerSignUp/>} />
+        <Route path='auth/' element={<CustomerLayout/>}>
+          <Route path='home' element={<Home/>} />
+        </Route> 
       </Route>
       <Route path='worker/' >
         <Route path='' element={<LandingPageWorker/>} />

@@ -1,14 +1,16 @@
 import React from "react";
 import { LoginFormCustomer } from "../ui/LoginFormCustomer";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const CustomerLogin = () => {
+  const navigate = useNavigate();
   const handleSubmit = (data) => {
     console.log("Sending data:", data);
     axios
       .post("/api/v1/customer/login", data)
       .then(() => {
-        alert("Login successful! Welcome back.");
+        navigate("/customer/auth/home");
       })
       .catch((error) => {
         const message =

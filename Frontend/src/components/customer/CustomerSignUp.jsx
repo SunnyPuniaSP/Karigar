@@ -1,7 +1,9 @@
 import React from "react";
 import { SignUpFormCustomer } from "../ui/SignUpFormCustomer";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 const CustomerSignUp = () => {
+  const navigate = useNavigate();
   const handleSubmit = (data) => {
     console.log("Sending data:", data);
     axios.post("/api/v1/customer/register",data)
@@ -12,7 +14,7 @@ const CustomerSignUp = () => {
       };
       axios.post("/api/v1/customer/login", logindata)
       .then(() => {
-        alert("Registration successful! automatic login successful");
+        navigate("/customer/auth/home");
       })
       .catch((error) => {
         console.error("Login failed:", error);
