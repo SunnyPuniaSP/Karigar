@@ -238,40 +238,20 @@ const updateProfilePhoto= asyncHandler(async(req, res) => {
     )
 })
 
-const updateEmail = asyncHandler(async(req, res) => {
-    const {email} = req.body
+const updateCustomerDetails = asyncHandler(async(req, res) => {
+    const {fullName,email,address,phone} = req.body
 
-    if (!email) {
-        throw new ApiError(400, "Email is required")
+    if (!email || !fullName || !address || !phone) {
+        throw new ApiError(400, "all fields are required to update profile")
     }
 
     const customer = await Customer.findByIdAndUpdate(
         req.customer?._id,
         {
             $set: {
-                email: email
-            }
-        },
-        {new: true}
-        
-    ).select("-password -refreshToken");
-
-    return res
-    .status(200)
-    .json(new ApiResponse(200, customer, "Email updated successfully"))
-});
-
-const updatePhone = asyncHandler(async(req, res) => {
-    const {phone} = req.body
-
-    if (!phone) {
-        throw new ApiError(400, "Phone number is required")
-    }
-
-    const customer = await Customer.findByIdAndUpdate(
-        req.customer?._id,
-        {
-            $set: {
+                email: email,
+                fullName: fullName,
+                address: address,
                 phone: phone
             }
         },
@@ -281,56 +261,8 @@ const updatePhone = asyncHandler(async(req, res) => {
 
     return res
     .status(200)
-    .json(new ApiResponse(200, customer, "Phone number updated successfully"))
+    .json(new ApiResponse(200, customer, "Profile updated successfully"))
 });
-
-const updateAddress = asyncHandler(async(req, res) => {
-    const {address} = req.body
-
-    if (!address) {
-        throw new ApiError(400, "Address is required")
-    }
-
-    const customer = await Customer.findByIdAndUpdate(
-        req.customer?._id,
-        {
-            $set: {
-                address: address
-            }
-        },
-        {new: true}
-        
-    ).select("-password -refreshToken");
-
-    return res
-    .status(200)
-    .json(new ApiResponse(200, customer, "Address updated successfully"))
-});
-
-const updateFullName = asyncHandler(async(req, res) => {
-    const {fullName} = req.body
-
-    if (!fullName) {
-        throw new ApiError(400, "Full name is required")
-    }
-
-    const customer = await Customer.findByIdAndUpdate(
-        req.customer?._id,
-        {
-            $set: {
-                fullName: fullName
-            }
-        },
-        {new: true}
-        
-    ).select("-password -refreshToken");
-
-    return res
-    .status(200)
-    .json(new ApiResponse(200, customer, "Full name updated successfully"))
-});
-
-
 
 export {
     registerCustomer,
@@ -340,8 +272,5 @@ export {
     changeCurrentPassword,
     getCurrentCustomer,
     updateProfilePhoto,
-    updateEmail,
-    updatePhone,
-    updateAddress,
-    updateFullName
+    updateCustomerDetails
 }
