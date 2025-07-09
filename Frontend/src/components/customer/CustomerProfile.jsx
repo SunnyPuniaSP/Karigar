@@ -1,0 +1,121 @@
+import React, { useState } from "react";
+import { useSelector } from "react-redux";
+import { Button } from "../ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+  SheetFooter,
+} from "@/components/ui/sheet";
+import { Pencil } from "lucide-react";
+
+const CustomerProfile = () => {
+  const { fullName, email, phone, address, profilePhoto } = useSelector((state) => state);
+
+  const [formData, setFormData] = useState({ fullName, email, phone, address });
+
+  const handleChange = (e) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const handleSave = () => {
+    console.log("Saving profile:", formData);
+  };
+
+  const defaultPhoto = "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3";
+
+  return (
+    <div className="max-w-6xl mx-auto px-4 py-10 flex  gap-10">
+      <div className="w-[320px] bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg rounded-3xl p-6 text-center relative">
+        <div className="relative w-36 h-36 mx-auto mb-4">
+          <img
+            src={profilePhoto ? profilePhoto : defaultPhoto}
+            className="w-full h-full rounded-full object-cover border-4 border-white shadow-md"
+            alt="Profile"
+          />
+          <button className="absolute bottom-1 right-1 bg-white p-1 rounded-full shadow">
+            <Pencil className="h-4 w-4 text-blue-600" />
+          </button>
+        </div>
+        <h2 className="text-xl font-bold text-gray-800">{fullName}</h2>
+        <p className="text-sm text-gray-500">{email}</p>
+        <p className="text-sm text-gray-500">{phone}</p>
+        <p className="text-sm text-gray-500">{address}</p>
+      </div>
+
+      {/* Right Info Panel */}
+      <div className="flex-1 bg-white shadow-md rounded-2xl p-6 space-y-6">
+        <div className="flex justify-between items-center border-b pb-4">
+          <h3 className="text-2xl font-semibold text-gray-800">Profile Info</h3>
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="default">Edit Profile</Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[400px] sm:w-[500px] p-5">
+              <SheetHeader>
+                <SheetTitle className="text-xl">Update Your Details</SheetTitle>
+              </SheetHeader>
+
+              <div className="mt-6 flex flex-col gap-5">
+                {["fullName", "email", "phone", "address"].map((field) => (
+                  <div key={field}>
+                    <label className="block text-sm font-medium capitalize text-gray-600 mb-1">
+                      {field === "fullName" ? "Full Name" : field}
+                    </label>
+                    {field === "address" ? (
+                      <textarea
+                        name={field}
+                        value={formData[field]}
+                        onChange={handleChange}
+                        rows={3}
+                        className="w-full border rounded-md p-2 bg-white"
+                      />
+                    ) : (
+                      <input
+                        name={field}
+                        value={formData[field]}
+                        onChange={handleChange}
+                        className="w-full border rounded-md p-2 bg-white"
+                      />
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              <SheetFooter className="mt-6 flex-col gap-2">
+                <Button variant="outline">Cancel</Button>
+                <Button onClick={handleSave}>Save</Button>
+              </SheetFooter>
+            </SheetContent>
+          </Sheet>
+        </div>
+
+        {/* Display Section */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+          <div>
+            <label className="text-sm text-gray-500">Full Name</label>
+            <div className="text-base font-medium text-gray-800">{fullName}</div>
+          </div>
+          <div>
+            <label className="text-sm text-gray-500">Email</label>
+            <div className="text-base font-medium text-gray-800">{email}</div>
+          </div>
+          <div>
+            <label className="text-sm text-gray-500">Phone</label>
+            <div className="text-base font-medium text-gray-800">{phone}</div>
+          </div>
+          <div>
+            <label className="text-sm text-gray-500">Address</label>
+            <div className="text-base font-medium text-gray-800 whitespace-pre-line">
+              {address}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default CustomerProfile;
