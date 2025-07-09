@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Button } from "../ui/button";
 import {
   Sheet,
@@ -11,35 +11,65 @@ import {
 } from "@/components/ui/sheet";
 import { Pencil } from "lucide-react";
 import axios from "axios";
-import { useDispatch } from "react-redux";
 import { setCustomerDetails } from "@/store/customerAuthSlice";
 
 const CustomerProfile = () => {
-    
-  const dispatch=useDispatch();
-  const { fullName, email, phone, address, profilePhoto } = useSelector((state) => state);
+  const dispatch = useDispatch();
+  const { fullName, email, phone, address, profilePhoto } = useSelector(
+    (state) => state
+  );
 
   const [formData, setFormData] = useState({ fullName, email, phone, address });
+  const [isEditingPhoto, setIsEditingPhoto] = useState(false);
+  const [selectedFile, setSelectedFile] = useState(null);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSave = () => {
-  axios.post("/api/v1/customer/update-customer-details", formData)
-    .then((res) => {
-      dispatch(setCustomerDetails(res.data.data));
-    })
-    .catch(() => {
-      alert("Something went wrong. Unable to update your details.");
-    });
-};
+    axios
+      .post("/api/v1/customer/update-customer-details", formData)
+      .then((res) => {
+        dispatch(setCustomerDetails(res.data.data));
+      })
+      .catch(() => {
+        alert("Something went wrong. Unable to update your details.");
+      });
+  };
+
+  const handlePhotoEdit = () => {
+    setIsEditingPhoto(true);
+  };
 
 
-  const defaultPhoto = "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3";
+  const handlePhotoSave = async () => {
+    if (!selectedFile) {
+      setIsEditingPhoto(false);
+      setSelectedFile(null);
+      return;
+    }
+    const formData = new FormData();
+    formData.append("profilePhoto", selectedFile);
+    axios
+      .patch("/api/v1/customer/update-profilePhoto", formData)
+      .then((res) => {
+        dispatch(setCustomerDetails(res.data.data));
+      })
+      .catch(() => {
+        alert("Something went wrong. Unable to update your profile picture.");
+      })
+      .finally(() => {
+        setIsEditingPhoto(false);
+        setSelectedFile(null);
+      });
+  };
+
+  const defaultPhoto =
+    "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3";
 
   return (
-    <div className="max-w-6xl mx-auto px-4 py-10 flex  gap-10">
+    <div className="max-w-6xl mx-auto px-4 py-10 flex gap-10">
       <div className="w-[320px] bg-gradient-to-br from-blue-50 to-blue-100 shadow-lg rounded-3xl p-6 text-center relative">
         <div className="relative w-36 h-36 mx-auto mb-4">
           <img
@@ -47,10 +77,39 @@ const CustomerProfile = () => {
             className="w-full h-full rounded-full object-cover border-4 border-white shadow-md"
             alt="Profile"
           />
-          <button className="absolute bottom-1 right-1 bg-white p-1 rounded-full shadow">
+          <button
+            onClick={handlePhotoEdit}
+            className="absolute bottom-1 right-1 bg-white p-1 rounded-full shadow"
+          >
             <Pencil className="h-4 w-4 text-blue-600" />
           </button>
         </div>
+
+        {isEditingPhoto && (
+          <div className="flex flex-col items-center gap-2 mt-2">
+            <div className="flex items-center gap-4 mt-4">
+              <label
+                htmlFor="profilePhotoInput"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer text-sm font-medium shadow">
+                Choose Image
+              </label>
+              <input
+                type="file"
+                id="profilePhotoInput"
+                accept="image/*"
+                onChange={(e) => setSelectedFile(e.target.files[0])}
+                className="hidden" // Hide the ugly input
+              />
+              {selectedFile && (
+                <span className="text-sm text-gray-700">
+                  {selectedFile.name}
+                </span>
+              )}
+            </div>
+            <Button onClick={handlePhotoSave}>Save Photo</Button>
+          </div>
+        )}
+
         <h2 className="text-xl font-bold text-gray-800">{fullName}</h2>
         <p className="text-sm text-gray-500">{email}</p>
         <p className="text-sm text-gray-500">{phone}</p>
@@ -108,7 +167,9 @@ const CustomerProfile = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="text-sm text-gray-500">Full Name</label>
-            <div className="text-base font-medium text-gray-800">{fullName}</div>
+            <div className="text-base font-medium text-gray-800">
+              {fullName}
+            </div>
           </div>
           <div>
             <label className="text-sm text-gray-500">Email</label>
