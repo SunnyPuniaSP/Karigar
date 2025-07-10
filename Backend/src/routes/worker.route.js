@@ -7,11 +7,8 @@ import {
     changeCurrentPassword,
     getCurrentWorker,
     updateProfilePhoto,
-    updateEmail,
-    updatePhone,
-    updateAddress,
-    updateFullName,
-    getWorkerDetails
+    getWorkerDetails,
+    updateWorkerDetails
 } from "../controllers/worker.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import verifyJWT from "../middlewares/workerAuth.middleware.js";
@@ -28,10 +25,7 @@ router.route("/refresh-token").post(refreshAccessToken)
 router.route("/change-password").post(verifyJWT, changeCurrentPassword)
 router.route("/current-user").get(verifyJWT, getCurrentWorker)
 router.route("/update-profilePhoto").patch(verifyJWT, upload.single("profilePhoto"), updateProfilePhoto)
-router.route("/update-email").patch(verifyJWT, updateEmail)
-router.route("/update-phone").patch(verifyJWT, updatePhone)
-router.route("/update-address").patch(verifyJWT, updateAddress)
-router.route("/update-fullName").patch(verifyJWT, updateFullName)
+router.route("/update-worker-details").post(verifyJWT, updateWorkerDetails)
 router.route("/:workerId/get-details").get( getWorkerDetails)
 
 export default router

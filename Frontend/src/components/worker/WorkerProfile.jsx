@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/sheet";
 import { Pencil } from "lucide-react";
 import axios from "axios";
-import { setCustomerDetails } from "../../store/customerAuthSlice";
+import { setWorkerDetails } from "../../store/workerAuthSlice";
 
-const CustomerProfile = () => {
+const WorkerProfile = () => {
   const dispatch = useDispatch();
   const { fullName, email, phone, address, profilePhoto } = useSelector(
-    (state) => state.customerAuth
+    (state) => state.workerAuth
   );
 
   const [formData, setFormData] = useState({ fullName, email, phone, address });
@@ -29,9 +29,9 @@ const CustomerProfile = () => {
 
   const handleSave = () => {
     axios
-      .post("/api/v1/customer/update-customer-details", formData)
+      .post("/api/v1/worker/update-worker-details", formData)
       .then((res) => {
-        dispatch(setCustomerDetails(res.data.data));
+        dispatch(setWorkerDetails(res.data.data));
       })
       .catch(() => {
         alert("Something went wrong. Unable to update your details.");
@@ -52,9 +52,10 @@ const CustomerProfile = () => {
     const formData = new FormData();
     formData.append("profilePhoto", selectedFile);
     axios
-      .patch("/api/v1/customer/update-profilePhoto", formData)
+      .patch("/api/v1/worker/update-profilePhoto", formData)
       .then((res) => {
-        dispatch(setCustomerDetails(res.data.data));
+        console.log("inside then after photo update sucessfully in backend")
+        dispatch(setWorkerDetails(res.data.data));
       })
       .catch(() => {
         alert("Something went wrong. Unable to update your profile picture.");
@@ -191,4 +192,4 @@ const CustomerProfile = () => {
   );
 };
 
-export default CustomerProfile;
+export default WorkerProfile;

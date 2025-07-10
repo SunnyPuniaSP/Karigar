@@ -274,92 +274,30 @@ const updateProfilePhoto = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, worker, "Profile Photo updated successfully"));
 });
 
-const updateEmail = asyncHandler(async (req, res) => {
-  const { email } = req.body;
+const updateWorkerDetails = asyncHandler(async(req, res) => {
+    const {fullName,email,address,phone} = req.body
 
-  if (!email) {
-    throw new ApiError(400, "Email is required");
-  }
+    if (!email || !fullName || !address || !phone) {
+        throw new ApiError(400, "all fields are required to update profile")
+    }
 
-  const worker = await Worker.findByIdAndUpdate(
-    req.worker?._id,
-    {
-      $set: {
-        email: email,
-      },
-    },
-    { new: true }
-  ).select("-password -refreshToken");
+    const worker = await Worker.findByIdAndUpdate(
+        req.worker?._id,
+        {
+            $set: {
+                email: email,
+                fullName: fullName,
+                address: address,
+                phone: phone
+            }
+        },
+        {new: true}
+        
+    ).select("-password -refreshToken");
 
-  return res
+    return res
     .status(200)
-    .json(new ApiResponse(200, worker, "Email updated successfully"));
-});
-
-const updatePhone = asyncHandler(async (req, res) => {
-  const { phone } = req.body;
-
-  if (!phone) {
-    throw new ApiError(400, "Phone number is required");
-  }
-
-  const worker = await Worker.findByIdAndUpdate(
-    req.worker?._id,
-    {
-      $set: {
-        phone: phone,
-      },
-    },
-    { new: true }
-  ).select("-password -refreshToken");
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, worker, "Phone number updated successfully"));
-});
-
-const updateAddress = asyncHandler(async (req, res) => {
-  const { address } = req.body;
-
-  if (!address) {
-    throw new ApiError(400, "Address is required");
-  }
-
-  const worker = await Worker.findByIdAndUpdate(
-    req.worker?._id,
-    {
-      $set: {
-        address: address,
-      },
-    },
-    { new: true }
-  ).select("-password -refreshToken");
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, worker, "Address updated successfully"));
-});
-
-const updateFullName = asyncHandler(async (req, res) => {
-  const { fullName } = req.body;
-
-  if (!fullName) {
-    throw new ApiError(400, "Full name is required");
-  }
-
-  const worker = await Worker.findByIdAndUpdate(
-    req.worker?._id,
-    {
-      $set: {
-        fullName: fullName,
-      },
-    },
-    { new: true }
-  ).select("-password -refreshToken");
-
-  return res
-    .status(200)
-    .json(new ApiResponse(200, worker, "Full name updated successfully"));
+    .json(new ApiResponse(200, worker, "Profile updated successfully"))
 });
 
 const getWorkerDetails=asyncHandler(async(req, res)=>{
@@ -384,9 +322,6 @@ export {
   changeCurrentPassword,
   getCurrentWorker,
   updateProfilePhoto,
-  updateEmail,
-  updatePhone,
-  updateAddress,
-  updateFullName,
+  updateWorkerDetails,
   getWorkerDetails
 };

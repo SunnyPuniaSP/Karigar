@@ -24,6 +24,9 @@ import CustomerProfile from "./components/customer/CustomerProfile";
 import SelectCategory from "./components/customer/SelectCategory";
 import ServiceRequestForm from "./components/customer/ServiceRequestForm";
 import ServiceRequest from "./components/customer/ServiceRequest";
+import WorkerLayout from "./components/worker/WorkerLayout";
+import WorkerHome from "./components/worker/Home";
+import WorkerProfile from "./components/worker/WorkerProfile";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -39,14 +42,16 @@ const router = createBrowserRouter(
           <Route path="select-category" element={<SelectCategory/>}/>
           <Route path="select-category/:category/more-info" element={<ServiceRequestForm/>}/>
           <Route path="service-request/:serviceRequestId" element={<ServiceRequest/>}/>
-
-
         </Route>
       </Route>
       <Route path="worker/">
         <Route path="" element={<LandingPageWorker />} />
         <Route path="login" element={<WorkerLogin />} />
         <Route path="sign-up" element={<WorkerSignUp />} />
+        <Route path="auth/" element={<WorkerLayout />}>
+          <Route path="home" element={<WorkerHome />} />
+          <Route path="profile" element={<WorkerProfile />} />
+        </Route>
       </Route>
     </Route>
   )

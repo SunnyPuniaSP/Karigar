@@ -3,7 +3,7 @@ import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { Button } from '../ui/button';
 import {useDispatch} from "react-redux"
-import { clearCustomerDetails } from '../../store/customerAuthSlice';
+import { clearWorkerDetails } from '../../store/workerAuthSlice';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
 
@@ -11,10 +11,10 @@ import { useSelector } from 'react-redux';
 const Header = () => {
   const dispatch=useDispatch();
   const navigate=useNavigate();
-  const profilePhoto=useSelector(state=>state.customerAuth.profilePhoto);
+  const profilePhoto=useSelector(state=>state.workerAuth.profilePhoto);
   const logout=()=>{
-    dispatch(clearCustomerDetails());
-    navigate("/customer")
+    dispatch(clearWorkerDetails());
+    navigate("/worker")
   }
   return (
     <nav>
@@ -25,18 +25,18 @@ const Header = () => {
         <div >
           <ul className="flex items-center gap-10">
             <li>
-              <NavLink to="/customer/auth/home">Home</NavLink>
+              <NavLink to="/worker/auth/home">Home</NavLink>
             </li>
             <li>
-              <NavLink to="/customer/auth/my-requests">My Requests</NavLink>
+              <NavLink to="/worker/auth/my-requests">My Requests</NavLink>
             </li>
             <li>
-              <NavLink to="/customer/auth/current-request">Live Request</NavLink>
+              <NavLink to="/worker/auth/current-request">Live Request</NavLink>
             </li>
           </ul>
         </div>
         <div className='flex gap-5'>
-          <button onClick={()=>navigate("/customer/auth/profile")} className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-300">
+          <button onClick={()=>navigate("/worker/auth/profile")} className="w-12 h-12 rounded-full overflow-hidden border-2 border-gray-300">
             <img
               src={profilePhoto || "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"} 
               alt="Profile"

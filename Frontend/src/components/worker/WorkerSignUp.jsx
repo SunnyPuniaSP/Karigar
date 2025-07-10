@@ -1,7 +1,12 @@
 import React from "react";
 import { SignUpFormWorker } from "../ui/SignUpFormWorker";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setWorkerDetails } from "../../store/workerAuthSlice";
 const WorkerSignUp = () => {
+  const dispatch=useDispatch();
+  const navigate=useNavigate();
   const handleSubmit = (data) => {
       console.log("Sending data:", data);
       axios.post("/api/v1/worker/register",data)
@@ -11,8 +16,13 @@ const WorkerSignUp = () => {
           password: data.password
         }
         axios.post("/api/v1/worker/login", logindata)
-        .then(() => {
-          alert("Registration successful! automatic login sucessfull");
+        .then((res) => {
+          
+
+          const { data } = res;
+          console.log("inside login then after worker registration", data.data.worker)
+                          dispatch(setWorkerDetails(data.data.worker));
+                          navigate("/worker/auth/home");
         })
         .catch((error) => {
           console.error("Login failed:", error);

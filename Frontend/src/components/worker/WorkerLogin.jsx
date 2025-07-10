@@ -1,13 +1,20 @@
 import React from "react";
 import { LoginFormWorker } from "../ui/LoginFormWorker";
 import axios from "axios";
-const workerLogin = () => {
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setWorkerDetails } from "../../store/workerAuthSlice"
+const WorkerLogin = () => {
+  const navigate=useNavigate();
+  const dispatch=useDispatch();
   const handleSubmit = (data) => {
     console.log("Sending data:", data);
     axios
       .post("/api/v1/worker/login", data)
-      .then(() => {
-        alert("Login successful! Welcome back.");
+      .then((res) => {
+        const { data } = res;
+                dispatch(setWorkerDetails(data.data.worker));
+                navigate("/worker/auth/home");
       })
       .catch((error) => {
         const errorMsg =
@@ -25,4 +32,4 @@ const workerLogin = () => {
   );
 };
 
-export default workerLogin;
+export default WorkerLogin;
