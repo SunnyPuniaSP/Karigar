@@ -362,6 +362,20 @@ const updateFullName = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, worker, "Full name updated successfully"));
 });
 
+const getWorkerDetails=asyncHandler(async(req, res)=>{
+    const {workerId}=req.params;
+    
+    const worker=await Worker.findById(workerId).select("-password -refreshToken -isOnline -suspendedUntil -walletBalance -ratingsCount -ratingsPoints");
+
+    if(!worker){
+        throw new ApiError(400, "Worker not found");
+    }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, worker, "Full name updated successfully"));
+});
+
 export {
   registerWorker,
   loginWorker,
@@ -374,4 +388,5 @@ export {
   updatePhone,
   updateAddress,
   updateFullName,
+  getWorkerDetails
 };

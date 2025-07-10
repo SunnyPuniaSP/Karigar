@@ -23,6 +23,7 @@ import { Provider } from "react-redux";
 import CustomerProfile from "./components/customer/CustomerProfile";
 import SelectCategory from "./components/customer/SelectCategory";
 import ServiceRequestForm from "./components/customer/ServiceRequestForm";
+import ServiceRequest from "./components/customer/ServiceRequest";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -37,6 +38,8 @@ const router = createBrowserRouter(
           <Route path="profile" element={<CustomerProfile />} />
           <Route path="select-category" element={<SelectCategory/>}/>
           <Route path="select-category/:category/more-info" element={<ServiceRequestForm/>}/>
+          <Route path="service-request/:serviceRequestId" element={<ServiceRequest/>}/>
+
 
         </Route>
       </Route>

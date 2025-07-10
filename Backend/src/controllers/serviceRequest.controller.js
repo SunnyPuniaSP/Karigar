@@ -63,6 +63,24 @@ const createServiceRequest = asyncHandler(async (req, res) => {
     );
 });
 
+const getServiceRequestStatus=asyncHandler(async(req, res)=>{
+  const {serviceRequestId}=req.params;
+  const serviceRequest=await ServiceRequest.findById(serviceRequestId).select("-searchExpiresAt -visitingCharge");
+  if(!serviceRequest){
+    throw new ApiError(404, "Service request not found");
+  }
+
+   return res
+    .status(201)
+    .json(
+      new ApiResponse(
+        201,
+        serviceRequest,
+        "Service status fetched successfully"
+      )
+    );
+});
+
 const findRequests = asyncHandler(async (req, res) => {
   const workerId = req.worker?._id;
 
@@ -911,4 +929,5 @@ export {
   cancelledBySystemAsUnattended,
   rateWorker,
   reportWorker,
+  getServiceRequestStatus
 };

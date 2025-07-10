@@ -123,10 +123,6 @@ currentLocation: {
       type: Boolean,
       default: false,
     },
-    rating: {
-      type: Number,
-      default: 0,
-    },
     suspendedUntil: {
       type: Date,
       default: null,

@@ -14,7 +14,8 @@ import {
     cancelBySystemAsNotConnected,
     cancelledBySystemAsUnattended,
     rateWorker,
-    reportWorker
+    reportWorker,
+    getServiceRequestStatus
 } from "../controllers/serviceRequest.controller.js";
 import verifyJWTWorker from "../middlewares/workerAuth.middleware.js";
 import verifyJWTCustomer from "../middlewares/customerAuth.middleware.js";
@@ -24,6 +25,7 @@ const router = Router();
 
 router.route("/:category/create").post(verifyJWTCustomer, upload.single("audioNote") , createServiceRequest);
 router.route("/find-requests").get(verifyJWTWorker, findRequests);
+router.route("/:serviceRequestId/status").get( getServiceRequestStatus);
 router.route("/:serviceRequestId/accept").post(verifyJWTWorker, acceptRequest);
 router.route("/:serviceRequestId/set-quote-amount").patch(verifyJWTWorker, setQuoteAmount);
 router.route("/:serviceRequestId/accept-repair-quote").patch(verifyJWTCustomer, acceptRepairQuote);

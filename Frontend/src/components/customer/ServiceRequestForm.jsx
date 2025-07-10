@@ -1,8 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 const ServiceRequestForm = () => {
+  const navigate=useNavigate();
   const {category}=useParams();
   
 
@@ -71,8 +73,8 @@ const ServiceRequestForm = () => {
     formData.append("longitude", locationCoords.lon);
 
     axios.post(`/api/v1/service-request/${category}/create`,formData)
-    .then(()=>{
-        alert("requested created successfully")
+    .then((res)=>{
+        navigate(`/customer/auth/service-request/${res.data.data._id}`)
     })
     .catch(()=>{
         alert("something went wrong request not created")
