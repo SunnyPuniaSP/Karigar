@@ -96,7 +96,6 @@ const findRequests = asyncHandler(async (req, res) => {
   const [workerLng, workerLat] = worker.currentLocation.coordinates;
   const workingCategories = worker.workingCategory;
 
-  // Find all open requests in range and matching category
   const requests = await ServiceRequest.find({
     workerId: null,
     category: { $in: workingCategories },

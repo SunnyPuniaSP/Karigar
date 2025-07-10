@@ -27,7 +27,6 @@ const SearchingWorker = () => {
         .then((res)=>{
             const data = res.data.data;
             setRequestData(data);
-
             if (data.orderStatus === "connected" || data.orderStatus === "onway") {
                 setWorkerAccepted(true);
                 setLoading(false);

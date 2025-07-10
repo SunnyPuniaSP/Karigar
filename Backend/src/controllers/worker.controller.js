@@ -359,6 +359,32 @@ const updateWorkerCurrentLocation=asyncHandler(async(req,res)=>{
 
 })
 
+const temporaryBlockCustomer=asyncHandler(async(req,res)=>{
+  const {customerId}=req.body
+  
+  if(!customerId){
+    throw new ApiError(400,"Customer id is required to temporary block customer");
+  }
+
+  const blockDurationInMs = 60 * 60 * 1000; // 1 hour
+  const blockedUntil = new Date(Date.now() + blockDurationInMs);
+
+  const worker=await Worker.findByIdAndUpdate(req.worker._id, {
+    $push: {
+      temporaryBlockedCustomers: {
+        customerId,
+        blockedUntil
+      }
+    }
+  },{new:true}).select("-password -refreshToken");
+
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, worker, "Worker current location updated successfully"))
+
+})
+
 export {
   registerWorker,
   loginWorker,
@@ -370,5 +396,6 @@ export {
   updateWorkerDetails,
   getWorkerDetails,
   toggleIsOnline,
-  updateWorkerCurrentLocation
+  updateWorkerCurrentLocation,
+  temporaryBlockCustomer
 };

@@ -66,27 +66,27 @@ const workerSchema = new mongoose.Schema(
       required: true,
     },
     startLocation: {
-  type: {
+      type: {
         type: String,
         enum: ["Point"],
         default: undefined,
       },
       coordinates: {
         type: [Number],
-        default: undefined, 
+        default: undefined,
       },
-},
-currentLocation: {
-  type: {
+    },
+    currentLocation: {
+      type: {
         type: String,
         enum: ["Point"],
         default: undefined,
       },
       coordinates: {
         type: [Number],
-        default: undefined, 
+        default: undefined,
       },
-},//ud.....................
+    }, //ud.....................
     profilePhoto: {
       type: String, // URL to image
       default: "",
@@ -103,9 +103,9 @@ currentLocation: {
       type: Number,
       default: 0,
     },
-    rating:{
-      type:Number,
-      default:null,
+    rating: {
+      type: Number,
+      default: null,
     },
     ratingsCount: {
       type: Number,
@@ -114,7 +114,20 @@ currentLocation: {
     ratingsPoints: {
       type: Number,
       default: 0,
-    }
+    },
+    temporaryBlockedCustomers: [
+      {
+        customerId: {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Customer",
+          required: true,
+        },
+        blockedUntil: {
+          type: Date,
+          required: true,
+        },
+      },
+    ],
   },
   { timestamps: true }
 );

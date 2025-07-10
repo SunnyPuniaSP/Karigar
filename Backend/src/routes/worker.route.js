@@ -10,7 +10,8 @@ import {
     getWorkerDetails,
     updateWorkerDetails,
     toggleIsOnline,
-    updateWorkerCurrentLocation
+    updateWorkerCurrentLocation,
+    temporaryBlockCustomer
 } from "../controllers/worker.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import verifyJWT from "../middlewares/workerAuth.middleware.js";
@@ -31,5 +32,6 @@ router.route("/update-worker-details").post(verifyJWT, updateWorkerDetails)
 router.route("/:workerId/get-details").get( getWorkerDetails)
 router.route("/toggle-isOnline").patch( verifyJWT, toggleIsOnline)
 router.route("/update-current-location").patch( verifyJWT, updateWorkerCurrentLocation)
+router.route("/temporary-blockCustomer").patch( verifyJWT, temporaryBlockCustomer)
 
 export default router
