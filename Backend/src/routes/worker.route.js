@@ -8,7 +8,8 @@ import {
     getCurrentWorker,
     updateProfilePhoto,
     getWorkerDetails,
-    updateWorkerDetails
+    updateWorkerDetails,
+    toggleIsOnline
 } from "../controllers/worker.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import verifyJWT from "../middlewares/workerAuth.middleware.js";
@@ -27,5 +28,6 @@ router.route("/current-user").get(verifyJWT, getCurrentWorker)
 router.route("/update-profilePhoto").patch(verifyJWT, upload.single("profilePhoto"), updateProfilePhoto)
 router.route("/update-worker-details").post(verifyJWT, updateWorkerDetails)
 router.route("/:workerId/get-details").get( getWorkerDetails)
+router.route("/toggle-isOnline").patch( verifyJWT, toggleIsOnline)
 
 export default router

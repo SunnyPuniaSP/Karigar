@@ -28,10 +28,10 @@ const Header = () => {
               <NavLink to="/worker/auth/home">Home</NavLink>
             </li>
             <li>
-              <NavLink to="/worker/auth/my-requests">My Requests</NavLink>
+              <NavLink to="/worker/auth/my-requests">My Jobs</NavLink>
             </li>
             <li>
-              <NavLink to="/worker/auth/current-request">Live Request</NavLink>
+              <NavLink to="/worker/auth/current-request">Wallet</NavLink>
             </li>
           </ul>
         </div>

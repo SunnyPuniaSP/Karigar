@@ -1,103 +1,66 @@
 import React from "react";
-import { useDispatch, useSelector } from "react-redux";
-import { clearWorkerDetails } from "../../store/workerAuthSlice";
-import { useNavigate } from "react-router-dom";
+import customerhomehero from "../../assets/customerhomehero.png";
+import { Button } from "../ui/button";
+import { Switch } from "@/components/ui/switch"
 import axios from "axios";
-import { LogOut } from "lucide-react";
+import { useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
+import { setWorkerDetails } from "../../store/workerAuthSlice";
 
-const WorkerHome = () => {
-  const worker = useSelector((state) => state.workerAuth);
-  const dispatch = useDispatch();
-  const navigate = useNavigate();
+const Home = () => {
+    const dispatch=useDispatch();
+  const {fullName, isOnline}=useSelector((state)=>state.workerAuth);
 
-  const handleToggleStatus = async () => {
-    try {
-      const res = await axios.patch("/api/v1/worker/toggle-status");
-      alert(`You are now ${res.data.data.isOnline ? "Online" : "Offline"}`);
-      window.location.reload(); // or update redux state directly
-    } catch (err) {
-      console.error("Failed to toggle status", err);
-      alert("Something went wrong");
-    }
-  };
-
-  const handleLogout = () => {
-    dispatch(clearWorkerDetails());
-    navigate("/worker/login");
+  const toggleStatus = () => {
+    axios.patch("/api/v1/worker/toggle-isOnline")
+    .then((res)=>{
+        dispatch(setWorkerDetails(res.data.data));
+    })
+    .catch(()=>{
+        alert("something went wrong while toggle your status at backend");
+    })
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-blue-100 py-10 px-4">
-      <div className="max-w-2xl mx-auto bg-white shadow-2xl rounded-3xl p-8 relative">
-        {/* Logout button */}
-        <button
-          onClick={handleLogout}
-          className="absolute top-4 right-4 text-red-500 hover:text-red-700 flex items-center gap-1"
-        >
-          <LogOut className="w-4 h-4" />
-          Logout
-        </button>
-
-        {/* Profile Image */}
-        <div className="flex flex-col items-center text-center">
-          <div className="relative mb-4">
-            <img
-              src={worker.profilePhoto || "https://via.placeholder.com/120"}
-              alt="Profile"
-              className="h-28 w-28 rounded-full border-4 border-blue-500 shadow-lg"
-            />
-            <span
-              className={`absolute bottom-0 right-0 h-5 w-5 rounded-full ring-2 ring-white ${
-                worker.isOnline ? "bg-green-500" : "bg-gray-400"
-              }`}
-            ></span>
-          </div>
-          <h2 className="text-2xl font-bold text-gray-800">{worker.fullName}</h2>
-          <p className="text-sm text-gray-500">{worker.email}</p>
-          <p className="text-sm text-gray-500">{worker.phone}</p>
-        </div>
-
-        {/* Status Toggle */}
-        <div className="text-center mt-6">
-          <p className="mb-2 font-medium text-gray-700">Your Status:</p>
-          <button
-            onClick={handleToggleStatus}
-            className={`px-6 py-2 text-white font-semibold rounded-full transition duration-300 ${
-              worker.isOnline ? "bg-green-600 hover:bg-green-700" : "bg-gray-500 hover:bg-gray-600"
-            }`}
-          >
-            {worker.isOnline ? "Online ✅" : "Offline 🚫"}
-          </button>
-        </div>
-
-        {/* Categories */}
-        <div className="mt-8">
-          <h3 className="text-lg font-semibold text-gray-700 mb-2">Categories You Serve</h3>
-          <div className="flex flex-wrap gap-2">
-            {worker.workingCategory.map((cat, idx) => (
-              <span
-                key={idx}
-                className="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-sm shadow"
-              >
-                {cat}
-              </span>
-            ))}
-          </div>
-        </div>
-
-        {/* Footer Info */}
-        <div className="mt-8 text-sm text-gray-500 text-center border-t pt-4">
-          <p>
-            Verified:{" "}
-            <span className={worker.isVerified ? "text-green-600" : "text-red-600"}>
-              {worker.isVerified ? "Yes ✅" : "No ❌"}
-            </span>
+    <div>
+      <div className="flex justify-center items-center p-5 gap-5">
+        <div className="w-1/2 flex flex-col gap-5">
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+            Welcome back, <span className="text-blue-600">{fullName}</span>!
+          </h1>
+          <p className="text-lg text-gray-700 mb-8">
+            Get matched with nearby customers and start earning by providing your expert services—flexible, rewarding, and reliable.
           </p>
-          <p className="mt-1">Experience: {worker.yearOfExperience || "0"} years</p>
+
+          {/* Status Toggle */}
+          <div className="flex items-center gap-4 mb-2">
+            <span className="text-base font-medium">Status:</span>
+            <div
+              className={`relative w-14 h-8 transition-colors duration-300 rounded-full cursor-pointer ${
+                isOnline ? "bg-green-500" : "bg-gray-300"
+              }`}
+              onClick={toggleStatus}
+              tabIndex={0}
+            >
+              <span
+                className={`absolute top-1 left-1 w-6 h-6 bg-white rounded-full shadow transition-transform duration-300 ${
+                  isOnline ? "translate-x-6" : ""
+                }`}
+              ></span>
+            </div>
+            <span className={`ml-2 font-semibold ${isOnline ? "text-green-600" : "text-gray-500"}`}>
+              {isOnline ? "Online" : "Offline"}
+            </span>
+          </div>
+
+          
+        </div>
+        <div className="w-1/2">
+          <img className="rounded-xl" src={customerhomehero} alt="customerhomehero" />
         </div>
       </div>
     </div>
   );
 };
 
-export default WorkerHome;
+export default Home;

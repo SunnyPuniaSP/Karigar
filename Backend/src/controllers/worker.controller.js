@@ -303,7 +303,7 @@ const updateWorkerDetails = asyncHandler(async(req, res) => {
 const getWorkerDetails=asyncHandler(async(req, res)=>{
     const {workerId}=req.params;
     
-    const worker=await Worker.findById(workerId).select("-password -refreshToken -isOnline -suspendedUntil -walletBalance -ratingsCount -ratingsPoints");
+    const worker=await Worker.findById(workerId).select("-password -refreshToken -suspendedUntil -walletBalance -ratingsCount -ratingsPoints");
 
     if(!worker){
         throw new ApiError(400, "Worker not found");
@@ -311,7 +311,22 @@ const getWorkerDetails=asyncHandler(async(req, res)=>{
 
     return res
     .status(200)
-    .json(new ApiResponse(200, worker, "Full name updated successfully"));
+    .json(new ApiResponse(200, worker, "Worker details fetched successfully"));
+});
+
+const toggleIsOnline=asyncHandler(async(req,res)=>{
+    const worker=await Worker.findById(req.worker._id);
+    if(!worker){
+      throw new ApiError(400, "Worker not found");
+    }
+    worker.isOnline=!worker.isOnline;
+    await worker.save({ validateBeforeSave: false });
+
+    const updatedWorker=await Worker.findById(worker._id).select("-password -refreshToken -suspendedUntil -walletBalance -ratingsCount -ratingsPoints")
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, updatedWorker, "IsOnline status toggle successfully"));
 });
 
 export {
@@ -323,5 +338,6 @@ export {
   getCurrentWorker,
   updateProfilePhoto,
   updateWorkerDetails,
-  getWorkerDetails
+  getWorkerDetails,
+  toggleIsOnline
 };
