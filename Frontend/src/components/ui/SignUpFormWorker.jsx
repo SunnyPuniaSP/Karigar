@@ -8,13 +8,13 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { NavLink } from "react-router-dom";
 
 const categories = [
-  "plumber",
-  "electrician",
-  "tv",
-  "fridge",
-  "ac",
-  "washing machine",
-  "laptop",
+  "Plumber",
+  "Electrician",
+  "TV",
+  "Fridge",
+  "AC",
+  "Washing-Machine",
+  "Laptop",
 ];
 
 export function SignUpFormWorker({ className, handleSubmit, ...props }) {
