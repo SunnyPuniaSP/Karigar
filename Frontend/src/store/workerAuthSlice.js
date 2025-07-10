@@ -9,6 +9,7 @@ const initialState = {
     isOnline:false,
     workingCategory:[],
     isVerified:false,
+    yearOfExperience:""
 }
 
 const workerAuthSlice = createSlice({
@@ -16,7 +17,7 @@ const workerAuthSlice = createSlice({
     initialState,
     reducers: {
         setWorkerDetails: (state, action) => {
-            const { fullName, email, phone, address, profilePhoto, isOnline, workingCategory, isVerified} = action.payload;
+            const { fullName, email, phone, address, profilePhoto, isOnline, workingCategory, isVerified, yearOfExperience} = action.payload;
             state.fullName = fullName;
             state.email = email;
             state.phone = phone;
@@ -25,6 +26,7 @@ const workerAuthSlice = createSlice({
             state.isOnline=isOnline;
             state.workingCategory=workingCategory;
             state.isVerified=isVerified;
+            state.yearOfExperience=yearOfExperience;
         },
         clearWorkerDetails: (state) => {
             state.fullName = "";

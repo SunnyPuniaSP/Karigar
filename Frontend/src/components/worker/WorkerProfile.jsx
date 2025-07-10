@@ -15,7 +15,7 @@ import { setWorkerDetails } from "../../store/workerAuthSlice";
 
 const WorkerProfile = () => {
   const dispatch = useDispatch();
-  const { fullName, email, phone, address, profilePhoto } = useSelector(
+  const { fullName, email, phone, address, profilePhoto, workingCategory,yearOfExperience } = useSelector(
     (state) => state.workerAuth
   );
 
@@ -185,6 +185,24 @@ const WorkerProfile = () => {
             <div className="text-base font-medium text-gray-800 whitespace-pre-line">
               {address}
             </div>
+          </div>
+          <div>
+            <label className="text-sm text-gray-500">Experience in Years</label>
+            <div className="text-base font-medium text-gray-800 whitespace-pre-line">
+              {yearOfExperience}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-gray-500">Serving Category</label>
+            {console.log("serving category:",workingCategory)}
+            {
+                
+                workingCategory.map((category)=>(
+                    <div id={category} className="text-base font-medium text-gray-800 whitespace-pre-line">
+                        {category}
+                    </div>
+                ))
+            }
           </div>
         </div>
       </div>
