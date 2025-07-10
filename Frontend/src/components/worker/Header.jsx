@@ -6,15 +6,28 @@ import {useDispatch} from "react-redux"
 import { clearWorkerDetails } from '../../store/workerAuthSlice';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
+import axios from 'axios';
 
 
 const Header = () => {
   const dispatch=useDispatch();
   const navigate=useNavigate();
-  const profilePhoto=useSelector(state=>state.workerAuth.profilePhoto);
+  const {profilePhoto,isOnline}=useSelector(state=>state.workerAuth);
   const logout=()=>{
-    dispatch(clearWorkerDetails());
-    navigate("/worker")
+    if(isOnline){
+        axios.patch("/api/v1/worker/toggle-isOnline")
+        .then(()=>{
+            dispatch(clearWorkerDetails());
+            navigate("/worker")
+        })
+        .catch(()=>{
+            alert("something went wrong while toggling your status to offline at backend ")
+        })
+    }
+    else{
+        dispatch(clearWorkerDetails());
+        navigate("/worker")
+    }
   }
   return (
     <nav>
@@ -26,6 +39,9 @@ const Header = () => {
           <ul className="flex items-center gap-10">
             <li>
               <NavLink to="/worker/auth/home">Home</NavLink>
+            </li>
+            <li>
+              <NavLink to="/worker/auth/find-jobs">Find Jobs</NavLink>
             </li>
             <li>
               <NavLink to="/worker/auth/my-requests">My Jobs</NavLink>

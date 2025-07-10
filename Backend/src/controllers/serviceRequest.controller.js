@@ -21,7 +21,6 @@ const createServiceRequest = asyncHandler(async (req, res) => {
     type: "Point",
     coordinates: [parseFloat(longitude), parseFloat(latitude)],
   };
-  console.log("printing customerlocation at backend", customerLocation);
   const audioNoteLocalPath = req.file?.path;
   let audioNote;
   if (audioNoteLocalPath) {

@@ -329,6 +329,36 @@ const toggleIsOnline=asyncHandler(async(req,res)=>{
     .json(new ApiResponse(200, updatedWorker, "IsOnline status toggle successfully"));
 });
 
+const updateWorkerCurrentLocation=asyncHandler(async(req,res)=>{
+    const {latitude,longitude}=req.body
+     if (!latitude || !longitude) {
+        throw new ApiError(400, "Latitude and longitude are required");
+      }
+    const workerLocation = {
+      type: "Point",
+      coordinates: [parseFloat(longitude), parseFloat(latitude)],
+    };
+
+    const worker=await Worker.findByIdAndUpdate(
+      req.worker._id,
+      {
+        $set:{
+          currentLocation:workerLocation
+        }
+      },
+      {new:true}
+    ).select("-password -refreshToken");
+
+    if (!worker) {
+        throw new ApiError(400, "Worker not found");
+      }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, worker, "Worker current location updated successfully"))
+
+})
+
 export {
   registerWorker,
   loginWorker,
@@ -339,5 +369,6 @@ export {
   updateProfilePhoto,
   updateWorkerDetails,
   getWorkerDetails,
-  toggleIsOnline
+  toggleIsOnline,
+  updateWorkerCurrentLocation
 };

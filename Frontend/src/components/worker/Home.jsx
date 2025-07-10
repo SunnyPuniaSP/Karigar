@@ -1,24 +1,60 @@
 import React from "react";
 import customerhomehero from "../../assets/customerhomehero.png";
 import { Button } from "../ui/button";
-import { Switch } from "@/components/ui/switch"
 import axios from "axios";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
 
 const Home = () => {
-    const dispatch=useDispatch();
-  const {fullName, isOnline}=useSelector((state)=>state.workerAuth);
+  const dispatch = useDispatch();
+  const { fullName, isOnline } = useSelector((state) => state.workerAuth);
 
   const toggleStatus = () => {
-    axios.patch("/api/v1/worker/toggle-isOnline")
-    .then((res)=>{
-        dispatch(setWorkerDetails(res.data.data));
-    })
-    .catch(()=>{
-        alert("something went wrong while toggle your status at backend");
-    })
+    if (!isOnline) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const lat = position.coords.latitude;
+          const lng = position.coords.longitude;
+
+          const location = {
+            latitude: lat,
+            longitude: lng,
+          };
+
+          axios
+            .patch("/api/v1/worker/update-current-location", location)
+            .then(() => {
+              axios
+                .patch("/api/v1/worker/toggle-isOnline")
+                .then((res) => {
+                  dispatch(setWorkerDetails(res.data.data));
+                })
+                .catch(() => {
+                  alert(
+                    "something went wrong while toggle your status at backend"
+                  );
+                });
+            })
+            .catch(() => {
+              alert("Failed to update location at backend");
+            });
+        },
+        (err) => {
+          console.error("Geolocation error:", err);
+          alert("Please enable location to go online");
+        }
+      );
+    } else {
+      axios
+        .patch("/api/v1/worker/toggle-isOnline")
+        .then((res) => {
+          dispatch(setWorkerDetails(res.data.data));
+        })
+        .catch(() => {
+          alert("something went wrong while toggle your status at backend");
+        });
+    }
   };
 
   return (
@@ -29,7 +65,8 @@ const Home = () => {
             Welcome back, <span className="text-blue-600">{fullName}</span>!
           </h1>
           <p className="text-lg text-gray-700 mb-8">
-            Get matched with nearby customers and start earning by providing your expert services—flexible, rewarding, and reliable.
+            Get matched with nearby customers and start earning by providing
+            your expert services—flexible, rewarding, and reliable.
           </p>
 
           {/* Status Toggle */}
@@ -48,15 +85,21 @@ const Home = () => {
                 }`}
               ></span>
             </div>
-            <span className={`ml-2 font-semibold ${isOnline ? "text-green-600" : "text-gray-500"}`}>
+            <span
+              className={`ml-2 font-semibold ${
+                isOnline ? "text-green-600" : "text-gray-500"
+              }`}
+            >
               {isOnline ? "Online" : "Offline"}
             </span>
           </div>
-
-          
         </div>
         <div className="w-1/2">
-          <img className="rounded-xl" src={customerhomehero} alt="customerhomehero" />
+          <img
+            className="rounded-xl"
+            src={customerhomehero}
+            alt="customerhomehero"
+          />
         </div>
       </div>
     </div>

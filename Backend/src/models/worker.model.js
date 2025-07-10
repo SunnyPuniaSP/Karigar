@@ -67,53 +67,25 @@ const workerSchema = new mongoose.Schema(
     },
     startLocation: {
   type: {
-    type: String,
-    enum: ["Point"],
-    default: undefined, // allow absence of type
-    required: false
-  },
-  coordinates: {
-    type: [Number],
-    validate: {
-      validator: function (value) {
-        if (!value || value.length === 0) return true; // allow missing or empty
-        return (
-          Array.isArray(value) &&
-          value.length === 2 &&
-          typeof value[0] === "number" &&
-          typeof value[1] === "number"
-        );
+        type: String,
+        enum: ["Point"],
+        default: undefined,
       },
-      message: "Coordinates must be [longitude, latitude]",
-    },
-    default: undefined,
-    required: false
-  },
+      coordinates: {
+        type: [Number],
+        default: undefined, 
+      },
 },
 currentLocation: {
   type: {
-    type: String,
-    enum: ["Point"],
-    default: undefined,
-    required: false
-  },
-  coordinates: {
-    type: [Number],
-    validate: {
-      validator: function (value) {
-        if (!value || value.length === 0) return true;
-        return (
-          Array.isArray(value) &&
-          value.length === 2 &&
-          typeof value[0] === "number" &&
-          typeof value[1] === "number"
-        );
+        type: String,
+        enum: ["Point"],
+        default: undefined,
       },
-      message: "Coordinates must be [longitude, latitude]",
-    },
-    default: undefined,
-    required: false
-  },
+      coordinates: {
+        type: [Number],
+        default: undefined, 
+      },
 },//ud.....................
     profilePhoto: {
       type: String, // URL to image
