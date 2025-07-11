@@ -83,7 +83,7 @@ const getServiceRequestStatus=asyncHandler(async(req, res)=>{
 const findRequests = asyncHandler(async (req, res) => {
   const workerId = req.worker?._id;
 
-  // Get the worker's current location and workingCategory
+  // 1. Get worker details
   const worker = await Worker.findById(workerId);
   if (
     !worker ||
@@ -96,10 +96,25 @@ const findRequests = asyncHandler(async (req, res) => {
   const [workerLng, workerLat] = worker.currentLocation.coordinates;
   const workingCategories = worker.workingCategory;
 
+  const now = new Date();
+  const blockedCustomerIds = (worker.temporaryBlockedCustomers)
+    .filter(entry => entry.blockedUntil > now)
+    .map(entry => entry.customerId.toString());
+
+  await Worker.updateOne(
+    { _id: workerId },
+    {
+      $pull: {
+        temporaryBlockedCustomers: { blockedUntil: { $lte: now } },
+      },
+    }
+  );
+
   const requests = await ServiceRequest.find({
     workerId: null,
     category: { $in: workingCategories },
     orderStatus: "searching",
+    customerId: { $nin: blockedCustomerIds },
     customerLocation: {
       $near: {
         $geometry: worker.currentLocation,
@@ -110,18 +125,29 @@ const findRequests = asyncHandler(async (req, res) => {
     "_id customerId category description customerLocation audioNoteUrl"
   );
 
-  // Add distance to each request
-  const requestsWithDistance = requests.map((req) => {
+  const requestsWithDistance = await Promise.all(
+  requests.map(async (req) => {
     const [customerLng, customerLat] = req.customerLocation.coordinates;
+
     const distance_m = geolib.getDistance(
       { latitude: workerLat, longitude: workerLng },
       { latitude: customerLat, longitude: customerLng }
     );
+
+    const customer = await Customer.findById(req.customerId).select("fullName");
+
+    if (!customer) {
+      throw new ApiError(500, "Error in fetching customer details");
+    }
+
     return {
       ...req.toObject(),
-      distance_km: Math.round((distance_m / 1000) * 100) / 100, // rounded to 2 decimals
+      distance_km: Math.round((distance_m / 1000) * 100) / 100,
+      customerName: customer.fullName,
     };
-  });
+  })
+);
+
 
   return res
     .status(200)
@@ -133,6 +159,7 @@ const findRequests = asyncHandler(async (req, res) => {
       )
     );
 });
+
 
 const acceptRequest = asyncHandler(async (req, res) => {
   const workerId = req.worker?._id;
