@@ -381,7 +381,26 @@ const temporaryBlockCustomer=asyncHandler(async(req,res)=>{
 
   return res
     .status(200)
-    .json(new ApiResponse(200, worker, "Worker current location updated successfully"))
+    .json(new ApiResponse(200, worker, "Customer temporary blocked successfully"))
+
+})
+
+const getWorkerCurrentLocation=asyncHandler(async(req,res)=>{
+  const {workerId}=req.params;
+
+  const worker=await Worker.findById(workerId).select("-password -refreshToken");
+
+  if(!worker){
+    throw new ApiError(400,"Worker details not found")
+  }
+
+  const location={
+    lng:worker.currentLocation.coordinates[0],
+    lat:worker.currentLocation.coordinates[1],
+  }
+  return res
+    .status(201)
+    .json(new ApiResponse(201, location, "Worker current location fetched successfully"))
 
 })
 
@@ -397,5 +416,6 @@ export {
   getWorkerDetails,
   toggleIsOnline,
   updateWorkerCurrentLocation,
-  temporaryBlockCustomer
+  temporaryBlockCustomer,
+  getWorkerCurrentLocation
 };

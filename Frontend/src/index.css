@@ -1,5 +1,11 @@
 @import "tailwindcss";
 @import "tw-animate-css";
+.leaflet-container {
+  height: 100% !important;
+  width: 100% !important;
+  z-index: 0 !important;
+}
+
 
 @custom-variant dark (&:is(.dark *));
 
