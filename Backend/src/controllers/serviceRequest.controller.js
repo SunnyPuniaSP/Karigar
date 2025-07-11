@@ -272,7 +272,7 @@ const acceptRepairQuote = asyncHandler(async (req, res) => {
       "Service request is not in repair amount quoted state"
     );
   }
-  serviceRequest.orderStatus = "accepted";
+  serviceRequest.orderStatus = "payment_pending_quote_amount";
   serviceRequest.acceptedAt = new Date();
   await serviceRequest.save();
 
@@ -309,7 +309,7 @@ const rejectRepairQuote = asyncHandler(async (req, res) => {
       "Service request is not in repair amount quoted state"
     );
   }
-  serviceRequest.orderStatus = "rejected";
+  serviceRequest.orderStatus = "payment_pending_visiting_fee";
   await serviceRequest.save();
 
   const updatedServiceRequest = await ServiceRequest.findById(

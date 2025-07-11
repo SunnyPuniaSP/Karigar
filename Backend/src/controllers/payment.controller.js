@@ -27,9 +27,9 @@ const createOrder = asyncHandler(async (req, res) => {
   let amount;
   let currency = "INR"; // Default currency
 
-  if (serviceRequest.orderStatus === "accepted") {
+  if (serviceRequest.orderStatus === "payment_pending_quote_amount") {
     amount = serviceRequest.quoteAmount;
-  } else if (serviceRequest.orderStatus === "rejected") {
+  } else if (serviceRequest.orderStatus === "payment_pending_visiting_fee") {
     amount = serviceRequest.visitingCharge;
   } else {
     throw new ApiError(400, "Invalid order status for payment");
@@ -118,9 +118,9 @@ const verifyPayment = asyncHandler(async (req, res) => {
     }
 
   let amount;
-  if (serviceRequest.orderStatus === "accepted") {
+  if (serviceRequest.orderStatus === "payment_pending_quote_amount") {
     amount = serviceRequest.quoteAmount;
-  } else if (serviceRequest.orderStatus === "rejected") {
+  } else if (serviceRequest.orderStatus === "payment_pending_visiting_fee") {
     amount = serviceRequest.visitingCharge;
   }else {
     throw new ApiError(400, "Invalid order status for payment");
@@ -128,6 +128,7 @@ const verifyPayment = asyncHandler(async (req, res) => {
 
 
   serviceRequest.jobStatus = "completed";
+  serviceRequest.orderStatus = "completed";
   serviceRequest.paymentStatus = "paid";
   serviceRequest.paymentType = "online";
   serviceRequest.paidAt = new Date();
@@ -235,6 +236,7 @@ const paymentReceivedByCash = asyncHandler(async (req, res) => {
   }
 
   serviceRequest.jobStatus = "completed";
+  serviceRequest.orderStatus = "completed";
   serviceRequest.paymentStatus = "paid";
   serviceRequest.paymentType = "cash";
   serviceRequest.paidAt = new Date();
