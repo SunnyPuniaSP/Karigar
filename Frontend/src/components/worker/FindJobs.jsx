@@ -1,8 +1,10 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 const FindJobs = () => {
+  const navigate=useNavigate();
   const [jobs, setJobs] = useState([]);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -35,6 +37,21 @@ const FindJobs = () => {
           err
         );
         alert("error while rejecting and temporary blocking customer ");
+      });
+  };
+
+  const handleAccept = (serviceRequestId) => {
+    axios
+      .post(`/api/v1/service-request/${serviceRequestId}/accept`)
+      .then(()=>{
+          navigate(`/worker/auth/job/${serviceRequestId}`)
+      })
+      .catch((err) => {
+        console.log(
+          "error while accepting the request",
+          err
+        );
+        alert("error while accepting the request");
       });
   };
   return (
@@ -105,7 +122,7 @@ const FindJobs = () => {
                 >
                   Reject
                 </Button>
-                <Button className="w-35">Accept</Button>
+                <Button onClick={()=>handleAccept(job._id)} className="w-35">Accept</Button>
               </div>
             </div>
           ))}

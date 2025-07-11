@@ -1,10 +1,12 @@
 import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
+import { Button } from "../ui/button";
+import { useNavigate } from "react-router-dom";
 
 const SearchingWorker = () => {
+  const navigate=useNavigate();
   const { serviceRequestId } = useParams();
-
   const [requestData, setRequestData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [workerAccepted, setWorkerAccepted] = useState(false);
@@ -53,6 +55,17 @@ const SearchingWorker = () => {
     }
   }, [workerAccepted, requestData]);
 
+  const cancelSearch=()=>{
+      axios.post(`/api/v1/service-request/${serviceRequestId}/delete-request`)
+      .then(()=>{
+        navigate("/customer/auth/home")
+      })
+      .catch((err)=>{
+        console.log("something went wrong while deleting request", err);
+        alert("something went wrong while deleting request")
+      })
+  }
+
   if (loading && !workerAccepted) {
     return (
       <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
@@ -63,6 +76,7 @@ const SearchingWorker = () => {
           <p className="text-gray-500 mt-2">
             Please wait while we find a nearby technician for your issue.
           </p>
+          <Button onClick={cancelSearch} className="mt-5 cursor-pointer" variant="destructive">Cancel Search</Button>
       </div>
     );
   }

@@ -193,7 +193,7 @@ const acceptRequest = asyncHandler(async (req, res) => {
   );
 
   if (!updatedServiceRequest) {
-    throw new ApiError(404, "Service request not found after accepting");
+    throw new ApiError(500, "Service request not found after accepting");
   }
 
   return res
@@ -938,6 +938,22 @@ const reportWorker = asyncHandler(async (req, res) => {
     );
 });
 
+const deleteServiceRequest=asyncHandler(async(req,res)=>{
+  const {serviceRequestId}=req.params
+
+  if(!serviceRequestId){
+    throw new ApiError(400,"Service request id is not found");
+  }
+
+  const deletedRequest=await ServiceRequest.findByIdAndDelete(serviceRequestId);
+
+  if(!deletedRequest){
+    throw new ApiError(400,"Service Request not found");
+  }
+
+  return res.status(200).json(new ApiResponse(200,deletedRequest,"Service request deleted successfully"));
+})
+
 export {
   createServiceRequest,
   findRequests,
@@ -954,5 +970,6 @@ export {
   cancelledBySystemAsUnattended,
   rateWorker,
   reportWorker,
-  getServiceRequestStatus
+  getServiceRequestStatus,
+  deleteServiceRequest
 };

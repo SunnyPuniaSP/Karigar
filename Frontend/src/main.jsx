@@ -28,6 +28,7 @@ import WorkerLayout from "./components/worker/WorkerLayout";
 import WorkerHome from "./components/worker/Home";
 import WorkerProfile from "./components/worker/WorkerProfile";
 import FindJobs from "./components/worker/FindJobs";
+import JobConnectionPage from "./components/worker/JobConnectionPage";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -53,6 +54,7 @@ const router = createBrowserRouter(
           <Route path="home" element={<WorkerHome />} />
           <Route path="profile" element={<WorkerProfile />} />
           <Route path="find-jobs" element={<FindJobs />} />
+          <Route path="job/:serviceRequestId" element={<JobConnectionPage/>}/>
         </Route>
       </Route>
     </Route>
