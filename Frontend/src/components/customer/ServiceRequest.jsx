@@ -147,17 +147,17 @@ const SearchingWorker = () => {
           );
         });
     }
-  }, [workerAccepted, requestData]);
+  }, [workerAccepted]);
 
   // Poll for worker and customer locations and fetch the real route
   useEffect(() => {
     let interval;
     const fetchLocations = async () => {
-      if (workerAccepted && requestData && workerDetails) {
+      if (workerAccepted && requestData.workerId) {
         try {
           // Fetch worker's live location
           const workerRes = await axios.get(
-            `/api/v1/worker/${workerDetails._id}/location`
+            `/api/v1/worker/${requestData.workerId}/location`
           );
           const wLoc = {
             lat: workerRes.data.data.lat,
@@ -183,12 +183,12 @@ const SearchingWorker = () => {
       }
     };
 
-    if (workerAccepted && requestData && workerDetails) {
+    if (workerAccepted && requestData.workerId) {
       fetchLocations();
       interval = setInterval(fetchLocations, 5000);
     }
     return () => clearInterval(interval);
-  }, [workerAccepted, requestData, workerDetails]);
+  }, [workerAccepted]);
 
   const cancelSearch = () => {
     axios
