@@ -422,7 +422,7 @@ const handlePayment = async () => {
         )}
         {showAcceptRejectButtons && (
           <div className="flex justify-center gap-3">
-            <Button onClick={quoteAccepted} className="bg-green-500 min-w-[250px]">Accept Repair Quote</Button>
+            <Button onClick={quoteAccepted} className="min-w-[250px]">Accept Repair Quote</Button>
             <Button onClick={quoteRejected} variant="destructive" className="min-w-[250px]">Reject Repair Quote</Button>
           </div>
         )}
