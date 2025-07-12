@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button } from "../ui/button";
@@ -68,6 +68,11 @@ const SearchingWorker = () => {
   const [routePath, setRoutePath] = useState([]);
   const [etaMinutes, setEtaMinutes] = useState(null);
 
+  const [showCancelButton, setShowCancelButton] = useState(false);
+  const [cancelCountdown, setCancelCountdown] = useState(30);
+  const cancelButtonStarted = useRef(false);
+
+
   // Poll for service request status
   useEffect(() => {
     const interval = setInterval(fetchStatus, 4000);
@@ -81,10 +86,32 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
-        if (data.orderStatus === "connected" || data.orderStatus === "onway") {
-          setWorkerAccepted(true);
-          setLoading(false);
-        }
+        if ((data.orderStatus === "connected" || data.orderStatus === "onway") && !cancelButtonStarted.current) {
+  setWorkerAccepted(true);
+  setLoading(false);
+
+  // Start cancel countdown and visibility
+  setShowCancelButton(true);
+  setCancelCountdown(30); // reset to 30 sec
+
+  const countdownInterval = setInterval(() => {
+    setCancelCountdown((prev) => {
+      if (prev <= 1) {
+        clearInterval(countdownInterval);
+        setShowCancelButton(false); // hide button after 30s
+        return 0;
+      }
+      return prev - 1;
+    });
+  }, 1000);
+
+  cancelButtonStarted.current = true;
+}
+
+
+
+
+
       })
       .catch((error) => {
         console.error("Error fetching request status", error);
@@ -255,7 +282,15 @@ const SearchingWorker = () => {
     return (
       <div className="min-h-screen flex flex-col items-center bg-gray-50 py-10 px-2 gap-5">
         <StatusBanner orderStatus={job.orderStatus} />
-
+        {showCancelButton && (
+  <Button
+    variant="destructive"
+    onClick={cancelSearch}
+    className="min-w-[250px]"
+  >
+    ❌ Cancel Request ({cancelCountdown}s left)
+  </Button>
+)}
         {/* Live Map Card */}
         <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
           <div className="h-80">
