@@ -3,21 +3,29 @@ import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { Button } from "../ui/button";
-import { MapContainer, TileLayer, Marker, Polyline, Popup, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Polyline,
+  Popup,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import houseIc from "../../assets/3d-house.png";
 import workerIc from "../../assets/mechanic.png";
 
-// --- Routing function using OpenRouteService ---
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
   const res = await axios.get(url);
-  const coordinates = res.data.routes[0].geometry.coordinates;
-  return coordinates.map(([lng, lat]) => [lat, lng]);
+  const coordinates = res.data.routes[0].geometry.coordinates.map(
+    ([lng, lat]) => [lat, lng]
+  );
+  const duration = res.data.routes[0].duration; // in seconds
+  return { coordinates, duration };
 };
 
-// --- Custom marker icons ---
 const customerIcon = new L.Icon({
   iconUrl: houseIc,
   iconSize: [32, 42],
@@ -58,6 +66,7 @@ const SearchingWorker = () => {
   const [workerLocation, setWorkerLocation] = useState(null);
   const [customerLocation, setCustomerLocation] = useState(null);
   const [routePath, setRoutePath] = useState([]);
+  const [etaMinutes, setEtaMinutes] = useState(null);
 
   // Poll for service request status
   useEffect(() => {
@@ -91,7 +100,9 @@ const SearchingWorker = () => {
         .then((res) => setWorkerDetails(res.data.data))
         .catch((err) => {
           console.error("Error fetching worker details", err);
-          alert("Worker accepted your request, but details couldn't be fetched.");
+          alert(
+            "Worker accepted your request, but details couldn't be fetched."
+          );
         });
     }
   }, [workerAccepted, requestData]);
@@ -103,8 +114,13 @@ const SearchingWorker = () => {
       if (workerAccepted && requestData && workerDetails) {
         try {
           // Fetch worker's live location
-          const workerRes = await axios.get(`/api/v1/worker/${workerDetails._id}/location`);
-          const wLoc = { lat: workerRes.data.data.lat, lng: workerRes.data.data.lng };
+          const workerRes = await axios.get(
+            `/api/v1/worker/${workerDetails._id}/location`
+          );
+          const wLoc = {
+            lat: workerRes.data.data.lat,
+            lng: workerRes.data.data.lng,
+          };
           setWorkerLocation(wLoc);
 
           // Extract customer location from requestData (GeoJSON: [lng, lat])
@@ -115,7 +131,8 @@ const SearchingWorker = () => {
 
             // Fetch the actual road route from OpenRouteService
             const route = await getRoute(wLoc, cLoc);
-            setRoutePath(route);
+            setRoutePath(route.coordinates);
+            setEtaMinutes(Math.ceil(route.duration / 60));
           }
         } catch (err) {
           alert("Error while fetching worker location or route");
@@ -146,7 +163,7 @@ const SearchingWorker = () => {
       bg: "bg-blue-100",
       text: "text-blue-800",
       icon: "🤝",
-      label: "Connected: Worker coming soon",
+      label: "Connected, Worker coming soon",
     },
     onway: {
       bg: "bg-blue-100",
@@ -170,7 +187,7 @@ const SearchingWorker = () => {
       bg: "bg-orange-100",
       text: "text-orange-800",
       icon: "💬",
-      label: "Quote provided",
+      label: "Repair Quote provided",
     },
     payment_pending_quote_amount: {
       bg: "bg-yellow-100",
@@ -198,11 +215,12 @@ const SearchingWorker = () => {
     },
   };
 
-  const StatusBanner = ({ orderStatus }) => {
-    const { bg, text, icon, label } = STATUS_MAP[orderStatus] || STATUS_MAP.connected;
+  const StatusBanner = (orderStatus) => {
+    const { bg, text, icon, label } =
+      STATUS_MAP[orderStatus] || STATUS_MAP.connected;
     return (
       <div
-        className={`w-full max-w-2xl mx-auto flex items-center gap-4 px-6 py-4 rounded-xl shadow ${bg} ${text} mb-6`}
+        className={`w-full max-w-2xl mx-auto flex items-center gap-4 px-6 py-4 rounded-xl shadow ${bg} ${text}`}
       >
         <span className="text-3xl">{icon}</span>
         <div className="font-bold text-lg">{label}</div>
@@ -235,11 +253,11 @@ const SearchingWorker = () => {
     const job = requestData;
 
     return (
-      <div className="min-h-screen flex flex-col items-center bg-gray-50 py-10 px-2">
+      <div className="min-h-screen flex flex-col items-center bg-gray-50 py-10 px-2 gap-5">
         <StatusBanner orderStatus={job.orderStatus} />
 
         {/* Live Map Card */}
-        <div className="w-full max-w-2xl mb-8 rounded-2xl shadow-lg bg-white overflow-hidden">
+        <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
           <div className="h-80">
             {workerLocation && customerLocation && routePath.length > 0 ? (
               <MapContainer
@@ -251,15 +269,24 @@ const SearchingWorker = () => {
                 scrollWheelZoom={false}
                 style={{ width: "100%", height: "100%" }}
               >
-                <FitBounds workerLocation={workerLocation} customerLocation={customerLocation} />
+                <FitBounds
+                  workerLocation={workerLocation}
+                  customerLocation={customerLocation}
+                />
                 <TileLayer
-                  attribution='&copy; OpenStreetMap contributors'
+                  attribution="&copy; OpenStreetMap contributors"
                   url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                 />
-                <Marker position={[workerLocation.lat, workerLocation.lng]} icon={workerIcon}>
+                <Marker
+                  position={[workerLocation.lat, workerLocation.lng]}
+                  icon={workerIcon}
+                >
                   <Popup>Worker Current Location</Popup>
                 </Marker>
-                <Marker position={[customerLocation.lat, customerLocation.lng]} icon={customerIcon}>
+                <Marker
+                  position={[customerLocation.lat, customerLocation.lng]}
+                  icon={customerIcon}
+                >
                   <Popup>Your Location</Popup>
                 </Marker>
                 <Polyline positions={routePath} color="blue" />
@@ -271,12 +298,72 @@ const SearchingWorker = () => {
             )}
           </div>
         </div>
-        {/* Additional job/worker info and actions can go here */}
+        {etaMinutes && (
+          <div className="text-sm text-gray-700">
+            Estimated arrival in:{" "}
+            <span className="font-semibold">{etaMinutes} mins</span>
+          </div>
+        )}
+        <div>
+          🔵 Searching ➡️ 🤝 Connected ➡️ 🚗 On the way ➡️ 🏠 Arrived ➡️ 🧐
+          Inspecting ➡️ 💬 Repair Quote provided ➡️ 🛠️ Repair ➡️ 💳 Payment ➡️
+          ✅ Completed
+        </div>
+        <div className="w-full max-w-2xl  rounded-xl shadow bg-white p-4 flex gap-4 items-center">
+          <img
+            src={workerDetails.profilePhoto || "/default-worker.png"}
+            alt="Worker"
+            className="w-16 h-16 rounded-full object-cover"
+          />
+          <div className="flex flex-col gap-2">
+            <div className="flex items-center gap-5">
+              <div className="font-semibold text-lg">
+                {workerDetails.fullName}
+              </div>
+              <div className="text-sm text-gray-500">
+                Phone: {workerDetails.phone}
+              </div>
+              {workerDetails.rating ? (
+                <div className="font-semibold text-lg">
+                  Rating: {workerDetails.rating}
+                </div>
+              ) : null}
+            </div>
+            <div className="flex flex-wrap gap-1">
+              {workerDetails.workingCategory.map((cat) => (
+                <div
+                  id={cat}
+                  style={{ backgroundColor: "#0B1D3A" }}
+                  className="text-white rounded-xl p-2 min-w-13 text-center"
+                >
+                  {cat}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        <div className="w-full max-w-2xl rounded-xl shadow bg-white p-4">
+          <div className="font-bold text-lg mb-2">Job Details</div>
+          <div className="flex flex-col gap-2">
+            <div className="text-sm text-gray-700">
+              Category: {job.category}
+            </div>
+            {job.description ? (
+              <div className="text-sm text-gray-700">
+              Issue Description: {job.description}
+            </div>
+            ) : null}
+            <div className="text-sm text-gray-700">
+              Requested At: {new Date(job.createdAt).toLocaleString()}
+            </div>
+            {job.audioNoteUrl ? (
+              <audio src={job.audioNoteUrl} controls></audio>
+            ) : null}
+          </div>
+        </div>
       </div>
     );
   }
-
-  return null;
 };
 
 export default SearchingWorker;
