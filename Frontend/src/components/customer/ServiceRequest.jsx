@@ -76,6 +76,8 @@ const SearchingWorker = () => {
 
   const [showAcceptRejectButtons,setShowAcceptRejectButton]=useState(false);
 
+  const [showPayButton,setShowPayButton]=useState(false);
+
   // Poll for service request status
   useEffect(() => {
     const interval = setInterval(fetchStatus, 4000);
@@ -89,6 +91,9 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
+        if(data.orderStatus==="completed"){
+          setShowPayButton(false);
+        }
         if(data.orderStatus==="repairAmountQuoted"){
           setShowAcceptRejectButton(true);
         }
@@ -229,6 +234,7 @@ const SearchingWorker = () => {
     axios.patch(`/api/v1/service-request/${serviceRequestId}/accept-repair-quote`)
     .then(()=>{
       setShowAcceptRejectButton(false);
+      setShowPayButton(true);
     })
     .catch(()=>{
       alert("error while accepting req");
@@ -239,11 +245,66 @@ const SearchingWorker = () => {
     axios.patch(`/api/v1/service-request/${serviceRequestId}/reject-repair-quote`)
     .then(()=>{
       setShowAcceptRejectButton(false);
+      setShowPayButton(true);
     })
     .catch(()=>{
       alert("error while accepting req");
     })
   }
+
+  const loadRazorpayScript = () => {
+  return new Promise((resolve) => {
+    const script = document.createElement("script");
+    script.src = "https://checkout.razorpay.com/v1/checkout.js";
+    script.onload = () => {
+      resolve(true);
+    };
+    script.onerror = () => {
+      resolve(false);
+    };
+    document.body.appendChild(script);
+  });
+};
+
+
+const handlePayment = async () => {
+  const isScriptLoaded = await loadRazorpayScript();
+
+  if (!isScriptLoaded) {
+    alert("Razorpay SDK failed to load. Are you online?");
+    return;
+  }
+
+  // Step 1: Call backend to create Razorpay order
+  try {
+    const { data } = await axios.post(`/api/v1/payment/${serviceRequestId}/create-order`);
+  
+    const options = {
+      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+ // put your Razorpay Key ID in .env
+      order_id: data.data.id,
+      ...data.data,
+      handler: async function (response) {
+        const options={
+          razorpayPaymentId: response.razorpay_payment_id,
+                razorpayOrderId: response.razorpay_order_id,
+                razorpaySignature: response.razorpay_signature,
+        }
+        axios.post(`/api/v1/payment/${serviceRequestId}/verify-payment`,options)
+        .catch(()=>{
+          alert("something went wrong in payment verification")
+        })
+      }
+    };
+  
+    const rzp = new window.Razorpay(options);
+    rzp.open();
+  } catch (err) {
+      console.log(err);
+      alert("Failed to initiate payment.");
+  }
+};
+
 
   const STATUS_MAP = {
     connected: {
@@ -361,9 +422,12 @@ const SearchingWorker = () => {
         )}
         {showAcceptRejectButtons && (
           <div className="flex justify-center gap-3">
-            <Button onClick={quoteAccepted} className="bg-green-500">Accept Repair Quote</Button>
-            <Button onClick={quoteRejected} variant="destructive">Reject Repair Quote</Button>
+            <Button onClick={quoteAccepted} className="bg-green-500 min-w-[250px]">Accept Repair Quote</Button>
+            <Button onClick={quoteRejected} variant="destructive" className="min-w-[250px]">Reject Repair Quote</Button>
           </div>
+        )}
+        {showPayButton && (
+          <Button onClick={handlePayment} className="min-w-[250px]">Pay Now</Button>
         )}
         {/* Live Map Card */}
         <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
