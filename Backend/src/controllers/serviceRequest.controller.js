@@ -632,15 +632,7 @@ const cancelledByCustomerAsWorkerNotRespondingOrLate = asyncHandler(
     if (!serviceRequest) {
       throw new ApiError(404, "Service request not found");
     }
-
-    // Check if the request belongs to this customer
-    if (serviceRequest.customerId?.toString() !== customerId) {
-      throw new ApiError(
-        400,
-        "Service request not belonging to this customer or not in connected state"
-      );
-    }
-
+    
     if (serviceRequest.orderStatus === "arrived") {
       throw new ApiError(
         400,
@@ -728,14 +720,6 @@ const cancelledByCustomerAsByMistake = asyncHandler(async (req, res) => {
   const serviceRequest = await ServiceRequest.findById(serviceRequestId);
   if (!serviceRequest) {
     throw new ApiError(404, "Service request not found");
-  }
-
-  // Check if the request belongs to this customer
-  if (serviceRequest.customerId?.toString() !== customerId) {
-    throw new ApiError(
-      400,
-      "Service request not belonging to this customer or not in connected state"
-    );
   }
 
   if (Date.now() - serviceRequest.connectedAt.getTime() > 40 * 1000) {

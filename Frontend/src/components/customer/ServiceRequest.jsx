@@ -68,9 +68,11 @@ const SearchingWorker = () => {
   const [routePath, setRoutePath] = useState([]);
   const [etaMinutes, setEtaMinutes] = useState(null);
 
-  const [showCancelButton, setShowCancelButton] = useState(false);
-  const [cancelCountdown, setCancelCountdown] = useState(30);
-  const cancelButtonStarted = useRef(false);
+  const [showCancellButtonByMistake, setShowCancellButtonByMistake] = useState(false);
+  const [showCancellButtonLate, setShowCancellButtonLate] = useState(false);
+  const [cancellCountdown, setCancellCountdown] = useState(30);
+  const [showCancellButtons,setShowCancellButtons]=useState(true);
+  const cancellButtonStarted = useRef(false);
 
 
   // Poll for service request status
@@ -86,32 +88,36 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
-        if ((data.orderStatus === "connected" || data.orderStatus === "onway") && !cancelButtonStarted.current) {
-  setWorkerAccepted(true);
-  setLoading(false);
+        if(data.orderStatus!=="searching" && data.orderStatus!=="connected" && data.orderStatus!=="onway"){
+          setShowCancellButtons(false);
+        }
+        console.log("Fetched orderStatus:", data.orderStatus);
+        if (
+          (data.orderStatus === "connected" || data.orderStatus === "onway") &&
+          !cancellButtonStarted.current
+        ) {
+          setWorkerAccepted(true);
+          setLoading(false);
 
-  // Start cancel countdown and visibility
-  setShowCancelButton(true);
-  setCancelCountdown(30); // reset to 30 sec
+          // Start cancel countdown and visibility
+          setShowCancellButtonByMistake(true);
+          setCancellCountdown(30); // reset to 30 sec
+          setTimeout(() => {
+            setShowCancellButtonLate(true);
+          }, 60 * 1000);
+          const countdownInterval = setInterval(() => {
+            setCancellCountdown((prev) => {
+              if (prev <= 1) {
+                clearInterval(countdownInterval);
+                setShowCancellButtonByMistake(false); // hide button after 30s
+                return 0;
+              }
+              return prev - 1;
+            });
+          }, 1000);
 
-  const countdownInterval = setInterval(() => {
-    setCancelCountdown((prev) => {
-      if (prev <= 1) {
-        clearInterval(countdownInterval);
-        setShowCancelButton(false); // hide button after 30s
-        return 0;
-      }
-      return prev - 1;
-    });
-  }, 1000);
-
-  cancelButtonStarted.current = true;
-}
-
-
-
-
-
+          cancellButtonStarted.current = true;
+        }
       })
       .catch((error) => {
         console.error("Error fetching request status", error);
@@ -185,6 +191,36 @@ const SearchingWorker = () => {
       });
   };
 
+  const cancelReqAsByMistake = () => {
+    axios
+      .patch(
+        `/api/v1/service-request/${serviceRequestId}/cancelled-by-customer-as-by-mistake`
+      )
+      .then(() => {
+        setShowCancellButtons(false);
+        requestData.orderStatus="cancelled";
+      })
+      .catch((err) => {
+        console.log("Something went wrong while deleting request", err);
+        alert("Something went wrong while deleting request");
+      });
+  };
+
+  const cancelReqAsWorkerLateOrNotResponding = () => {
+    axios
+      .patch(
+        `/api/v1/service-request/${serviceRequestId}/cancelled-by-customer-as-worker-not-responding-or-late`
+      )
+      .then(() => {
+        setShowCancellButtons(false);
+        requestData.orderStatus="cancelled"
+      })
+      .catch((err) => {
+        console.log("Something went wrong while deleting request", err);
+        alert("Something went wrong while deleting request");
+      });
+  };
+
   const STATUS_MAP = {
     connected: {
       bg: "bg-blue-100",
@@ -242,9 +278,8 @@ const SearchingWorker = () => {
     },
   };
 
-  const StatusBanner = (orderStatus) => {
-    const { bg, text, icon, label } =
-      STATUS_MAP[orderStatus] || STATUS_MAP.connected;
+  const StatusBanner = ({ orderStatus }) => {
+    const { bg, text, icon, label } = STATUS_MAP[orderStatus];
     return (
       <div
         className={`w-full max-w-2xl mx-auto flex items-center gap-4 px-6 py-4 rounded-xl shadow ${bg} ${text}`}
@@ -282,15 +317,24 @@ const SearchingWorker = () => {
     return (
       <div className="min-h-screen flex flex-col items-center bg-gray-50 py-10 px-2 gap-5">
         <StatusBanner orderStatus={job.orderStatus} />
-        {showCancelButton && (
-  <Button
-    variant="destructive"
-    onClick={cancelSearch}
-    className="min-w-[250px]"
-  >
-    ❌ Cancel Request ({cancelCountdown}s left)
-  </Button>
-)}
+        {showCancellButtons && showCancellButtonByMistake && (
+          <Button
+            variant="destructive"
+            onClick={cancelReqAsByMistake}
+            className="min-w-[250px]"
+          >
+            ❌ Cancel Request ({cancellCountdown}s left)
+          </Button>
+        )}
+        {showCancellButtons && showCancellButtonLate && (
+          <Button
+            variant="destructive"
+            onClick={cancelReqAsWorkerLateOrNotResponding}
+            className="min-w-[250px]"
+          >
+            ❌ Cancel Request
+          </Button>
+        )}
         {/* Live Map Card */}
         <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
           <div className="h-80">
@@ -385,8 +429,8 @@ const SearchingWorker = () => {
             </div>
             {job.description ? (
               <div className="text-sm text-gray-700">
-              Issue Description: {job.description}
-            </div>
+                Issue Description: {job.description}
+              </div>
             ) : null}
             <div className="text-sm text-gray-700">
               Requested At: {new Date(job.createdAt).toLocaleString()}
