@@ -74,6 +74,7 @@ const SearchingWorker = () => {
   const [showCancellButtons,setShowCancellButtons]=useState(true);
   const cancellButtonStarted = useRef(false);
 
+  const [showAcceptRejectButtons,setShowAcceptRejectButton]=useState(false);
 
   // Poll for service request status
   useEffect(() => {
@@ -88,6 +89,9 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
+        if(data.orderStatus==="repairAmountQuoted"){
+          setShowAcceptRejectButton(true);
+        }
         if(data.orderStatus!=="searching" && data.orderStatus!=="connected" && data.orderStatus!=="onway"){
           setShowCancellButtons(false);
         }
@@ -221,6 +225,26 @@ const SearchingWorker = () => {
       });
   };
 
+  const quoteAccepted=()=>{
+    axios.patch(`/api/v1/service-request/${serviceRequestId}/accept-repair-quote`)
+    .then(()=>{
+      setShowAcceptRejectButton(false);
+    })
+    .catch(()=>{
+      alert("error while accepting req");
+    })
+  }
+
+  const quoteRejected=()=>{
+    axios.patch(`/api/v1/service-request/${serviceRequestId}/reject-repair-quote`)
+    .then(()=>{
+      setShowAcceptRejectButton(false);
+    })
+    .catch(()=>{
+      alert("error while accepting req");
+    })
+  }
+
   const STATUS_MAP = {
     connected: {
       bg: "bg-blue-100",
@@ -334,6 +358,12 @@ const SearchingWorker = () => {
           >
             ❌ Cancel Request
           </Button>
+        )}
+        {showAcceptRejectButtons && (
+          <div className="flex justify-center gap-3">
+            <Button onClick={quoteAccepted} className="bg-green-500">Accept Repair Quote</Button>
+            <Button onClick={quoteRejected} variant="destructive">Reject Repair Quote</Button>
+          </div>
         )}
         {/* Live Map Card */}
         <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
