@@ -46,6 +46,15 @@ const customerSchema = new mongoose.Schema({
       type: Date, 
       default: null 
     },
+    isLiveRequest:{
+        type: Boolean,
+        default: false
+    },
+    liveServiceId:{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "ServiceRequest",
+        default: null,
+    }
 },{timestamps: true});
 
 customerSchema.pre("save", async function (next) {

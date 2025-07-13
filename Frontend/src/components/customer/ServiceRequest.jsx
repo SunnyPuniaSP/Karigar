@@ -15,7 +15,8 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import houseIc from "../../assets/3d-house.png";
 import workerIc from "../../assets/mechanic.png";
-
+import { useDispatch } from "react-redux";
+import { clearIsLiveRequest,clearLiveServiceId } from "@/store/customerAuthSlice";
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
   const res = await axios.get(url);
@@ -56,6 +57,7 @@ function FitBounds({ workerLocation, customerLocation }) {
 
 const SearchingWorker = () => {
   const navigate = useNavigate();
+  const dispatch =useDispatch();
   const { serviceRequestId } = useParams();
   const [requestData, setRequestData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -78,6 +80,8 @@ const SearchingWorker = () => {
 
   const [showPayButton,setShowPayButton]=useState(false);
 
+  const toggleIsLiveRequestToFalse =useRef(false);
+
   // Poll for service request status
   useEffect(() => {
     const interval = setInterval(fetchStatus, 4000);
@@ -91,8 +95,17 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
-        if(data.orderStatus==="completed"){
+        if(data.orderStatus==="completed" && !toggleIsLiveRequestToFalse.current){
           setShowPayButton(false);
+          axios.patch(`/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`)
+          .then(()=>{
+            dispatch(clearIsLiveRequest());
+            dispatch(clearLiveServiceId());
+          })
+          .catch(()=>{
+            alert("toglling is live request to false failed");
+          })
+          toggleIsLiveRequestToFalse.current=true;
         }
         if(data.orderStatus==="repairAmountQuoted"){
           setShowAcceptRejectButton(true);
@@ -100,7 +113,6 @@ const SearchingWorker = () => {
         if(data.orderStatus!=="searching" && data.orderStatus!=="connected" && data.orderStatus!=="onway"){
           setShowCancellButtons(false);
         }
-        console.log("Fetched orderStatus:", data.orderStatus);
         if (
           (data.orderStatus === "connected" || data.orderStatus === "onway") &&
           !cancellButtonStarted.current
@@ -193,7 +205,11 @@ const SearchingWorker = () => {
   const cancelSearch = () => {
     axios
       .post(`/api/v1/service-request/${serviceRequestId}/delete-request`)
-      .then(() => navigate("/customer/auth/home"))
+      .then(() => {
+        dispatch(clearIsLiveRequest());
+        dispatch(clearLiveServiceId());
+        navigate("/customer/auth/home")
+      })
       .catch((err) => {
         console.log("Something went wrong while deleting request", err);
         alert("Something went wrong while deleting request");
@@ -206,6 +222,8 @@ const SearchingWorker = () => {
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-customer-as-by-mistake`
       )
       .then(() => {
+        dispatch(clearIsLiveRequest());
+        dispatch(clearLiveServiceId());
         setShowCancellButtons(false);
         requestData.orderStatus="cancelled";
       })
@@ -221,6 +239,8 @@ const SearchingWorker = () => {
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-customer-as-worker-not-responding-or-late`
       )
       .then(() => {
+        dispatch(clearIsLiveRequest());
+        dispatch(clearLiveServiceId());
         setShowCancellButtons(false);
         requestData.orderStatus="cancelled"
       })

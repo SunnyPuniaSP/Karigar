@@ -51,6 +51,20 @@ const createServiceRequest = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Service request creation failed");
   }
 
+  const customer =await Customer.findByIdAndUpdate(
+    customerId,
+    {
+      $set:{
+        liveServiceId:createdServiceRequest._id,
+        isLiveRequest:true
+      }
+    },
+    {new:true}
+  )
+
+  if(!customer){
+    throw new ApiError("Service request created but service request id not updated in customer database")
+  }
   return res
     .status(201)
     .json(
@@ -925,8 +939,25 @@ const reportWorker = asyncHandler(async (req, res) => {
 const deleteServiceRequest=asyncHandler(async(req,res)=>{
   const {serviceRequestId}=req.params
 
-  if(!serviceRequestId){
-    throw new ApiError(400,"Service request id is not found");
+  const serviceRequest=await ServiceRequest.findById(serviceRequestId);
+
+  if(!serviceRequest){
+    throw new ApiError(400,"service request not found")
+  }
+
+  const customer=await Customer.findByIdAndUpdate(
+    serviceRequest.customerId,
+    {
+      $set:{
+        liveServiceId:null,
+        isLiveRequest:false
+      }
+    },
+    {new:true}
+  )
+
+  if(!customer){
+    throw new ApiError(500,"Error in updating customer live request details")
   }
 
   const deletedRequest=await ServiceRequest.findByIdAndDelete(serviceRequestId);

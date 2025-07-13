@@ -2,8 +2,35 @@ import React from "react";
 import customerhomehero from "../../assets/customerhomehero.png";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import { toast } from "sonner"
+import { useSelector } from "react-redux";
 const Home = () => {
   const navigate=useNavigate();
+  const {liveServiceId,isLiveRequest}=useSelector((state)=>state.customerAuth)
+  const bookService=()=>{
+    if(isLiveRequest){
+      toast("You already have an ongoing request", {
+        description: (
+          <div className="mt-2 flex items-center justify-between gap-3">
+            <p className="text-sm text-gray-600">
+              Please complete your current request before creating a new one.
+            </p>
+            <Button
+              onClick={() => navigate(`/customer/auth/service-request/${liveServiceId}`)}
+              className="px-3 py-1 text-sm font-mediumrounded-md transition"
+            >
+              Track
+            </Button>
+          </div>
+        ),
+        duration: 6000,
+        className: "bg-white shadow-lg border border-gray-200",
+      });
+    }
+    else{
+      navigate("/customer/auth/select-category")
+    }
+  }
   return (
     <div>
       <div className="flex justify-center items-center p-5 gap-5">
@@ -17,7 +44,7 @@ const Home = () => {
           </p>
 
           <div className="display flex gap-5">
-            <Button className="w-75" onClick={()=>navigate("/customer/auth/select-category")}>Book a Service</Button>
+            <Button className="w-75" onClick={bookService}>Book a Service</Button>
             <Button variant="secondary" className="w-75">
               Track Current Request
             </Button>

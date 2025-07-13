@@ -12,6 +12,7 @@ const Header = () => {
   const dispatch=useDispatch();
   const navigate=useNavigate();
   const profilePhoto=useSelector(state=>state.customerAuth.profilePhoto);
+  const liveServiceId=useSelector((state)=>state.customerAuth.liveServiceId)
   const logout=()=>{
     dispatch(clearCustomerDetails());
     navigate("/customer")
@@ -31,7 +32,7 @@ const Header = () => {
               <NavLink to="/customer/auth/my-requests">My Requests</NavLink>
             </li>
             <li>
-              <NavLink to="/customer/auth/current-request">Live Request</NavLink>
+              <NavLink to={`/customer/auth/service-request/${liveServiceId}`}>Live Request</NavLink>
             </li>
           </ul>
         </div>

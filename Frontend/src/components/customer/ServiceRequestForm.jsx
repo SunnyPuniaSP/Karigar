@@ -2,9 +2,12 @@ import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { setLiveServiceId,setIsLiveRequest } from "@/store/customerAuthSlice";
 
 const ServiceRequestForm = () => {
   const navigate=useNavigate();
+  const dispatch=useDispatch();
   const {category}=useParams();
   
 
@@ -74,6 +77,8 @@ const ServiceRequestForm = () => {
 
     axios.post(`/api/v1/service-request/${category}/create`,formData)
     .then((res)=>{
+        dispatch(setLiveServiceId(res.data.data._id));
+        dispatch(setIsLiveRequest());
         navigate(`/customer/auth/service-request/${res.data.data._id}`)
     })
     .catch(()=>{

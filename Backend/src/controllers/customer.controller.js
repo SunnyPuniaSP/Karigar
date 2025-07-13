@@ -276,6 +276,23 @@ const getCustomerDetails=asyncHandler(async(req,res)=>{
     return res.status(201).json(new ApiResponse(201,customer,"Customer details fetched successfully"))
 })
 
+const toggleIsLiveRequestToFalse=asyncHandler(async(req,res)=>{
+    const {customerId}=req.params;
+
+    const customer=await Customer.findByIdAndUpdate(
+        customerId,
+        {
+            $set:{
+                isLiveRequest:false,
+                liveServiceId:null
+            }
+        },
+        {new:true}
+    ).select("-password -refreshToken")
+
+    return res.status(200).json(new ApiResponse(200,customer,"live request set to false in customer database successfully"));
+})
+
 export {
     registerCustomer,
     loginCustomer,
@@ -285,5 +302,6 @@ export {
     getCurrentCustomer,
     updateProfilePhoto,
     updateCustomerDetails,
-    getCustomerDetails
+    getCustomerDetails,
+    toggleIsLiveRequestToFalse
 }

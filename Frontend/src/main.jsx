@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Toaster } from 'sonner';
 import 'leaflet/dist/leaflet.css';
 import "./index.css";
 import App from "./App.jsx";
@@ -44,7 +45,9 @@ const router = createBrowserRouter(
           <Route path="profile" element={<CustomerProfile />} />
           <Route path="select-category" element={<SelectCategory/>}/>
           <Route path="select-category/:category/more-info" element={<ServiceRequestForm/>}/>
-          <Route path="service-request/:serviceRequestId" element={<ServiceRequest/>}/>
+          <Route path="service-request/">
+              <Route path=":serviceRequestId" element={<ServiceRequest/>} />
+          </Route>
         </Route>
       </Route>
       <Route path="worker/">
@@ -67,6 +70,7 @@ createRoot(document.getElementById("root")).render(
     <Provider store={store}>
       <PersistGate loading={null} persistor={persistor}>
         <RouterProvider router={router} />
+        <Toaster position="top-center" richColors />
       </PersistGate>
     </Provider>
   </StrictMode>
