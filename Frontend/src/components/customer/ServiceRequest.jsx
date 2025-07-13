@@ -474,7 +474,7 @@ const handlePayment = async () => {
         {etaMinutes && (
           <div className="text-sm text-gray-700">
             Estimated arrival in:{" "}
-            <span className="font-semibold">{etaMinutes} mins</span>
+            <span className="font-semibold">{etaMinutes+10} mins</span>
           </div>
         )}
         <div>
@@ -484,13 +484,16 @@ const handlePayment = async () => {
         </div>
         <div className="w-full max-w-2xl  rounded-xl shadow bg-white p-4 flex gap-4 items-center">
           <img
-            src={workerDetails.profilePhoto || "/default-worker.png"}
+            src={workerDetails.profilePhoto || "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"} 
             alt="Worker"
             className="w-16 h-16 rounded-full object-cover"
           />
           <div className="flex flex-col gap-2">
+            <div style={{ color: "#0B1D3A" }} className="text-lg font-bold">
+              Worker Details
+            </div>
             <div className="flex items-center gap-5">
-              <div className="font-semibold text-lg">
+              <div className=" ">
                 {workerDetails.fullName}
               </div>
               <div className="text-sm text-gray-500">
@@ -516,7 +519,9 @@ const handlePayment = async () => {
           </div>
         </div>
         <div className="w-full max-w-2xl rounded-xl shadow bg-white p-4">
-          <div className="font-bold text-lg mb-2">Job Details</div>
+          <div style={{ color: "#0B1D3A" }} className="text-lg font-bold">
+              Job Details
+            </div>
           <div className="flex flex-col gap-2">
             <div className="text-sm text-gray-700">
               Category: {job.category}

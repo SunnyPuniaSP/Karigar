@@ -295,7 +295,7 @@ const SearchingWorker = () => {
       {etaMinutes && (
         <div className="text-sm text-gray-700">
           Estimated Reaching in:{" "}
-          <span className="font-semibold">{etaMinutes} mins</span>
+          <span className="font-semibold">{etaMinutes+10} mins</span>
         </div>
       )}
       {workerLocation && customerLocation && (
@@ -310,7 +310,7 @@ const SearchingWorker = () => {
       {customerDetails && (
         <div className="w-full max-w-2xl  rounded-xl shadow bg-white p-4 flex gap-4 items-center">
           <img
-            src={customerDetails.profilePhoto || "/default-worker.png"}
+            src={customerDetails.profilePhoto || "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"} 
             alt="Worker"
             className="w-16 h-16 rounded-full object-cover"
           />
