@@ -7,7 +7,8 @@ import {
     changeCurrentPassword,
     getCurrentCustomer,
     updateProfilePhoto,
-    updateCustomerDetails
+    updateCustomerDetails,
+    getCustomerDetails
 } from "../controllers/customer.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import verifyJWT from "../middlewares/customerAuth.middleware.js";
@@ -23,6 +24,7 @@ router.route("/logout").post(verifyJWT,  logoutCustomer)
 router.route("/refresh-token").post(refreshAccessToken)
 router.route("/change-password").post(verifyJWT, changeCurrentPassword)
 router.route("/current-user").get(verifyJWT, getCurrentCustomer)
+router.route("/:customerId/customerDetails").get( getCustomerDetails)
 router.route("/update-profilePhoto").patch(verifyJWT, upload.single("profilePhoto"), updateProfilePhoto)
 router.route("/update-customer-details").post(verifyJWT, updateCustomerDetails)
 

@@ -4,6 +4,9 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Worker } from "../models/worker.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
+import { ServiceRequest } from "../models/serviceRequest.model.js";
+import { getDistance } from "geolib";
+
 
 const generateAccessAndRefreshTokens = async (workerId) => {
   try {
@@ -331,6 +334,7 @@ const toggleIsOnline=asyncHandler(async(req,res)=>{
 
 const updateWorkerCurrentLocation=asyncHandler(async(req,res)=>{
     const {latitude,longitude}=req.body
+    const {serviceRequestId}=req.params
      if (!latitude || !longitude) {
         throw new ApiError(400, "Latitude and longitude are required");
       }
@@ -353,9 +357,78 @@ const updateWorkerCurrentLocation=asyncHandler(async(req,res)=>{
         throw new ApiError(400, "Worker not found");
       }
 
+    const serviceRequest=await ServiceRequest.findById(serviceRequestId);
+    if(!serviceRequest){
+      throw new ApiError(400,"Service request not find");
+    }
+
+    const startCoordinates=worker.startLocation.coordinates;
+    const customerCoordinates=serviceRequest.customerLocation.coordinates;
+
+    if (startCoordinates && customerCoordinates) {
+    const startLat = startCoordinates[1];
+    const startLng = startCoordinates[0];
+    const customerLat = customerCoordinates[1];
+    const customerLng = customerCoordinates[0];
+
+    const distanceFromStart = getDistance(
+  { latitude: startLat, longitude: startLng },
+  { latitude: currentLat, longitude: currentLng }
+);
+    const distanceToCustomer = getDistance(
+  { latitude: latitude, longitude: longitude },
+  { latitude: customerLat, longitude: customerLng }
+);
+
+    let statusUpdated = false;
+
+    if (distanceFromStart > 100 && serviceRequest.orderStatus === "connected") {
+      serviceRequest.orderStatus = "onway";
+      statusUpdated = true;
+    }
+
+    if (distanceToCustomer < 100 && serviceRequest.orderStatus === "onway") {
+      serviceRequest.orderStatus = "arrived";
+      statusUpdated = true;
+    }
+
+    if (statusUpdated) {
+      await serviceRequest.save();
+    }
+  }
     return res
     .status(200)
     .json(new ApiResponse(200, worker, "Worker current location updated successfully"))
+
+})
+
+const updateWorkerStartLocation=asyncHandler(async(req,res)=>{
+    const {latitude,longitude}=req.body
+     if (!latitude || !longitude) {
+        throw new ApiError(400, "Latitude and longitude are required");
+      }
+    const workerLocation = {
+      type: "Point",
+      coordinates: [parseFloat(longitude), parseFloat(latitude)],
+    };
+
+    const worker=await Worker.findByIdAndUpdate(
+      req.worker._id,
+      {
+        $set:{
+          startLocation:workerLocation,
+        }
+      },
+      {new:true}
+    ).select("-password -refreshToken");
+
+    if (!worker) {
+        throw new ApiError(400, "Worker not found");
+      }
+
+    return res
+    .status(200)
+    .json(new ApiResponse(200, worker, "Worker start location updated successfully"))
 
 })
 
@@ -417,5 +490,6 @@ export {
   toggleIsOnline,
   updateWorkerCurrentLocation,
   temporaryBlockCustomer,
-  getWorkerCurrentLocation
+  getWorkerCurrentLocation,
+  updateWorkerStartLocation
 };

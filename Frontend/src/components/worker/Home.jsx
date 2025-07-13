@@ -23,7 +23,7 @@ const Home = () => {
           };
 
           axios
-            .patch("/api/v1/worker/update-current-location", location)
+            .patch("/api/v1/worker/update-start-location", location)
             .then(() => {
               axios
                 .patch("/api/v1/worker/toggle-isOnline")

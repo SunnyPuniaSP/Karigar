@@ -264,6 +264,18 @@ const updateCustomerDetails = asyncHandler(async(req, res) => {
     .json(new ApiResponse(200, customer, "Profile updated successfully"))
 });
 
+const getCustomerDetails=asyncHandler(async(req,res)=>{
+    const {customerId}=req.params;
+
+    const customer=await Customer.findById(customerId).select("-password -refreshToken");
+
+    if(!customer){
+        throw new ApiError(400,"customer not found");
+    }
+
+    return res.status(201).json(new ApiResponse(201,customer,"Customer details fetched successfully"))
+})
+
 export {
     registerCustomer,
     loginCustomer,
@@ -272,5 +284,6 @@ export {
     changeCurrentPassword,
     getCurrentCustomer,
     updateProfilePhoto,
-    updateCustomerDetails
+    updateCustomerDetails,
+    getCustomerDetails
 }
