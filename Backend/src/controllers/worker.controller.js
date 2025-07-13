@@ -373,7 +373,7 @@ const updateWorkerCurrentLocation=asyncHandler(async(req,res)=>{
 
     const distanceFromStart = getDistance(
   { latitude: startLat, longitude: startLng },
-  { latitude: currentLat, longitude: currentLng }
+  { latitude: latitude, longitude: longitude }
 );
     const distanceToCustomer = getDistance(
   { latitude: latitude, longitude: longitude },
