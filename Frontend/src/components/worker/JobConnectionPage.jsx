@@ -65,6 +65,11 @@ const SearchingWorker = () => {
   const [routePath, setRoutePath] = useState([]);
   const [etaMinutes, setEtaMinutes] = useState(null);
 
+  const [showQuoteAmountFields,setShowQuoteAmountFields]=useState(false);
+  const [showInspectingButton, setShowInspectingButton]=useState(false);
+  const [showReceivePaymentButton, setShowReceivePaymentButton]=useState(false);
+  const [quoteAmount,setQuoteAmount]=useState();
+
   // Poll for service request status
   useEffect(() => {
     const interval = setInterval(fetchStatus, 4000);
@@ -78,6 +83,18 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
+        if(data.orderStatus==="arrived"){
+          setShowInspectingButton(true);
+        }
+        if(data.orderStatus==="inspecting"){
+          setShowQuoteAmountFields(true);
+        }
+        if(data.orderStatus==="payment_pending_visiting_fee" || data.orderStatus==="payment_pending_quote_amount"){
+          setShowReceivePaymentButton(true);
+        }
+        if(data.orderStatus==="completed"){
+          setShowReceivePaymentButton(false);
+        }
       })
       .catch((error) => {
         console.error("Error fetching request status", error);
@@ -173,6 +190,36 @@ const SearchingWorker = () => {
     return () => clearInterval(interval);
   }, [requestData]);
 
+  const startInspection=()=>{
+    axios.patch(`/api/v1/service-request/${serviceRequestId}/update-status-to-inspecting`)
+    .then(()=>{
+      setShowInspectingButton(false);
+    })
+    .catch(()=>{
+      alert("error while updating status to inspecting")
+    })
+  }
+
+  const sendQuoteAmount=()=>{
+    axios.patch(`/api/v1/service-request/${serviceRequestId}/update-quote-amount`,{quoteAmount})
+    .then(()=>{
+      setShowQuoteAmountFields(false);
+    })
+    .catch(()=>{
+      alert("error while updating quote amount")
+    })
+  }
+
+  const paymentReceived=()=>{
+    axios.patch(`/api/v1/service-request/${serviceRequestId}/payment-received-cash`)
+    .then(()=>{
+      setShowReceivePaymentButton(false);
+    })
+    .catch(()=>{
+      alert("error while updating job status on payment received in cash")
+    })
+  }
+
   const STATUS_MAP = {
     connected: {
       bg: "bg-blue-100",
@@ -202,7 +249,7 @@ const SearchingWorker = () => {
       bg: "bg-orange-100",
       text: "text-orange-800",
       icon: "📄",
-      label: "You provided a repair quote",
+      label: "Waiting for Customer Approval",
     },
     payment_pending_quote_amount: {
       bg: "bg-yellow-100",
@@ -250,6 +297,30 @@ const SearchingWorker = () => {
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-50 py-10 px-2 gap-5">
       <StatusBanner orderStatus={job.orderStatus} />
+      {showInspectingButton && (
+        <Button onClick={startInspection}>Start Inspecting</Button>
+      )}
+      {showQuoteAmountFields && (
+        <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-4 rounded-xl shadow-md w-full max-w-md mx-auto">
+  <input
+    onChange={(e) => setQuoteAmount(e.target.value)}
+    type="number"
+    name="quoteAmount"
+    placeholder="Enter Quote Amount"
+    className="w-full sm:flex-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+  />
+  <Button
+    onClick={sendQuoteAmount}
+    className="font-medium py-2 px-6 rounded-lg shadow transition"
+  >
+    Submit
+  </Button>
+</div>
+
+      )}
+      {showReceivePaymentButton && (
+        <Button onClick={paymentReceived}>Payment Received in Cash</Button>
+      )}
       {/* Live Map Card */}
       <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
         <div className="h-80">
