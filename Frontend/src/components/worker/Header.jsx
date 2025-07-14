@@ -51,28 +51,30 @@ const Header = () => {
             </Button>
           </div>
         ),
-        duration: 6000,
+        duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
-    } else {
-      console.log("navigating to jobs page");
+    }
+    else if(!isOnline){
+      toast("Your status if offline toggle it to online to proceed", {
+        duration: 3000,
+        className: "bg-white shadow-lg border border-gray-200",
+      });
+    }
+     else {
       navigate("/worker/auth/find-jobs");
     }
   };
   const liveJob = () => {
     if (!isLiveRequest) {
-      toast("You do not have any ongoing request", {
-        description: (
-          <div className="mt-2 flex items-center justify-between gap-3">
-            <Button
-              onClick={() => navigate(`/worker/auth/find-jobs`)}
+      toast(<div className="flex justify-between gap-5"><div>You do not have any ongoing request</div><Button
+              onClick={findRequests}
               className="px-3 py-1 text-sm font-mediumrounded-md transition"
             >
               Find Job
-            </Button>
-          </div>
-        ),
-        duration: 6000,
+            </Button></div>, {
+       
+        duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
     } else {
