@@ -339,6 +339,7 @@ const rejectRepairQuote = asyncHandler(async (req, res) => {
     );
   }
   serviceRequest.orderStatus = "payment_pending_visiting_fee";
+  serviceRequest.rejectedAt = new Date();
   await serviceRequest.save();
 
   const updatedServiceRequest = await ServiceRequest.findById(

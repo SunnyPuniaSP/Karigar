@@ -39,7 +39,7 @@ const Header = () => {
               <NavLink to="/customer/auth/home">Home</NavLink>
             </li>
             <li>
-              <NavLink to="/customer/auth/my-requests">My Requests</NavLink>
+              <NavLink to="/customer/auth/past-requests">Past Requests</NavLink>
             </li>
             <li>
               <button

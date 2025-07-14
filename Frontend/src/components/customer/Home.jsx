@@ -31,6 +31,16 @@ const Home = () => {
       navigate("/customer/auth/select-category")
     }
   }
+  const liveJob = () => {
+      if (!isLiveRequest) {
+        toast("You do not have any ongoing request", {
+          duration: 6000,
+          className: "bg-white shadow-lg border border-gray-200",
+        });
+      } else {
+        navigate(`/customer/auth/service-request/${liveServiceId}`);
+      }
+    };
   return (
     <div>
       <div className="flex justify-center items-center p-5 gap-5">
@@ -45,7 +55,7 @@ const Home = () => {
 
           <div className="display flex gap-5">
             <Button className="w-75" onClick={bookService}>Book a Service</Button>
-            <Button variant="secondary" className="w-75">
+            <Button variant="secondary" className="w-75" onClick={liveJob}>
               Track Current Request
             </Button>
           </div>

@@ -401,12 +401,14 @@ const SearchingWorker = () => {
           Cancel
         </Button>
       )}
-      {showCancelCustomerNotResponding && (
-        <Button variant="destructive" onClick={customerNotResponding}>Cancel as Customer Not Responding</Button>
+      <div className="flex gap-3 justify-center">
+        {showCancelCustomerNotResponding && (
+        <Button variant="destructive" onClick={customerNotResponding}>Customer Not Responding</Button>
       )}
       {showInspectingButton && (
-        <Button onClick={startInspection}>Start Inspecting</Button>
+        <Button onClick={startInspection} className="w-[200px]">Start Inspecting</Button>
       )}
+      </div>
       {showQuoteAmountFields && (
         <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-4 rounded-xl shadow-md w-full max-w-md mx-auto">
           <input

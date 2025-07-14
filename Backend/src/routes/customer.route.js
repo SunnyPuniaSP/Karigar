@@ -9,7 +9,8 @@ import {
     updateProfilePhoto,
     updateCustomerDetails,
     getCustomerDetails,
-    toggleIsLiveRequestToFalse
+    toggleIsLiveRequestToFalse,
+    getPastRequests
 } from "../controllers/customer.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import verifyJWT from "../middlewares/customerAuth.middleware.js";
@@ -29,5 +30,6 @@ router.route("/:customerId/customerDetails").get( getCustomerDetails)
 router.route("/:customerId/toggle-isliveRequestTo-false").patch( toggleIsLiveRequestToFalse)
 router.route("/update-profilePhoto").patch(verifyJWT, upload.single("profilePhoto"), updateProfilePhoto)
 router.route("/update-customer-details").post(verifyJWT, updateCustomerDetails)
+router.route("/past-requests").get(verifyJWT, getPastRequests)
 
 export default router

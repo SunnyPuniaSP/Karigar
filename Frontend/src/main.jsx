@@ -31,6 +31,7 @@ import WorkerHome from "./components/worker/Home";
 import WorkerProfile from "./components/worker/WorkerProfile";
 import FindJobs from "./components/worker/FindJobs";
 import JobConnectionPage from "./components/worker/JobConnectionPage";
+import MyRequests from "./components/customer/MyRequests";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -48,6 +49,7 @@ const router = createBrowserRouter(
           <Route path="service-request/">
               <Route path=":serviceRequestId" element={<ServiceRequest/>} />
           </Route>
+          <Route path="past-requests" element={<MyRequests/>} />
         </Route>
       </Route>
       <Route path="worker/">

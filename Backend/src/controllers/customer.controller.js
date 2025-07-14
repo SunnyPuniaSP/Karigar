@@ -4,6 +4,8 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { Customer } from "../models/customer.model.js";
 import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
+import { ServiceRequest } from "../models/serviceRequest.model.js";
+import mongoose from "mongoose";
 
 const generateAccessAndRefreshTokens = async(customerId)=>{
     try {
@@ -297,6 +299,45 @@ const toggleIsLiveRequestToFalse=asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,customer,"live request set to false in customer database successfully"));
 })
 
+const getPastRequests=asyncHandler(async(req,res)=>{
+    const customerId=req.customer._id;
+
+    const requests=await ServiceRequest.aggregate([
+        {
+            $match:{
+                customerId: customerId,
+                orderStatus: "completed"
+            }
+        },
+        {
+            $lookup:{
+                from: "workers",
+                localField:"workerId",
+                foreignField:"_id",
+                as:"workerDetails"
+            }
+        },
+        {
+            $addFields:{
+                workerName:"$workerDetails.fullName",
+                workerPhoto:"$workerDetails.profilePhoto"
+            }
+        },
+        {
+            $project:{
+                workerDetails:0
+            }
+        },
+        {
+            $sort:{
+                updatedAt:-1
+            }
+        }
+    ])
+
+    return res.status(201).json(new ApiResponse(201,requests,"Past requests find sucessfully"))
+})
+
 export {
     registerCustomer,
     loginCustomer,
@@ -307,5 +348,6 @@ export {
     updateProfilePhoto,
     updateCustomerDetails,
     getCustomerDetails,
-    toggleIsLiveRequestToFalse
+    toggleIsLiveRequestToFalse,
+    getPastRequests
 }
