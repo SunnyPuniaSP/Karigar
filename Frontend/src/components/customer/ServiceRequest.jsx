@@ -16,7 +16,7 @@ import "leaflet/dist/leaflet.css";
 import houseIc from "../../assets/3d-house.png";
 import workerIc from "../../assets/mechanic.png";
 import { useDispatch } from "react-redux";
-import { clearIsLiveRequest,clearLiveServiceId } from "@/store/customerAuthSlice";
+import { clearIsLiveRequest,clearLiveServiceId } from "../../store/customerAuthSlice";
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
   const res = await axios.get(url);
@@ -106,39 +106,79 @@ const SearchingWorker = () => {
             alert("toglling is live request to false failed");
           })
           toggleIsLiveRequestToFalse.current=true;
+          localStorage.removeItem("connectedStartTime");
+        }
+        if(data.orderStatus==="cancelled" && !toggleIsLiveRequestToFalse.current){
+          setShowCancellButtons(false);
+          axios.patch(`/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`)
+          .then(()=>{
+            dispatch(clearIsLiveRequest());
+            dispatch(clearLiveServiceId());
+          })
+          .catch(()=>{
+            alert("toglling is live request to false failed");
+          })
+          toggleIsLiveRequestToFalse.current=true;
+          localStorage.removeItem("connectedStartTime");
         }
         if(data.orderStatus==="repairAmountQuoted"){
           setShowAcceptRejectButton(true);
         }
+        if(data.orderStatus==="payment_pending_visiting_fee" || data.orderStatus==="payment_pending_quote_amount"){
+          setShowPayButton(true);
+        }
         if(data.orderStatus!=="searching" && data.orderStatus!=="connected" && data.orderStatus!=="onway"){
           setShowCancellButtons(false);
+          setLoading(false);
+          setWorkerAccepted(true);
         }
         if (
-          (data.orderStatus === "connected" || data.orderStatus === "onway") &&
-          !cancellButtonStarted.current
-        ) {
-          setWorkerAccepted(true);
-          setLoading(false);
+  (data.orderStatus === "connected" || data.orderStatus === "onway") &&
+  !cancellButtonStarted.current
+) {
+  setWorkerAccepted(true);
+  setLoading(false);
 
-          // Start cancel countdown and visibility
-          setShowCancellButtonByMistake(true);
-          setCancellCountdown(30); // reset to 30 sec
-          setTimeout(() => {
-            setShowCancellButtonLate(true);
-          }, 60 * 1000);
-          const countdownInterval = setInterval(() => {
-            setCancellCountdown((prev) => {
-              if (prev <= 1) {
-                clearInterval(countdownInterval);
-                setShowCancellButtonByMistake(false); // hide button after 30s
-                return 0;
-              }
-              return prev - 1;
-            });
-          }, 1000);
+  const existingTimestamp = localStorage.getItem("connectedStartTime");
 
-          cancellButtonStarted.current = true;
+  // If not already set, set it now
+  if (!existingTimestamp) {
+    localStorage.setItem("connectedStartTime", Date.now().toString());
+  }
+
+  const timestamp = parseInt(localStorage.getItem("connectedStartTime"), 10);
+  const now = Date.now();
+  const secondsPassed = Math.floor((now - timestamp) / 1000);
+
+  // For "Cancel by mistake" (0-30 sec)
+  if (secondsPassed < 30) {
+    setShowCancellButtonByMistake(true);
+    setCancellCountdown(30 - secondsPassed);
+
+    const countdownInterval = setInterval(() => {
+      setCancellCountdown((prev) => {
+        if (prev <= 1) {
+          clearInterval(countdownInterval);
+          setShowCancellButtonByMistake(false);
+          return 0;
         }
+        return prev - 1;
+      });
+    }, 1000);
+  }
+
+  // For "Cancel if worker is late" (after 60 sec)
+  if (secondsPassed >= 60) {
+    setShowCancellButtonLate(true);
+  } else {
+    setTimeout(() => {
+      setShowCancellButtonLate(true);
+    }, (60 - secondsPassed) * 1000);
+  }
+
+  cancellButtonStarted.current = true;
+}
+
       })
       .catch((error) => {
         console.error("Error fetching request status", error);

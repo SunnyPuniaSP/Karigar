@@ -477,6 +477,27 @@ const getWorkerCurrentLocation=asyncHandler(async(req,res)=>{
 
 })
 
+const toggleIsLiveRequestToFalse=asyncHandler(async(req,res)=>{
+    const {workerId}=req.params;
+
+    const worker=await Worker.findByIdAndUpdate(
+        workerId,
+        {
+            $set:{
+                isLiveRequest:false,
+                liveServiceId:null
+            }
+        },
+        {new:true}
+    ).select("-password -refreshToken")
+
+    if(!worker){
+      throw new ApiError(400,"Something went wrong while fetching worker and update live request status to false")
+    }
+
+    return res.status(200).json(new ApiResponse(200,worker,"live request set to false in customer database successfully"));
+})
+
 export {
   registerWorker,
   loginWorker,
@@ -491,5 +512,6 @@ export {
   updateWorkerCurrentLocation,
   temporaryBlockCustomer,
   getWorkerCurrentLocation,
-  updateWorkerStartLocation
+  updateWorkerStartLocation,
+  toggleIsLiveRequestToFalse
 };

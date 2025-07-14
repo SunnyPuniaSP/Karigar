@@ -290,6 +290,10 @@ const toggleIsLiveRequestToFalse=asyncHandler(async(req,res)=>{
         {new:true}
     ).select("-password -refreshToken")
 
+    if(!customer){
+          throw new ApiError(400,"Something went wrong while fetching customer and update live request status to false")
+        }
+
     return res.status(200).json(new ApiResponse(200,customer,"live request set to false in customer database successfully"));
 })
 

@@ -128,6 +128,15 @@ const workerSchema = new mongoose.Schema(
         },
       },
     ],
+    isLiveRequest: {
+      type: Boolean,
+      default: false,
+    },
+    liveServiceId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "ServiceRequest",
+      default: null,
+    },
   },
   { timestamps: true }
 );

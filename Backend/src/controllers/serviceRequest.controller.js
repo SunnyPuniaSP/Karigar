@@ -101,13 +101,13 @@ const findRequests = asyncHandler(async (req, res) => {
   const worker = await Worker.findById(workerId);
   if (
     !worker ||
-    !worker.currentLocation ||
+    !worker.startLocation ||
     !Array.isArray(worker.workingCategory)
   ) {
     throw new ApiError(404, "Worker profile incomplete or not found");
   }
 
-  const [workerLng, workerLat] = worker.currentLocation.coordinates;
+  const [workerLng, workerLat] = worker.startLocation.coordinates;
   const workingCategories = worker.workingCategory;
 
   const now = new Date();
@@ -131,7 +131,7 @@ const findRequests = asyncHandler(async (req, res) => {
     customerId: { $nin: blockedCustomerIds },
     customerLocation: {
       $near: {
-        $geometry: worker.currentLocation,
+        $geometry: worker.startLocation,
         $maxDistance: SEARCH_RADIUS_METERS,
       },
     },
@@ -195,7 +195,7 @@ const acceptRequest = asyncHandler(async (req, res) => {
   serviceRequest.orderStatus = "connected";
   serviceRequest.workerLocation = {
     type: "Point",
-    coordinates: req.worker.currentLocation.coordinates,
+    coordinates: req.worker.startLocation.coordinates,
   };
   serviceRequest.connectedAt = new Date();
   await serviceRequest.save();
@@ -210,6 +210,21 @@ const acceptRequest = asyncHandler(async (req, res) => {
     throw new ApiError(500, "Service request not found after accepting");
   }
 
+  const worker=await Worker.findByIdAndUpdate(
+    workerId,
+    {
+      $set:{
+        liveServiceId:serviceRequestId,
+        isLiveRequest:true
+      }
+    },
+    {new:true}
+  )
+
+  if(!worker){
+    throw new ApiError(500,"worker live request details update failed")
+  }
+  
   return res
     .status(200)
     .json(
@@ -452,13 +467,7 @@ const cancelledByWorkerAsCustomerNotResponding = asyncHandler(
       throw new ApiError(404, "Service request not found");
     }
 
-    // Check if the request is accepted by this worker
-    if (serviceRequest.workerId?.toString() !== workerId) {
-      throw new ApiError(
-        400,
-        "Service request not accepted by this worker or not in connected state"
-      );
-    }
+    
 
     if (serviceRequest.orderStatus !== "arrived") {
       throw new ApiError(
@@ -531,6 +540,21 @@ const cancelledByWorkerAsCustomerNotResponding = asyncHandler(
       throw new ApiError(404, "Service request not found after cancellation");
     }
 
+    const worker=await Worker.findByIdAndUpdate(
+    workerId,
+    {
+      $set:{
+        isLiveRequest:false,
+        liveServiceId:null
+      }
+    },
+    {new:true}
+  )
+
+  if(!worker){
+    throw new ApiError(500,"Service Request updated successfully but customer live request details not resetted")
+  }
+
     return res
       .status(200)
       .json(
@@ -555,7 +579,6 @@ const cancelledByWorkerAsNotAbleToServe = asyncHandler(async (req, res) => {
 
   // Check if the request is accepted by this worker
   if (
-    serviceRequest.workerId?.toString() !== workerId ||
     serviceRequest.orderStatus === "searching"
   ) {
     throw new ApiError(
@@ -623,6 +646,21 @@ const cancelledByWorkerAsNotAbleToServe = asyncHandler(async (req, res) => {
 
   if (!updatedServiceRequest) {
     throw new ApiError(404, "Service request not found after cancellation");
+  }
+
+  const worker=await Worker.findByIdAndUpdate(
+    workerId,
+    {
+      $set:{
+        isLiveRequest:false,
+        liveServiceId:null
+      }
+    },
+    {new:true}
+  )
+
+  if(!worker){
+    throw new ApiError(500,"Service Request updated successfully but customer live request details not resetted")
   }
 
   return res
@@ -714,6 +752,21 @@ const cancelledByCustomerAsWorkerNotRespondingOrLate = asyncHandler(
       throw new ApiError(404, "Service request not found after cancellation");
     }
 
+    const customer=await Customer.findByIdAndUpdate(
+    customerId,
+    {
+      $set:{
+        isLiveRequest:false,
+        liveServiceId:null
+      }
+    },
+    {new:true}
+  )
+
+  if(!customer){
+    throw new ApiError(500,"Service Request updated successfully but customer live request details not resetted")
+  }
+
     return res
       .status(200)
       .json(
@@ -761,6 +814,20 @@ const cancelledByCustomerAsByMistake = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Service request not found after cancellation");
   }
 
+  const customer=await Customer.findByIdAndUpdate(
+    customerId,
+    {
+      $set:{
+        isLiveRequest:false,
+        liveServiceId:null
+      }
+    },
+    {new:true}
+  )
+
+  if(!customer){
+    throw new ApiError(500,"Service Request updated successfully but customer live request details not resetted")
+  }
   return res
     .status(200)
     .json(

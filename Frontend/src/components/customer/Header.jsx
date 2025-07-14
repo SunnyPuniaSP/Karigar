@@ -6,17 +6,27 @@ import {useDispatch} from "react-redux"
 import { clearCustomerDetails } from '../../store/customerAuthSlice';
 import { useNavigate } from 'react-router-dom';
 import { useSelector } from 'react-redux';
-
+import { toast } from "sonner"
 
 const Header = () => {
   const dispatch=useDispatch();
   const navigate=useNavigate();
+  const {liveServiceId,isLiveRequest}=useSelector((state)=>state.customerAuth)
   const profilePhoto=useSelector(state=>state.customerAuth.profilePhoto);
-  const liveServiceId=useSelector((state)=>state.customerAuth.liveServiceId)
   const logout=()=>{
     dispatch(clearCustomerDetails());
     navigate("/customer")
   }
+  const liveJob = () => {
+    if (!isLiveRequest) {
+      toast("You do not have any ongoing request", {
+        duration: 6000,
+        className: "bg-white shadow-lg border border-gray-200",
+      });
+    } else {
+      navigate(`/customer/auth/service-request/${liveServiceId}`);
+    }
+  };
   return (
     <nav>
       <div style={{ backgroundColor: "#0B1D3A" }} className=" text-white p-2 h-[60px] w-full flex items-center justify-between">
@@ -32,7 +42,12 @@ const Header = () => {
               <NavLink to="/customer/auth/my-requests">My Requests</NavLink>
             </li>
             <li>
-              <NavLink to={`/customer/auth/service-request/${liveServiceId}`}>Live Request</NavLink>
+              <button
+                onClick={liveJob}
+                className="bg-transparent border-none text-white cursor-pointer font-medium"
+              >
+                Live Request
+              </button>
             </li>
           </ul>
         </div>

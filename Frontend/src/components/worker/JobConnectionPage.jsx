@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import { Button } from "../ui/button";
@@ -15,6 +15,11 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import houseIc from "../../assets/3d-house.png";
 import workerIc from "../../assets/mechanic.png";
+import {
+  clearIsLiveRequest,
+  clearLiveServiceId,
+} from "../../store/workerAuthSlice";
+import { useDispatch } from "react-redux";
 
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
@@ -55,6 +60,7 @@ function FitBounds({ workerLocation, customerLocation }) {
 }
 
 const SearchingWorker = () => {
+  const dispatch = useDispatch();
   const { serviceRequestId } = useParams();
   const [requestData, setRequestData] = useState(null);
   const [customerDetails, setCustomerDetails] = useState(null);
@@ -65,10 +71,18 @@ const SearchingWorker = () => {
   const [routePath, setRoutePath] = useState([]);
   const [etaMinutes, setEtaMinutes] = useState(null);
 
-  const [showQuoteAmountFields,setShowQuoteAmountFields]=useState(false);
-  const [showInspectingButton, setShowInspectingButton]=useState(false);
-  const [showReceivePaymentButton, setShowReceivePaymentButton]=useState(false);
-  const [quoteAmount,setQuoteAmount]=useState();
+  const [showQuoteAmountFields, setShowQuoteAmountFields] = useState(false);
+  const [showInspectingButton, setShowInspectingButton] = useState(false);
+  const [showReceivePaymentButton, setShowReceivePaymentButton] =
+    useState(false);
+  const [quoteAmount, setQuoteAmount] = useState();
+
+  const [showCancelNotAbleToServe, setShowCancellNotAbleToServe] =
+    useState(true);
+  const [showCancelCustomerNotResponding, setShowCancellCustomerNotResponding] =
+    useState(false);
+
+  const toggleIsLiveRequestToFalse = useRef(false);
 
   // Poll for service request status
   useEffect(() => {
@@ -83,17 +97,59 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
-        if(data.orderStatus==="arrived"){
+        if(data.orderStatus!=="connected" && data.orderStatus!=="onway"){
+          setShowCancellNotAbleToServe(false);
+        }
+        if (data.orderStatus === "arrived") {
           setShowInspectingButton(true);
+          setShowCancellNotAbleToServe(false);
+          setShowCancellCustomerNotResponding(true);
         }
-        if(data.orderStatus==="inspecting"){
+        if (data.orderStatus === "inspecting") {
           setShowQuoteAmountFields(true);
+          setShowCancellCustomerNotResponding(false);
         }
-        if(data.orderStatus==="payment_pending_visiting_fee" || data.orderStatus==="payment_pending_quote_amount"){
+        if (
+          data.orderStatus === "payment_pending_visiting_fee" ||
+          data.orderStatus === "payment_pending_quote_amount"
+        ) {
           setShowReceivePaymentButton(true);
         }
-        if(data.orderStatus==="completed"){
+        if (
+          data.orderStatus === "completed" &&
+          !toggleIsLiveRequestToFalse.current
+        ) {
           setShowReceivePaymentButton(false);
+          axios
+            .patch(
+              `/api/v1/worker/${data.workerId}/toggle-isliveRequestTo-false`
+            )
+            .then(() => {
+              dispatch(clearIsLiveRequest());
+              dispatch(clearLiveServiceId());
+            })
+            .catch(() => {
+              alert("toglling is live request to false failed");
+            });
+          toggleIsLiveRequestToFalse.current = true;
+        }
+        if (
+          data.orderStatus === "cancelled" &&
+          !toggleIsLiveRequestToFalse.current
+        ) {
+          setShowCancellNotAbleToServe(false);
+          axios
+            .patch(
+              `/api/v1/worker/${data.workerId}/toggle-isliveRequestTo-false`
+            )
+            .then(() => {
+              dispatch(clearIsLiveRequest());
+              dispatch(clearLiveServiceId());
+            })
+            .catch(() => {
+              alert("toglling is live request to false failed");
+            });
+          toggleIsLiveRequestToFalse.current = true;
         }
       })
       .catch((error) => {
@@ -116,38 +172,40 @@ const SearchingWorker = () => {
   }, [requestData]);
 
   useEffect(() => {
-  let locationUpdateInterval;
+    let locationUpdateInterval;
 
-  const updateWorkerLocation = () => {
-    if (!requestData?.workerId) return;
+    const updateWorkerLocation = () => {
+      if (!requestData?.workerId) return;
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        const { latitude, longitude } = position.coords;
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          const { latitude, longitude } = position.coords;
 
-        axios
-          .patch(`/api/v1/worker/${serviceRequestId}/update-current-location`, {
-            latitude,
-            longitude,
-          })
-          .catch(() => {
-            alert("Failed to update worker location");
-          });
-      },
-      (err) => {
-        console.error("Geolocation error", err);
-      }
-    );
-  };
+          axios
+            .patch(
+              `/api/v1/worker/${serviceRequestId}/update-current-location`,
+              {
+                latitude,
+                longitude,
+              }
+            )
+            .catch(() => {
+              alert("Failed to update worker location");
+            });
+        },
+        (err) => {
+          console.error("Geolocation error", err);
+        }
+      );
+    };
 
-  if (requestData?.workerId) {
-    updateWorkerLocation(); // Call once immediately
-    locationUpdateInterval = setInterval(updateWorkerLocation, 5000); // Poll every 5 seconds
-  }
+    if (requestData?.workerId) {
+      updateWorkerLocation(); // Call once immediately
+      locationUpdateInterval = setInterval(updateWorkerLocation, 5000); // Poll every 5 seconds
+    }
 
-  return () => clearInterval(locationUpdateInterval);
-}, [requestData?.workerId]);
-
+    return () => clearInterval(locationUpdateInterval);
+  }, [requestData?.workerId]);
 
   // Poll for worker and customer locations and fetch the real route
   useEffect(() => {
@@ -190,35 +248,76 @@ const SearchingWorker = () => {
     return () => clearInterval(interval);
   }, [requestData]);
 
-  const startInspection=()=>{
-    axios.patch(`/api/v1/service-request/${serviceRequestId}/update-status-to-inspecting`)
-    .then(()=>{
-      setShowInspectingButton(false);
-    })
-    .catch(()=>{
-      alert("error while updating status to inspecting")
-    })
-  }
+  const startInspection = () => {
+    axios
+      .patch(
+        `/api/v1/service-request/${serviceRequestId}/update-status-to-inspecting`
+      )
+      .then(() => {
+        setShowInspectingButton(false);
+      })
+      .catch(() => {
+        alert("error while updating status to inspecting");
+      });
+  };
 
-  const sendQuoteAmount=()=>{
-    axios.patch(`/api/v1/service-request/${serviceRequestId}/update-quote-amount`,{quoteAmount})
-    .then(()=>{
-      setShowQuoteAmountFields(false);
-    })
-    .catch(()=>{
-      alert("error while updating quote amount")
-    })
-  }
+  const sendQuoteAmount = () => {
+    axios
+      .patch(
+        `/api/v1/service-request/${serviceRequestId}/update-quote-amount`,
+        { quoteAmount }
+      )
+      .then(() => {
+        setShowQuoteAmountFields(false);
+      })
+      .catch(() => {
+        alert("error while updating quote amount");
+      });
+  };
 
-  const paymentReceived=()=>{
-    axios.patch(`/api/v1/service-request/${serviceRequestId}/payment-received-cash`)
-    .then(()=>{
-      setShowReceivePaymentButton(false);
-    })
-    .catch(()=>{
-      alert("error while updating job status on payment received in cash")
-    })
-  }
+  const paymentReceived = () => {
+    axios
+      .patch(
+        `/api/v1/service-request/${serviceRequestId}/payment-received-cash`
+      )
+      .then(() => {
+        setShowReceivePaymentButton(false);
+      })
+      .catch(() => {
+        alert("error while updating job status on payment received in cash");
+      });
+  };
+
+  const notAbleToServe = () => {
+    axios
+      .patch(
+        `/api/v1/service-request/${serviceRequestId}/cancelled-by-worker-as-not-able-to-serve`
+      )
+      .then(() => {
+        dispatch(clearIsLiveRequest());
+        dispatch(clearLiveServiceId());
+        setShowCancellNotAbleToServe(false);
+      })
+      .catch(() => {
+        alert("something went wrong while cancelling request");
+      });
+  };
+
+  const customerNotResponding = () => {
+    axios
+      .patch(
+        `/api/v1/service-request/${serviceRequestId}/cancelled-by-worker-as-customer-not-responding`
+      )
+      .then(() => {
+        dispatch(clearIsLiveRequest());
+        dispatch(clearLiveServiceId());
+        setShowCancellCustomerNotResponding(false);
+        setShowInspectingButton(false);
+      })
+      .catch(() => {
+        alert("something went wrong while cancelling request");
+      });
+  };
 
   const STATUS_MAP = {
     connected: {
@@ -297,26 +396,33 @@ const SearchingWorker = () => {
   return (
     <div className="min-h-screen flex flex-col items-center bg-gray-50 py-10 px-2 gap-5">
       <StatusBanner orderStatus={job.orderStatus} />
+      {showCancelNotAbleToServe && (
+        <Button variant="destructive" onClick={notAbleToServe}>
+          Cancel
+        </Button>
+      )}
+      {showCancelCustomerNotResponding && (
+        <Button variant="destructive" onClick={customerNotResponding}>Cancel as Customer Not Responding</Button>
+      )}
       {showInspectingButton && (
         <Button onClick={startInspection}>Start Inspecting</Button>
       )}
       {showQuoteAmountFields && (
         <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-4 rounded-xl shadow-md w-full max-w-md mx-auto">
-  <input
-    onChange={(e) => setQuoteAmount(e.target.value)}
-    type="number"
-    name="quoteAmount"
-    placeholder="Enter Quote Amount"
-    className="w-full sm:flex-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-  />
-  <Button
-    onClick={sendQuoteAmount}
-    className="font-medium py-2 px-6 rounded-lg shadow transition"
-  >
-    Submit
-  </Button>
-</div>
-
+          <input
+            onChange={(e) => setQuoteAmount(e.target.value)}
+            type="number"
+            name="quoteAmount"
+            placeholder="Enter Quote Amount"
+            className="w-full sm:flex-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+          />
+          <Button
+            onClick={sendQuoteAmount}
+            className="font-medium py-2 px-6 rounded-lg shadow transition"
+          >
+            Submit
+          </Button>
+        </div>
       )}
       {showReceivePaymentButton && (
         <Button onClick={paymentReceived}>Payment Received in Cash</Button>
@@ -366,7 +472,7 @@ const SearchingWorker = () => {
       {etaMinutes && (
         <div className="text-sm text-gray-700">
           Estimated Reaching in:{" "}
-          <span className="font-semibold">{etaMinutes+10} mins</span>
+          <span className="font-semibold">{etaMinutes + 10} mins</span>
         </div>
       )}
       {workerLocation && customerLocation && (
@@ -381,7 +487,10 @@ const SearchingWorker = () => {
       {customerDetails && (
         <div className="w-full max-w-2xl  rounded-xl shadow bg-white p-4 flex gap-4 items-center">
           <img
-            src={customerDetails.profilePhoto || "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"} 
+            src={
+              customerDetails.profilePhoto ||
+              "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+            }
             alt="Worker"
             className="w-16 h-16 rounded-full object-cover"
           />

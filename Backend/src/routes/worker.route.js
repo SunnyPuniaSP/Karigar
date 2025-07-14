@@ -13,7 +13,8 @@ import {
     updateWorkerCurrentLocation,
     temporaryBlockCustomer,
     getWorkerCurrentLocation,
-    updateWorkerStartLocation
+    updateWorkerStartLocation,
+    toggleIsLiveRequestToFalse
 } from "../controllers/worker.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import verifyJWT from "../middlewares/workerAuth.middleware.js";
@@ -37,6 +38,7 @@ router.route("/:serviceRequestId/update-current-location").patch( verifyJWT, upd
 router.route("/update-start-location").patch( verifyJWT, updateWorkerStartLocation)
 router.route("/temporary-blockCustomer").patch( verifyJWT, temporaryBlockCustomer)
 router.route("/:workerId/location").get( getWorkerCurrentLocation)
+router.route("/:workerId/toggle-isliveRequestTo-false").patch( toggleIsLiveRequestToFalse)
 
 
 export default router

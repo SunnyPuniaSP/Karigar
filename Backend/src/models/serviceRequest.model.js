@@ -112,7 +112,7 @@ const serviceRequestSchema = new mongoose.Schema(
     },
     cancelledBy: {
       type: String,
-      enum: ["customer", "technician", "system"],
+      enum: ["customer", "worker", "system"],
       default: null,
     },
     cancellationReason: {

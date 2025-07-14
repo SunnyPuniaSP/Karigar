@@ -2,9 +2,11 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-
+import { useDispatch } from "react-redux";
+import { setIsLiveRequest,setLiveServiceId } from "../../store/workerAuthSlice";
 const FindJobs = () => {
   const navigate=useNavigate();
+  const dispatch =useDispatch();
   const [jobs, setJobs] = useState([]);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -24,7 +26,7 @@ const FindJobs = () => {
       })
       .catch((err) => {
         console.log("error while finding jobs", err);
-        alert("something went wrong when i fetching requests from backend");
+        alert("something went wrong when i fetching requests from backend ww");
       });
   };
 
@@ -44,6 +46,8 @@ const FindJobs = () => {
     axios
       .post(`/api/v1/service-request/${serviceRequestId}/accept`)
       .then(()=>{
+          dispatch(setIsLiveRequest())
+          dispatch(setLiveServiceId(serviceRequestId))
           navigate(`/worker/auth/job/${serviceRequestId}`)
       })
       .catch((err) => {
@@ -56,6 +60,7 @@ const FindJobs = () => {
   };
   return (
     <div className="p-4">
+      {console.log("i am in find jobs page")}
       {jobs.length === 0 ? (
         <div className="text-center text-gray-500 text-lg font-semibold">
           Searching for job requests...
