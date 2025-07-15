@@ -3,6 +3,8 @@ import axios from "axios";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
+import { useDispatch } from "react-redux";
+import { setWorkerDetails } from "@/store/workerAuthSlice";
 import {
   Dialog,
   DialogContent,
@@ -13,6 +15,7 @@ import {
 } from "@/components/ui/dialog";
 
 const Wallet = () => {
+  const dispatch=useDispatch();
   const [transactions, setTransactions] = useState([]);
   const [walletBalance, setWalletBalance] = useState([]);
   const [open, setOpen] = useState(false);
@@ -79,6 +82,15 @@ const addAmountToWallet = async () => {
                 amount:addAmount
         }
         axios.post(`/api/v1/payment/verify-payment-for-worker`,options)
+        .then(()=>{
+          axios.get("/api/v1/worker/current-user")
+          .then((res)=>{
+            dispatch(setWorkerDetails(res.data.data))
+          })
+          .catch(()=>{
+            alert("error in getting worker details after job completion")
+          })
+        })
         .catch(()=>{
           alert("something went wrong in payment verification")
         })
