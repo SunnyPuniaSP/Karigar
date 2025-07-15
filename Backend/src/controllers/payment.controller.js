@@ -241,14 +241,14 @@ const paymentReceivedByCash = asyncHandler(async (req, res) => {
     if (!worker) { 
         throw new ApiError(404, "Worker not found");
     }
-
+console.log("in prbc");
   serviceRequest.jobStatus = "completed";
   serviceRequest.orderStatus = "completed";
   serviceRequest.paymentStatus = "paid";
   serviceRequest.paymentType = "cash";
   serviceRequest.paidAt = new Date();
   await serviceRequest.save();
-
+    
   await worker.deductPlatformFee();
 
   const transactionDebit = await Transaction.create({

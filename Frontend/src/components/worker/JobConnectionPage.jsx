@@ -18,6 +18,7 @@ import workerIc from "../../assets/mechanic.png";
 import {
   clearIsLiveRequest,
   clearLiveServiceId,
+  setWorkerDetails,
 } from "../../store/workerAuthSlice";
 import { useDispatch } from "react-redux";
 
@@ -131,6 +132,13 @@ const SearchingWorker = () => {
             .catch(() => {
               alert("toglling is live request to false failed");
             });
+          axios.get("/api/v1/worker/current-user")
+          .then((res)=>{
+            dispatch(setWorkerDetails(res.data.data))
+          })
+          .catch(()=>{
+            alert("error in getting worker details after job completion")
+          })
           toggleIsLiveRequestToFalse.current = true;
         }
         if (
@@ -277,8 +285,8 @@ const SearchingWorker = () => {
 
   const paymentReceived = () => {
     axios
-      .patch(
-        `/api/v1/service-request/${serviceRequestId}/payment-received-cash`
+      .post(
+        `/api/v1/payment/${serviceRequestId}/payment-received-by-cash`
       )
       .then(() => {
         setShowReceivePaymentButton(false);

@@ -19,7 +19,6 @@ import {
     deleteServiceRequest,
     updateStatusToInspecting,
     updateQuoteAmount,
-    paymentReceivedByCash
 } from "../controllers/serviceRequest.controller.js";
 import verifyJWTWorker from "../middlewares/workerAuth.middleware.js";
 import verifyJWTCustomer from "../middlewares/customerAuth.middleware.js";
@@ -46,6 +45,5 @@ router.route("/:serviceRequestId/report-worker").post(verifyJWTCustomer, reportW
 router.route("/:serviceRequestId/delete-request").post(verifyJWTCustomer, deleteServiceRequest);
 router.route("/:serviceRequestId/update-status-to-inspecting").patch(verifyJWTWorker, updateStatusToInspecting)
 router.route("/:serviceRequestId/update-quote-amount").patch(verifyJWTWorker, updateQuoteAmount)
-router.route("/:serviceRequestId/payment-received-cash").patch(verifyJWTWorker, paymentReceivedByCash)
 
 export default router;

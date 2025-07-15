@@ -1079,30 +1079,6 @@ const updateQuoteAmount = asyncHandler(async(req,res)=>{
   return res.status(200).json(new ApiResponse(200,serviceRequest,"Quote amount set successfully"))
 })
 
-const paymentReceivedByCash = asyncHandler(async(req,res)=>{
-  const {serviceRequestId}=req.params
-
-  const serviceRequest=await ServiceRequest.findByIdAndUpdate(
-    serviceRequestId,
-    {
-      $set:{
-        jobStatus:"completed",
-        orderStatus:"completed",
-        paymentStatus:"paid",
-        paymentType:"cash",
-        paidAt:new Date()
-      }
-    },
-    {new:true}
-  ).select("_id customerId workerId category description orderStatus audioNoteUrl wokerReported");
-
-  if(!serviceRequest){
-    throw new ApiError(400,"Service request not found");
-  }
-
-  return res.status(200).json(new ApiResponse(200,serviceRequest,"Job status updated successfully"))
-})
-
 export {
   createServiceRequest,
   findRequests,
@@ -1122,6 +1098,5 @@ export {
   getServiceRequestStatus,
   deleteServiceRequest,
   updateStatusToInspecting,
-  updateQuoteAmount,
-  paymentReceivedByCash
+  updateQuoteAmount
 };

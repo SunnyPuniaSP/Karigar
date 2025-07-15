@@ -13,7 +13,7 @@ const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { profilePhoto, isOnline } = useSelector((state) => state.workerAuth);
-  const { liveServiceId, isLiveRequest } = useSelector(
+  const { liveServiceId, isLiveRequest, walletBalance } = useSelector(
     (state) => state.workerAuth
   );
   const logout = () => {
@@ -57,6 +57,15 @@ const Header = () => {
     }
     else if(!isOnline){
       toast("Your status if offline toggle it to online to proceed", {
+        duration: 3000,
+        className: "bg-white shadow-lg border border-gray-200",
+      });
+    }
+    else if(walletBalance<0){
+      toast("Your wallet balance is in negative", {
+        description:(
+          <div>Please recharge your wallet and try again</div>
+      ),
         duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
