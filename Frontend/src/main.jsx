@@ -42,7 +42,7 @@ const router = createBrowserRouter(
       <Route path="customer/">
         <Route path="" element={<LandingPageCustomer />} />
         <Route path="login" element={<CustomerLogin />} />
-        <Route path="sign-up" element={<CustomerSignUp />} />
+        <Route path="signup" element={<CustomerSignUp />} />
         <Route path="auth/" element={<CustomerLayout />}>
           <Route path="home" element={<Home />} />
           <Route path="profile" element={<CustomerProfile />} />
@@ -57,7 +57,7 @@ const router = createBrowserRouter(
       <Route path="worker/">
         <Route path="" element={<LandingPageWorker />} />
         <Route path="login" element={<WorkerLogin />} />
-        <Route path="sign-up" element={<WorkerSignUp />} />
+        <Route path="signup" element={<WorkerSignUp />} />
         <Route path="auth/" element={<WorkerLayout />}>
           <Route path="home" element={<WorkerHome />} />
           <Route path="profile" element={<WorkerProfile />} />

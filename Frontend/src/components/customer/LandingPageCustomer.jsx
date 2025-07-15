@@ -1,24 +1,44 @@
-import React from 'react'
-import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
+import { Button } from "../ui/button";
 
-const LandingPageCustomer = () => {
-    const navigate = useNavigate();
+export default function CustomerLandingPage() {
+  const navigate = useNavigate();
+
   return (
-    <div>
-        <div
-            style={{
-            backgroundImage: 'url("https://placehold.co/1600x600")',
-            width: "100%",
-            height: "600px",
-            }}
-            className="flex items-center gap-5 justify-center bg-cover bg-center"
-        >
-            <Button  onClick={()=>{navigate("/customer/login")}}>Login</Button>
-            <Button variant="secondary" onClick={()=>{navigate("/customer/sign-up")}}>Sign Up</Button>
-        </div>
-    </div>
-  )
-}
+    <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground px-4">
+      <div className="absolute top-6 left-6 text-2xl font-bold text-primary">
+        Karigar
+      </div>
 
-export default LandingPageCustomer
+      <div className="text-center mb-10">
+        <h1 className="text-4xl font-bold text-primary">Welcome, Customer</h1>
+        <p className="text-lg text-muted-foreground mt-2">Hire skilled professionals for your needs</p>
+      </div>
+
+      <div className="flex flex-col sm:flex-row gap-6 w-full max-w-xs">
+        <Button
+          variant="secondary"
+          size="xl"
+          onClick={() => navigate("/customer/login")}
+          className="flex-1  text-lg font-semibold py-3 rounded-xl shadow  transition"
+        >
+          Login
+        </Button>
+
+        <Button
+          size="xl"
+          onClick={() => navigate("/customer/signup")}
+          className="flex-1  text-lg font-semibold py-3 rounded-xl shadow transition"
+        >
+          Signup
+        </Button>
+      </div>
+
+      <div className="mt-10 text-sm text-muted-foreground text-center">
+        <p>✓ Discover local verified experts</p>
+        <p>✓ Get real-time updates on jobs</p>
+        <p>✓ Safe payments, clear pricing</p>
+      </div>
+    </div>
+  );
+}

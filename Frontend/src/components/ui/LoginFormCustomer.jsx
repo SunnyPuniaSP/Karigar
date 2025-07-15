@@ -28,7 +28,7 @@ export function LoginFormCustomer({
               
               <span className="sr-only">Acme Inc.</span>
             </a>
-            <h1 className="text-xl font-bold">Welcome to KARIGAR</h1>
+            <h1 className="text-xl font-bold">Welcome to Karigar</h1>
             <div className="text-center text-sm">
               Don&apos;t have an account?{" "} <NavLink to="/customer/sign-up" className="underline underline-offset-4">Sign up</NavLink>
             </div>
