@@ -498,6 +498,45 @@ const toggleIsLiveRequestToFalse=asyncHandler(async(req,res)=>{
     return res.status(200).json(new ApiResponse(200,worker,"live request set to false in customer database successfully"));
 })
 
+const getPastJobs=asyncHandler(async(req,res)=>{
+    const workerId=req.worker._id;
+
+    const jobs=await ServiceRequest.aggregate([
+        {
+            $match:{
+                workerId: workerId,
+                orderStatus: "completed"
+            }
+        },
+        {
+            $lookup:{
+                from: "customers",
+                localField:"customerId",
+                foreignField:"_id",
+                as:"customerDetails"
+            }
+        },
+        {
+            $addFields:{
+                customerName:"$customerDetails.fullName",
+                customerPhoto:"$customerDetails.profilePhoto"
+            }
+        },
+        {
+            $project:{
+                customerDetails:0
+            }
+        },
+        {
+            $sort:{
+                updatedAt:-1
+            }
+        }
+    ])
+
+    return res.status(201).json(new ApiResponse(201,jobs,"Past requests find sucessfully"))
+})
+
 export {
   registerWorker,
   loginWorker,
@@ -513,5 +552,6 @@ export {
   temporaryBlockCustomer,
   getWorkerCurrentLocation,
   updateWorkerStartLocation,
-  toggleIsLiveRequestToFalse
+  toggleIsLiveRequestToFalse,
+  getPastJobs
 };

@@ -112,10 +112,10 @@ const Header = () => {
               </button>
             </li>
             <li>
-              <NavLink to="/worker/auth/my-requests">My Jobs</NavLink>
+              <NavLink to="/worker/auth/past-jobs">My Jobs</NavLink>
             </li>
             <li>
-              <NavLink to="/worker/auth/current-request">Wallet</NavLink>
+              <NavLink to="/worker/auth/wallet">Wallet</NavLink>
             </li>
           </ul>
         </div>
