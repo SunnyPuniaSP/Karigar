@@ -144,10 +144,10 @@ const verifyPayment = asyncHandler(async (req, res) => {
 
     const transactionCredit = await Transaction.create({
         workerId: worker._id,
+        dateAndTime: new Date(),
         amount: parseFloat(amount),
-        type: "credit",
+        transactionNature: "credit",
         description: `Payment received for service request ${serviceRequestId}`,
-        platformFee: false,
         serviceRequestId: serviceRequest._id,
     })
     if (!transactionCredit) {
@@ -156,8 +156,9 @@ const verifyPayment = asyncHandler(async (req, res) => {
 
     const transactionDebit = await Transaction.create({
         workerId: worker._id,
+        dateAndTime: new Date(),
         amount: platformCharge,
-        type: "debit",
+        transactionNature: "debit",
         description: `Platform fee for service request ${serviceRequestId}`,
         platformFee: true,
         serviceRequestId: serviceRequest._id,
@@ -206,10 +207,11 @@ const verifyPaymentForWorker = asyncHandler(async (req, res) => {
 
     const transactionCredit = await Transaction.create({
     workerId: worker._id,
+    dateAndTime: new Date(),
     amount: parseFloat(amount),
-    type: "credit",
+    transactionNature: "credit",
     description: `Wallet recharge `,
-    platformFee: false
+    walletRecharge:true
     })
 
     if (!transactionCredit) {
@@ -235,12 +237,33 @@ const paymentReceivedByCash = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Service Request not found");
   }
 
+  const worker = await Worker.findById(serviceRequest.workerId);
+    if (!worker) { 
+        throw new ApiError(404, "Worker not found");
+    }
+
   serviceRequest.jobStatus = "completed";
   serviceRequest.orderStatus = "completed";
   serviceRequest.paymentStatus = "paid";
   serviceRequest.paymentType = "cash";
   serviceRequest.paidAt = new Date();
   await serviceRequest.save();
+
+  await worker.deductPlatformFee();
+
+  const transactionDebit = await Transaction.create({
+        workerId: worker._id,
+        dateAndTime: new Date(),
+        amount: platformCharge,
+        transactionNature: "debit",
+        description: `Platform fee for service request ${serviceRequestId}`,
+        platformFee: true,
+        serviceRequestId: serviceRequest._id,
+    })
+
+    if (!transactionDebit) {
+        throw new ApiError(500, "Failed to record debit transaction");
+    }
 
   return res
     .status(200)

@@ -6,11 +6,15 @@ const transactionSchema = new mongoose.Schema({
     ref: "Worker",  // Reference Worker model
     required: true,
   },
+  dateAndTime:{
+    type:Date,
+    default:null
+  },
   amount: {
     type: Number,
     required: true,
   },
-  type: {
+  transactionNature: {
     type: String,
     enum: ["credit", "debit"],
     required: true,
@@ -22,6 +26,10 @@ const transactionSchema = new mongoose.Schema({
   platformFee: {  
     type: Boolean,
     default: false,
+  },
+  walletRecharge:{
+    type:Boolean,
+    default:false
   },
   serviceRequestId: {
     type: mongoose.Schema.Types.ObjectId,

@@ -33,6 +33,7 @@ import FindJobs from "./components/worker/FindJobs";
 import JobConnectionPage from "./components/worker/JobConnectionPage";
 import MyRequests from "./components/customer/MyRequests";
 import MyJobs from "./components/worker/MyJobs";
+import Wallet from "./components/worker/Wallet";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
@@ -63,6 +64,7 @@ const router = createBrowserRouter(
           <Route path="find-jobs" element={<FindJobs />} />
           <Route path="job/:serviceRequestId" element={<JobConnectionPage/>}/>
           <Route path="past-jobs" element={<MyJobs/>} />
+          <Route path="wallet" element={<Wallet/>} />
         </Route>
       </Route>
     </Route>

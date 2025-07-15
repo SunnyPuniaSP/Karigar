@@ -15,7 +15,8 @@ import {
     getWorkerCurrentLocation,
     updateWorkerStartLocation,
     toggleIsLiveRequestToFalse,
-    getPastJobs
+    getPastJobs,
+    getOnlineTransactions
 } from "../controllers/worker.controller.js";
 import {upload} from "../middlewares/multer.middleware.js"
 import verifyJWT from "../middlewares/workerAuth.middleware.js";
@@ -41,5 +42,6 @@ router.route("/temporary-blockCustomer").patch( verifyJWT, temporaryBlockCustome
 router.route("/:workerId/location").get( getWorkerCurrentLocation)
 router.route("/:workerId/toggle-isliveRequestTo-false").patch( toggleIsLiveRequestToFalse)
 router.route("/past-jobs").get(verifyJWT, getPastJobs)
+router.route("/online-transactions").get(verifyJWT, getOnlineTransactions)
 
 export default router

@@ -6,6 +6,7 @@ import { uploadOnCloudinary } from "../utils/cloudinary.js";
 import jwt from "jsonwebtoken";
 import { ServiceRequest } from "../models/serviceRequest.model.js";
 import { getDistance } from "geolib";
+import { Transaction } from "../models/transaction.model.js";
 
 
 const generateAccessAndRefreshTokens = async (workerId) => {
@@ -537,6 +538,16 @@ const getPastJobs=asyncHandler(async(req,res)=>{
     return res.status(201).json(new ApiResponse(201,jobs,"Past requests find sucessfully"))
 })
 
+const getOnlineTransactions=asyncHandler(async(req,res)=>{
+  const workerId=req.worker._id;
+
+  const transactions=await Transaction.find({
+    workerId:workerId
+  }).sort({updatedAt:-1})
+  
+  return res.status(200).json(new ApiResponse(200,transactions,"Transactions fetched successfully"))
+})
+
 export {
   registerWorker,
   loginWorker,
@@ -553,5 +564,6 @@ export {
   getWorkerCurrentLocation,
   updateWorkerStartLocation,
   toggleIsLiveRequestToFalse,
-  getPastJobs
+  getPastJobs,
+  getOnlineTransactions
 };
