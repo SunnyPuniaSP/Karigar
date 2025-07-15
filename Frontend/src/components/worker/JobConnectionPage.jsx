@@ -157,6 +157,13 @@ const SearchingWorker = () => {
             .catch(() => {
               alert("toglling is live request to false failed");
             });
+            axios.get("/api/v1/worker/current-user")
+          .then((res)=>{
+            dispatch(setWorkerDetails(res.data.data))
+          })
+          .catch(()=>{
+            alert("error in getting worker details after job completion")
+          })
           toggleIsLiveRequestToFalse.current = true;
         }
       })

@@ -23,7 +23,7 @@ const cancellationSchema = new mongoose.Schema({
   },
   cancellationReason: {
     type: String,
-    enum: ["workerNotRespondingOrLate", "customerNotResponding", "notAbleToServeIssue", "byMistake", "other"],
+    enum: ["workerNotRespondingOrLate", "customerNotResponding", "workerNotAbleToServe", "byMistake", "other"],
     required: true
   }
 }, { timestamps: true });

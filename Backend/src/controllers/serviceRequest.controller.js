@@ -8,6 +8,8 @@ import { SEARCH_RADIUS_METERS } from "../constants.js";
 import { Cancellation } from "../models/cancellation.model.js";
 import { Customer } from "../models/customer.model.js";
 import geolib from "geolib";
+import { Transaction } from "../models/transaction.model.js";
+import { platformCharge } from "../constants.js";
 
 const createServiceRequest = asyncHandler(async (req, res) => {
   const customerId = req.customer?._id;
@@ -556,6 +558,21 @@ const cancelledByWorkerAsCustomerNotResponding = asyncHandler(
     throw new ApiError(500,"Service Request updated successfully but customer live request details not resetted")
   }
 
+  await worker.deductPlatformFee();
+
+    const transactionDebit = await Transaction.create({
+            workerId: worker._id,
+            dateAndTime: new Date(),
+            amount: platformCharge,
+            transactionNature: "debit",
+            description: `Platform fee for service request ${serviceRequestId}`,
+            platformFee: true,
+            serviceRequestId: serviceRequest._id,
+        })
+    
+        if (!transactionDebit) {
+            throw new ApiError(500, "Failed to record debit transaction");
+        }
     return res
       .status(200)
       .json(
@@ -664,6 +681,22 @@ const cancelledByWorkerAsNotAbleToServe = asyncHandler(async (req, res) => {
     throw new ApiError(500,"Service Request updated successfully but customer live request details not resetted")
   }
 
+  await worker.deductPlatformFee();
+
+    const transactionDebit = await Transaction.create({
+            workerId: worker._id,
+            dateAndTime: new Date(),
+            amount: platformCharge,
+            transactionNature: "debit",
+            description: `Platform fee for service request ${serviceRequestId}`,
+            platformFee: true,
+            serviceRequestId: serviceRequest._id,
+        })
+    
+        if (!transactionDebit) {
+            throw new ApiError(500, "Failed to record debit transaction");
+        }
+
   return res
     .status(200)
     .json(
@@ -685,6 +718,12 @@ const cancelledByCustomerAsWorkerNotRespondingOrLate = asyncHandler(
     if (!serviceRequest) {
       throw new ApiError(404, "Service request not found");
     }
+
+    const worker =await Worker.findById(serviceRequest.workerId);
+
+    if(!worker){
+      throw new ApiError(404,"worker not found")
+    }
     
     if (serviceRequest.orderStatus === "arrived") {
       throw new ApiError(
@@ -700,6 +739,22 @@ const cancelledByCustomerAsWorkerNotRespondingOrLate = asyncHandler(
     serviceRequest.jobStatus = "completed"; // Mark job as completed since customer is cancelling
     serviceRequest.completedAt = new Date();
     await serviceRequest.save();
+
+    await worker.deductPlatformFee();
+
+    const transactionDebit = await Transaction.create({
+            workerId: worker._id,
+            dateAndTime: new Date(),
+            amount: platformCharge,
+            transactionNature: "debit",
+            description: `Platform fee for service request ${serviceRequestId}`,
+            platformFee: true,
+            serviceRequestId: serviceRequest._id,
+        })
+    
+        if (!transactionDebit) {
+            throw new ApiError(500, "Failed to record debit transaction");
+        }
 
     const cancel = await Cancellation.create({
       serviceRequestId: serviceRequest._id,
