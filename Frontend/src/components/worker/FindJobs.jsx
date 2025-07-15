@@ -62,9 +62,15 @@ const FindJobs = () => {
     <div className="p-4">
       {console.log("i am in find jobs page")}
       {jobs.length === 0 ? (
-        <div className="text-center text-gray-500 text-lg font-semibold">
-          Searching for job requests...
-        </div>
+        <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
+                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-4"></div>
+                <h2 className="text-2xl font-semibold text-gray-700">
+                  No job requests at the moment
+                </h2>
+                <p className="text-gray-500 mt-2">
+                  Hang tight! We're actively searching for jobs that match your skills. We'll notify you as soon as something comes up.
+                </p>
+              </div>
       ) : (
         <div className="flex flex-wrap gap-4 justify-center">
           {jobs.map((job, index) => (

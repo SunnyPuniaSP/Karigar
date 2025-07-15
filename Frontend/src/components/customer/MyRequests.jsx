@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import nopastrequests from "../../assets/nopastrequests.png"
 
 const MyRequests = () => {
   const [jobs, setJobs] = useState([]);
@@ -25,9 +26,14 @@ const MyRequests = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
       {jobs.length === 0 ? (
-        <div className="text-center text-gray-600 mt-20 text-lg">
-          You do not have any past requests.
-        </div>
+        <div className="flex flex-col items-center justify-center mt-24 text-center px-4 text-gray-600 gap-3">
+  <img src={nopastrequests} alt="" className="h-50" />
+  <h2 className="text-xl font-semibold text-gray-700">No Past Requests Yet</h2>
+  <p className="max-w-xs text-sm text-gray-500">
+    Once you complete requests, you'll see them listed here.
+  </p>
+</div>
+
       ) : (
         <div className="flex flex-wrap  gap-3  justify-center ">
           {jobs.map((job) => (

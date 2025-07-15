@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import nopastjobs from "../../assets/nopastjobs.png"
 
 const MyJobs = () => {
   const [jobs, setJobs] = useState([]);
@@ -25,9 +26,14 @@ const MyJobs = () => {
   return (
     <div className="min-h-screen bg-gray-50 py-6 px-4">
       {jobs.length === 0 ? (
-        <div className="text-center text-gray-600 mt-20 text-lg">
-          You do not have any past jobs.
-        </div>
+        <div className="flex flex-col items-center justify-center mt-24 text-center px-4 text-gray-600 gap-3">
+  <img src={nopastjobs} className="h-50"/>
+  <h2 className="text-xl font-semibold text-gray-700">No Past Completed Jobs Yet</h2>
+  <p className="max-w-xs text-sm text-gray-500">
+    Once you complete jobs, you'll see them listed here.
+  </p>
+</div>
+
       ) : (
         <div className="flex flex-wrap  gap-3  justify-center ">
           {jobs.map((job) => (

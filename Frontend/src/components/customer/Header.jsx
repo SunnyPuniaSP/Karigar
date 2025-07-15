@@ -20,7 +20,7 @@ const Header = () => {
   const liveJob = () => {
     if (!isLiveRequest) {
       toast("You do not have any ongoing request", {
-        duration: 6000,
+        duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
     } else {

@@ -83,6 +83,8 @@ const SearchingWorker = () => {
   const [showCancelCustomerNotResponding, setShowCancellCustomerNotResponding] =
     useState(false);
 
+  const [jobCompleted, setJobCompleted] = useState(false);
+
   const toggleIsLiveRequestToFalse = useRef(false);
 
   // Poll for service request status
@@ -98,7 +100,7 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
-        if(data.orderStatus!=="connected" && data.orderStatus!=="onway"){
+        if (data.orderStatus !== "connected" && data.orderStatus !== "onway") {
           setShowCancellNotAbleToServe(false);
         }
         if (data.orderStatus === "arrived") {
@@ -121,6 +123,7 @@ const SearchingWorker = () => {
           !toggleIsLiveRequestToFalse.current
         ) {
           setShowReceivePaymentButton(false);
+          setJobCompleted(true);
           axios
             .patch(
               `/api/v1/worker/${data.workerId}/toggle-isliveRequestTo-false`
@@ -132,13 +135,14 @@ const SearchingWorker = () => {
             .catch(() => {
               alert("toglling is live request to false failed");
             });
-          axios.get("/api/v1/worker/current-user")
-          .then((res)=>{
-            dispatch(setWorkerDetails(res.data.data))
-          })
-          .catch(()=>{
-            alert("error in getting worker details after job completion")
-          })
+          axios
+            .get("/api/v1/worker/current-user")
+            .then((res) => {
+              dispatch(setWorkerDetails(res.data.data));
+            })
+            .catch(() => {
+              alert("error in getting worker details after job completion");
+            });
           toggleIsLiveRequestToFalse.current = true;
         }
         if (
@@ -146,6 +150,7 @@ const SearchingWorker = () => {
           !toggleIsLiveRequestToFalse.current
         ) {
           setShowCancellNotAbleToServe(false);
+          setJobCompleted(true);
           axios
             .patch(
               `/api/v1/worker/${data.workerId}/toggle-isliveRequestTo-false`
@@ -157,13 +162,14 @@ const SearchingWorker = () => {
             .catch(() => {
               alert("toglling is live request to false failed");
             });
-            axios.get("/api/v1/worker/current-user")
-          .then((res)=>{
-            dispatch(setWorkerDetails(res.data.data))
-          })
-          .catch(()=>{
-            alert("error in getting worker details after job completion")
-          })
+          axios
+            .get("/api/v1/worker/current-user")
+            .then((res) => {
+              dispatch(setWorkerDetails(res.data.data));
+            })
+            .catch(() => {
+              alert("error in getting worker details after job completion");
+            });
           toggleIsLiveRequestToFalse.current = true;
         }
       })
@@ -270,6 +276,9 @@ const SearchingWorker = () => {
       )
       .then(() => {
         setShowInspectingButton(false);
+        setShowQuoteAmountFields(true);
+        setShowCancellCustomerNotResponding(false);
+        requestData.orderStatus="inspecting";
       })
       .catch(() => {
         alert("error while updating status to inspecting");
@@ -284,6 +293,7 @@ const SearchingWorker = () => {
       )
       .then(() => {
         setShowQuoteAmountFields(false);
+        requestData.orderStatus="repairAmountQuoted";
       })
       .catch(() => {
         alert("error while updating quote amount");
@@ -292,11 +302,10 @@ const SearchingWorker = () => {
 
   const paymentReceived = () => {
     axios
-      .post(
-        `/api/v1/payment/${serviceRequestId}/payment-received-by-cash`
-      )
+      .post(`/api/v1/payment/${serviceRequestId}/payment-received-by-cash`)
       .then(() => {
         setShowReceivePaymentButton(false);
+        requestData.orderStatus="completed";
       })
       .catch(() => {
         alert("error while updating job status on payment received in cash");
@@ -312,6 +321,7 @@ const SearchingWorker = () => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
         setShowCancellNotAbleToServe(false);
+        requestData.orderStatus="cancelled";
       })
       .catch(() => {
         alert("something went wrong while cancelling request");
@@ -328,6 +338,7 @@ const SearchingWorker = () => {
         dispatch(clearLiveServiceId());
         setShowCancellCustomerNotResponding(false);
         setShowInspectingButton(false);
+        requestData.orderStatus="cancelled";
       })
       .catch(() => {
         alert("something went wrong while cancelling request");
@@ -416,14 +427,21 @@ const SearchingWorker = () => {
           Cancel
         </Button>
       )}
-      <div className="flex gap-3 justify-center">
-        {showCancelCustomerNotResponding && (
-        <Button variant="destructive" onClick={customerNotResponding}>Customer Not Responding</Button>
-      )}
-      {showInspectingButton && (
-        <Button onClick={startInspection} className="w-[200px]">Start Inspecting</Button>
-      )}
-      </div>
+      {(showCancelCustomerNotResponding || showInspectingButton) && (
+  <div className="flex gap-3 justify-center">
+    {showCancelCustomerNotResponding && (
+      <Button variant="destructive" onClick={customerNotResponding}>
+        Customer Not Responding
+      </Button>
+    )}
+    {showInspectingButton && (
+      <Button onClick={startInspection} className="w-[200px]">
+        Start Inspecting
+      </Button>
+    )}
+  </div>
+)}
+
       {showQuoteAmountFields && (
         <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-4 rounded-xl shadow-md w-full max-w-md mx-auto">
           <input
@@ -444,10 +462,13 @@ const SearchingWorker = () => {
       {showReceivePaymentButton && (
         <Button onClick={paymentReceived}>Payment Received in Cash</Button>
       )}
-      {/* Live Map Card */}
+
       <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
         <div className="h-80">
-          {workerLocation && customerLocation && routePath.length > 0 ? (
+          {!jobCompleted &&
+          workerLocation &&
+          customerLocation &&
+          routePath.length > 0 ? (
             <MapContainer
               center={[
                 (workerLocation.lat + customerLocation.lat) / 2,
@@ -479,9 +500,51 @@ const SearchingWorker = () => {
               </Marker>
               <Polyline positions={routePath} color="blue" />
             </MapContainer>
+          ) : !jobCompleted ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
+              <svg
+                className="animate-spin h-6 w-6 text-blue-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+              <p className="text-lg font-medium">Loading map…</p>
+              <p className="text-sm text-gray-400">
+                Please wait while we prepare the map.
+              </p>
+            </div>
           ) : (
-            <div className="flex items-center justify-center h-full text-gray-400">
-              Loading map...
+            <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
+              <svg
+                className="h-6 w-6 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <p className="text-lg font-medium">Job ended</p>
+              <p className="text-sm text-gray-400">
+The map is no longer displayed.              </p>
             </div>
           )}
         </div>
@@ -492,7 +555,7 @@ const SearchingWorker = () => {
           <span className="font-semibold">{etaMinutes + 10} mins</span>
         </div>
       )}
-      {workerLocation && customerLocation && (
+      {!jobCompleted && workerLocation && customerLocation && (
         <a
           href={`https://www.google.com/maps/dir/?api=1&origin=${workerLocation.lat},${workerLocation.lng}&destination=${customerLocation.lat},${customerLocation.lng}&travelmode=driving`}
           target="_blank"

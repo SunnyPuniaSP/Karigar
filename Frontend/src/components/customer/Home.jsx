@@ -23,7 +23,7 @@ const Home = () => {
             </Button>
           </div>
         ),
-        duration: 6000,
+        duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
     }

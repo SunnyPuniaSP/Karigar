@@ -80,6 +80,8 @@ const SearchingWorker = () => {
 
   const [showPayButton,setShowPayButton]=useState(false);
 
+  const [jobCompleted, setJobCompleted] = useState(false);
+
   const toggleIsLiveRequestToFalse =useRef(false);
 
   // Poll for service request status
@@ -97,6 +99,7 @@ const SearchingWorker = () => {
         setRequestData(data);
         if(data.orderStatus==="completed" && !toggleIsLiveRequestToFalse.current){
           setShowPayButton(false);
+          setJobCompleted(true);
           axios.patch(`/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`)
           .then(()=>{
             dispatch(clearIsLiveRequest());
@@ -110,6 +113,7 @@ const SearchingWorker = () => {
         }
         if(data.orderStatus==="cancelled" && !toggleIsLiveRequestToFalse.current){
           setShowCancellButtons(false);
+          setJobCompleted(true);
           axios.patch(`/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`)
           .then(()=>{
             dispatch(clearIsLiveRequest());
@@ -282,7 +286,7 @@ const SearchingWorker = () => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
         setShowCancellButtons(false);
-        requestData.orderStatus="cancelled"
+        requestData.orderStatus="cancelled";
       })
       .catch((err) => {
         console.log("Something went wrong while deleting request", err);
@@ -295,6 +299,7 @@ const SearchingWorker = () => {
     .then(()=>{
       setShowAcceptRejectButton(false);
       setShowPayButton(true);
+      requestData.orderStatus="payment_pending_quote_amount"
     })
     .catch(()=>{
       alert("error while accepting req");
@@ -306,6 +311,7 @@ const SearchingWorker = () => {
     .then(()=>{
       setShowAcceptRejectButton(false);
       setShowPayButton(true);
+      requestData.orderStatus="payment_pending_visiting_fee"
     })
     .catch(()=>{
       alert("error while accepting req");
@@ -351,6 +357,9 @@ const handlePayment = async () => {
                 razorpaySignature: response.razorpay_signature,
         }
         axios.post(`/api/v1/payment/${serviceRequestId}/verify-payment`,options)
+        .then(()=>{
+          requestData.orderStatus="completed"
+        })
         .catch(()=>{
           alert("something went wrong in payment verification")
         })
@@ -489,10 +498,10 @@ const handlePayment = async () => {
         {showPayButton && (
           <Button onClick={handlePayment} className="min-w-[250px]">Pay Now</Button>
         )}
-        {/* Live Map Card */}
+
         <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
           <div className="h-80">
-            {workerLocation && customerLocation && routePath.length > 0 ? (
+            {!jobCompleted && workerLocation && customerLocation && routePath.length > 0 ? (
               <MapContainer
                 center={[
                   (workerLocation.lat + customerLocation.lat) / 2,
@@ -524,11 +533,53 @@ const handlePayment = async () => {
                 </Marker>
                 <Polyline positions={routePath} color="blue" />
               </MapContainer>
-            ) : (
-              <div className="flex items-center justify-center h-full text-gray-400">
-                Loading map...
-              </div>
-            )}
+            ) : !jobCompleted ? (
+            <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
+              <svg
+                className="animate-spin h-6 w-6 text-blue-500"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  className="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  strokeWidth="4"
+                ></circle>
+                <path
+                  className="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8v8H4z"
+                ></path>
+              </svg>
+              <p className="text-lg font-medium">Loading map…</p>
+              <p className="text-sm text-gray-400">
+                Please wait while we prepare the map.
+              </p>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
+              <svg
+                className="h-6 w-6 text-green-500"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
+              </svg>
+              <p className="text-lg font-medium">Job ended</p>
+              <p className="text-sm text-gray-400">
+The map is no longer displayed.              </p>
+            </div>
+          )}
           </div>
         </div>
         {etaMinutes && (

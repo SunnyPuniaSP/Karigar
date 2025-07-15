@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "@/store/workerAuthSlice";
+import { toast } from "sonner";
 import {
   Dialog,
   DialogContent,
@@ -15,11 +16,11 @@ import {
 } from "@/components/ui/dialog";
 
 const Wallet = () => {
-  const dispatch=useDispatch();
+  const dispatch = useDispatch();
   const [transactions, setTransactions] = useState([]);
   const [walletBalance, setWalletBalance] = useState([]);
   const [open, setOpen] = useState(false);
-  const [addAmount,setAddAmount]=useState();
+  const [addAmount, setAddAmount] = useState();
 
   useEffect(() => {
     axios
@@ -34,7 +35,6 @@ const Wallet = () => {
     axios
       .get("/api/v1/worker/current-user")
       .then((res) => {
-        console.log(res.data.data.walletBalance);
         setWalletBalance(res.data.data.walletBalance);
       })
       .catch(() => {
@@ -43,69 +43,87 @@ const Wallet = () => {
   }, []);
 
   const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => {
-      resolve(true);
-    };
-    script.onerror = () => {
-      resolve(false);
-    };
-    document.body.appendChild(script);
-  });
-};
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
 
+  const addAmountToWallet = async () => {
+    const isScriptLoaded = await loadRazorpayScript();
 
-const addAmountToWallet = async () => {
-  const isScriptLoaded = await loadRazorpayScript();
+    if (!isScriptLoaded) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      return;
+    }
 
-  if (!isScriptLoaded) {
-    alert("Razorpay SDK failed to load. Are you online?");
-    return;
-  }
+    // Step 1: Call backend to create Razorpay order
+    try {
+      const { data } = await axios.post(
+        `/api/v1/payment/create-order-for-worker`,
+        { amount: addAmount }
+      );
 
-  // Step 1: Call backend to create Razorpay order
-  try {
-    const { data } = await axios.post(`/api/v1/payment/create-order-for-worker`,{amount:addAmount});
-  
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
- // put your Razorpay Key ID in .env
-      order_id: data.data.id,
-      ...data.data,
-      handler: async function (response) {
-        const options={
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpaySignature: response.razorpay_signature,
-                amount:addAmount
-        }
-        axios.post(`/api/v1/payment/verify-payment-for-worker`,options)
-        .then(()=>{
-          axios.get("/api/v1/worker/current-user")
-          .then((res)=>{
-            dispatch(setWorkerDetails(res.data.data))
-          })
-          .catch(()=>{
-            alert("error in getting worker details after job completion")
-          })
-        })
-        .catch(()=>{
-          alert("something went wrong in payment verification")
-        })
-      }
-    };
-  
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  } catch (err) {
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        // put your Razorpay Key ID in .env
+        order_id: data.data.id,
+        ...data.data,
+        handler: async function (response) {
+          const options = {
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpaySignature: response.razorpay_signature,
+            amount: addAmount,
+          };
+          axios
+            .post(`/api/v1/payment/verify-payment-for-worker`, options)
+            .then(() => {
+              axios
+                .get("/api/v1/worker/current-user")
+                .then((res) => {
+                  setWalletBalance(res.data.data.walletBalance);
+                  dispatch(setWorkerDetails(res.data.data));
+                })
+                .catch(() => {
+                  alert("error in getting worker details after job completion");
+                });
+              axios
+                .get("/api/v1/worker/online-transactions")
+                .then((res) => {
+                  setTransactions(res.data.data);
+                })
+                .catch(() => {
+                  alert("error while fetching online transactions");
+                });
+            })
+            .catch(() => {
+              alert("something went wrong in payment verification");
+            });
+        },
+      };
+
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
       console.log(err);
       alert("Failed to initiate payment.");
-  }
-};
+    }
+  };
 
-
+  const withdraw = () => {
+    toast("🚧 Heads up! Withdraw feature is on the way. Stay tuned!", {
+      duration: 3000,
+      className: "bg-white shadow-lg border border-gray-200",
+    });
+  };
   return (
     <div className="p-4 max-w-3xl mx-auto">
       <div className="bg-blue-50 border border-blue-200 p-4 rounded-xl mb-4 shadow-sm">
@@ -121,26 +139,30 @@ const addAmountToWallet = async () => {
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
-              <DialogTitle  style={{ color: "#0B1D3A" }} >Add Money to Wallet</DialogTitle>
+              <DialogTitle style={{ color: "#0B1D3A" }}>
+                Add Money to Wallet
+              </DialogTitle>
             </DialogHeader>
             <div className="flex justify-between gap-3">
-                      <input
-                        onChange={(e) => setAddAmount(e.target.value)}
-                        type="number"
-                        name="addAmount"
-                        placeholder="Enter amount you wish to add"
-                        className="w-full sm:flex-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
-                      />
-                      <Button
-                        onClick={addAmountToWallet}
-                        className="font-medium py-2 px-6 rounded-lg shadow transition"
-                      >
-                        Add
-                      </Button>
+              <input
+                onChange={(e) => setAddAmount(e.target.value)}
+                type="number"
+                name="addAmount"
+                placeholder="Enter amount you wish to add"
+                className="w-full sm:flex-1 px-4 py-2 border border-gray-300 rounded-lg shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+              />
+              <Button
+                onClick={addAmountToWallet}
+                className="font-medium py-2 px-6 rounded-lg shadow transition"
+              >
+                Add
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
-        <Button variant="secondary">Withdraw</Button>
+        <Button variant="secondary" onClick={withdraw}>
+          Withdraw
+        </Button>
       </div>
       <h2 style={{ color: "#0B1D3A" }} className="text-2xl font-bold mb-4">
         Transaction History
@@ -183,22 +205,26 @@ const addAmountToWallet = async () => {
                 >
                   ₹{txn.amount}
                 </div>
-                
 
                 {!txn.walletRecharge ? (
                   <div className="text-sm text-gray-500 mt-1">
-                  {!txn.platformFee ? (<span>Payment Received for</span>):(<span>Platform Fee deducted for</span>)} Service Request:&nbsp;
-                  <Link
-                    to={`/worker/auth/job/${txn.serviceRequestId}`}
-                    className="text-blue-600 underline hover:text-blue-800"
-                  >
-                    {txn.serviceRequestId}
-                  </Link>
-                </div>
-                ):(
+                    {!txn.platformFee ? (
+                      <span>Payment Received for</span>
+                    ) : (
+                      <span>Platform Fee deducted for</span>
+                    )}{" "}
+                    Service Request:&nbsp;
+                    <Link
+                      to={`/worker/auth/job/${txn.serviceRequestId}`}
+                      className="text-blue-600 underline hover:text-blue-800"
+                    >
+                      {txn.serviceRequestId}
+                    </Link>
+                  </div>
+                ) : (
                   <div className="text-sm text-gray-500 mt-1">
-                  {txn.description}
-                </div>
+                    {txn.description}
+                  </div>
                 )}
               </div>
             );
