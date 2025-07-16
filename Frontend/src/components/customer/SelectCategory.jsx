@@ -1,34 +1,41 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import ac from "../../assets/air-conditioner.png"
+import electrician from "../../assets/electrical-service.png"
+import plumber from "../../assets/faucet.png"
+import laptop from "../../assets/laptop.png"
+import washingMachine from "../../assets/laundry-machine.png"
+import tv from "../../assets/monitor.png"
+import fridge from "../../assets/fridge.png"
 
 const categories = [
   {
     name: "Electrician",
-    image: "https://cdn-icons-png.flaticon.com/512/2965/2965567.png",
+    image: electrician,
   },
   {
     name: "TV",
-    image: "https://cdn-icons-png.flaticon.com/512/3095/3095026.png",
+    image: tv,
   },
   {
     name: "Fridge",
-    image: "https://cdn-icons-png.flaticon.com/512/1137/1137067.png",
+    image: fridge,
   },
   {
     name: "AC",
-    image: "https://cdn-icons-png.flaticon.com/512/1986/1986852.png",
+    image: ac,
   },
   {
     name: "Washing-Machine",
-    image: "https://cdn-icons-png.flaticon.com/512/2922/2922553.png",
+    image: washingMachine,
   },
   {
     name: "Laptop",
-    image: "https://cdn-icons-png.flaticon.com/512/865/865808.png",
+    image: laptop,
   },
   {
     name: "Plumber",
-    image: "https://cdn-icons-png.flaticon.com/512/1046/1046842.png",
+    image: plumber,
   },
 ];
 
