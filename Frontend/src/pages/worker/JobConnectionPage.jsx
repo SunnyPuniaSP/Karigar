@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useRef } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../api.js";
 import { Button } from "../ui/button";
 import {
   MapContainer,
@@ -24,7 +24,7 @@ import { useDispatch } from "react-redux";
 
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
-  const res = await axios.get(url);
+  const res = await api.get(url);
   const coordinates = res.data.routes[0].geometry.coordinates.map(
     ([lng, lat]) => [lat, lng]
   );
@@ -92,7 +92,7 @@ const SearchingWorker = () => {
   }, []);
 
   const fetchStatus = () => {
-    axios
+    api
       .get(`/api/v1/service-request/${serviceRequestId}/status`)
       .then((res) => {
         const data = res.data.data;
@@ -121,7 +121,7 @@ const SearchingWorker = () => {
         ) {
           setShowReceivePaymentButton(false);
           setJobCompleted(true);
-          axios
+          api
             .patch(
               `/api/v1/worker/${data.workerId}/toggle-isliveRequestTo-false`
             )
@@ -132,7 +132,7 @@ const SearchingWorker = () => {
             .catch((err) => {
               console.log("toglling is live request to false failed", err);
             });
-          axios
+          api
             .get("/api/v1/worker/current-user")
             .then((res) => {
               dispatch(setWorkerDetails(res.data.data));
@@ -151,7 +151,7 @@ const SearchingWorker = () => {
         ) {
           setShowCancellNotAbleToServe(false);
           setJobCompleted(true);
-          axios
+          api
             .patch(
               `/api/v1/worker/${data.workerId}/toggle-isliveRequestTo-false`
             )
@@ -162,7 +162,7 @@ const SearchingWorker = () => {
             .catch((err) => {
               console.log("toglling is live request to false failed", err);
             });
-          axios
+          api
             .get("/api/v1/worker/current-user")
             .then((res) => {
               dispatch(setWorkerDetails(res.data.data));
@@ -184,7 +184,7 @@ const SearchingWorker = () => {
   useEffect(() => {
     if (!requestData?.customerId) return;
 
-    axios
+    api
       .get(`/api/v1/customer/${requestData.customerId}/customerDetails`)
       .then((res) => {
         setCustomerDetails(res.data.data);
@@ -204,7 +204,7 @@ const SearchingWorker = () => {
         (position) => {
           const { latitude, longitude } = position.coords;
 
-          axios
+          api
             .patch(
               `/api/v1/worker/${serviceRequestId}/update-current-location`,
               {
@@ -235,7 +235,7 @@ const SearchingWorker = () => {
     const fetchLocations = async () => {
       if (requestData?.workerId) {
         try {
-          const workerRes = await axios.get(
+          const workerRes = await api.get(
             `/api/v1/worker/${requestData.workerId}/location`
           );
           const wLoc = {
@@ -266,7 +266,7 @@ const SearchingWorker = () => {
   }, [requestData]);
 
   const startInspection = () => {
-    axios
+    api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/update-status-to-inspecting`
       )
@@ -282,7 +282,7 @@ const SearchingWorker = () => {
   };
 
   const sendQuoteAmount = () => {
-    axios
+    api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/update-quote-amount`,
         { quoteAmount }
@@ -297,7 +297,7 @@ const SearchingWorker = () => {
   };
 
   const paymentReceived = () => {
-    axios
+    api
       .post(`/api/v1/payment/${serviceRequestId}/payment-received-by-cash`)
       .then(() => {
         setShowReceivePaymentButton(false);
@@ -312,7 +312,7 @@ const SearchingWorker = () => {
   };
 
   const notAbleToServe = () => {
-    axios
+    api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-worker-as-not-able-to-serve`
       )
@@ -328,7 +328,7 @@ const SearchingWorker = () => {
   };
 
   const customerNotResponding = () => {
-    axios
+    api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-worker-as-customer-not-responding`
       )

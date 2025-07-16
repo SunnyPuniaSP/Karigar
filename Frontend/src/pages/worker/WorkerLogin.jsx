@@ -1,6 +1,6 @@
 import React from "react";
 import { LoginFormWorker } from "../ui/LoginFormWorker";
-import axios from "axios";
+import api from "../../api.js";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
@@ -9,7 +9,7 @@ const WorkerLogin = () => {
   const dispatch = useDispatch();
   const handleSubmit = (data) => {
     console.log("Sending data:", data);
-    axios
+    api
       .post("/api/v1/worker/login", data)
       .then((res) => {
         const { data } = res;

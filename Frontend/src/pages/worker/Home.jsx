@@ -1,7 +1,7 @@
 import React from "react";
 import customerhomehero from "../../assets/customerhomehero.png";
 import { Button } from "../ui/button";
-import axios from "axios";
+import api from "../../api.js";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
@@ -22,10 +22,10 @@ const Home = () => {
             longitude: lng,
           };
 
-          axios
+          api
             .patch("/api/v1/worker/update-start-location", location)
             .then(() => {
-              axios
+              api
                 .patch("/api/v1/worker/toggle-isOnline")
                 .then((res) => {
                   dispatch(setWorkerDetails(res.data.data));
@@ -46,7 +46,7 @@ const Home = () => {
         }
       );
     } else {
-      axios
+      api
         .patch("/api/v1/worker/toggle-isOnline")
         .then((res) => {
           dispatch(setWorkerDetails(res.data.data));

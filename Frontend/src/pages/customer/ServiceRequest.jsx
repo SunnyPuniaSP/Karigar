@@ -1,7 +1,7 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import axios from "axios";
+import api from "../../api.js";
 import { Button } from "../ui/button";
 import {
   MapContainer,
@@ -22,7 +22,7 @@ import {
 } from "../../store/customerAuthSlice";
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
-  const res = await axios.get(url);
+  const res = await api.get(url);
   const coordinates = res.data.routes[0].geometry.coordinates.map(
     ([lng, lat]) => [lat, lng]
   );
@@ -93,7 +93,7 @@ const SearchingWorker = () => {
   }, []);
 
   const fetchStatus = () => {
-    axios
+    api
       .get(`/api/v1/service-request/${serviceRequestId}/status`)
       .then((res) => {
         const data = res.data.data;
@@ -104,7 +104,7 @@ const SearchingWorker = () => {
         ) {
           setShowPayButton(false);
           setJobCompleted(true);
-          axios
+          api
             .patch(
               `/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`
             )
@@ -124,7 +124,7 @@ const SearchingWorker = () => {
         ) {
           setShowCancellButtons(false);
           setJobCompleted(true);
-          axios
+          api
             .patch(
               `/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`
             )
@@ -212,7 +212,7 @@ const SearchingWorker = () => {
 
   useEffect(() => {
     if (workerAccepted && requestData?.workerId) {
-      axios
+      api
         .get(`/api/v1/worker/${requestData.workerId}/get-details`)
         .then((res) => setWorkerDetails(res.data.data))
         .catch((err) => {
@@ -229,7 +229,7 @@ const SearchingWorker = () => {
     const fetchLocations = async () => {
       if (workerAccepted && requestData.workerId) {
         try {
-          const workerRes = await axios.get(
+          const workerRes = await api.get(
             `/api/v1/worker/${requestData.workerId}/location`
           );
           const wLoc = {
@@ -259,7 +259,7 @@ const SearchingWorker = () => {
   }, [workerAccepted]);
 
   const cancelSearch = () => {
-    axios
+    api
       .post(`/api/v1/service-request/${serviceRequestId}/delete-request`)
       .then(() => {
         dispatch(clearIsLiveRequest());
@@ -272,7 +272,7 @@ const SearchingWorker = () => {
   };
 
   const cancelReqAsByMistake = () => {
-    axios
+    api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-customer-as-by-mistake`
       )
@@ -291,7 +291,7 @@ const SearchingWorker = () => {
   };
 
   const cancelReqAsWorkerLateOrNotResponding = () => {
-    axios
+    api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-customer-as-worker-not-responding-or-late`
       )
@@ -310,7 +310,7 @@ const SearchingWorker = () => {
   };
 
   const quoteAccepted = () => {
-    axios
+    api
       .patch(`/api/v1/service-request/${serviceRequestId}/accept-repair-quote`)
       .then(() => {
         setShowAcceptRejectButton(false);
@@ -323,7 +323,7 @@ const SearchingWorker = () => {
   };
 
   const quoteRejected = () => {
-    axios
+    api
       .patch(`/api/v1/service-request/${serviceRequestId}/reject-repair-quote`)
       .then(() => {
         setShowAcceptRejectButton(false);
@@ -357,7 +357,7 @@ const SearchingWorker = () => {
       return;
     }
     try {
-      const { data } = await axios.post(
+      const { data } = await api.post(
         `/api/v1/payment/${serviceRequestId}/create-order`
       );
 
@@ -371,7 +371,7 @@ const SearchingWorker = () => {
             razorpayOrderId: response.razorpay_order_id,
             razorpaySignature: response.razorpay_signature,
           };
-          axios
+          api
             .post(`/api/v1/payment/${serviceRequestId}/verify-payment`, options)
             .then(() => {
               requestData.orderStatus = "completed";

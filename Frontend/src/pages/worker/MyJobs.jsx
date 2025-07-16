@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api.js";
 import nopastjobs from "../../assets/nopastjobs.png";
 
 const MyJobs = () => {
   const [jobs, setJobs] = useState([]);
 
   useEffect(() => {
-    axios
+    api
       .get("/api/v1/worker/past-jobs")
       .then((res) => {
         setJobs(res.data.data);

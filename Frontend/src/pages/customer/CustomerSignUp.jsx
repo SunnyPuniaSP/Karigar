@@ -1,6 +1,6 @@
 import React from "react";
 import { SignUpFormCustomer } from "../ui/SignUpFormCustomer";
-import axios from "axios";
+import api from "../../api.js";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCustomerDetails } from "@/store/customerAuthSlice";
@@ -8,14 +8,14 @@ const CustomerSignUp = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const handleSubmit = (data) => {
-    axios
+    api
       .post("/api/v1/customer/register", data)
       .then(() => {
         const logindata = {
           email: data.email,
           password: data.password,
         };
-        axios
+        api
           .post("/api/v1/customer/login", logindata)
           .then((res) => {
             const { data } = res;

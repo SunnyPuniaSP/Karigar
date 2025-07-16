@@ -1,5 +1,4 @@
 import { createSlice } from "@reduxjs/toolkit";
-import { Wallet } from "lucide-react";
 
 const initialState = {
     workerStatus:false,

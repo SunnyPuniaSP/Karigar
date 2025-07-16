@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api.js";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
@@ -21,7 +21,7 @@ const FindJobs = () => {
     return () => clearInterval(interval);
   }, []);
   const fetchJobs = () => {
-    axios
+    api
       .get("/api/v1/service-request/find-requests")
       .then((res) => {
         setJobs(res.data.data);
@@ -32,7 +32,7 @@ const FindJobs = () => {
   };
 
   const handleReject = (customerId) => {
-    axios
+    api
       .patch("/api/v1/worker/temporary-blockCustomer", { customerId })
       .catch((err) => {
         console.log(
@@ -43,7 +43,7 @@ const FindJobs = () => {
   };
 
   const handleAccept = (serviceRequestId) => {
-    axios
+    api
       .post(`/api/v1/service-request/${serviceRequestId}/accept`)
       .then(() => {
         dispatch(setIsLiveRequest());

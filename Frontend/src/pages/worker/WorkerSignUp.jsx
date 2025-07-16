@@ -1,6 +1,6 @@
 import React from "react";
 import { SignUpFormWorker } from "../ui/SignUpFormWorker";
-import axios from "axios";
+import api from "../../api.js";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
@@ -8,14 +8,14 @@ const WorkerSignUp = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const handleSubmit = (data) => {
-    axios
+    api
       .post("/api/v1/worker/register", data)
       .then(() => {
         const logindata = {
           email: data.email,
           password: data.password,
         };
-        axios
+        api
           .post("/api/v1/worker/login", logindata)
           .then((res) => {
             const { data } = res;

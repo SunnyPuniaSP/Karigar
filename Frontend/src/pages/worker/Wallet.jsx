@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../../api.js";
 import { ArrowDownCircle, ArrowUpCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Button } from "../ui/button";
@@ -23,7 +23,7 @@ const Wallet = () => {
   const [addAmount, setAddAmount] = useState();
 
   useEffect(() => {
-    axios
+    api
       .get("/api/v1/worker/online-transactions")
       .then((res) => {
         setTransactions(res.data.data);
@@ -32,7 +32,7 @@ const Wallet = () => {
         console.log("error while fetching online transactions", err);
       });
 
-    axios
+    api
       .get("/api/v1/worker/current-user")
       .then((res) => {
         setWalletBalance(res.data.data.walletBalance);
@@ -65,7 +65,7 @@ const Wallet = () => {
     }
 
     try {
-      const { data } = await axios.post(
+      const { data } = await api.post(
         `/api/v1/payment/create-order-for-worker`,
         { amount: addAmount }
       );
@@ -81,10 +81,10 @@ const Wallet = () => {
             razorpaySignature: response.razorpay_signature,
             amount: addAmount,
           };
-          axios
+          api
             .post(`/api/v1/payment/verify-payment-for-worker`, options)
             .then(() => {
-              axios
+              api
                 .get("/api/v1/worker/current-user")
                 .then((res) => {
                   setWalletBalance(res.data.data.walletBalance);
@@ -96,7 +96,7 @@ const Wallet = () => {
                     err
                   );
                 });
-              axios
+              api
                 .get("/api/v1/worker/online-transactions")
                 .then((res) => {
                   setTransactions(res.data.data);

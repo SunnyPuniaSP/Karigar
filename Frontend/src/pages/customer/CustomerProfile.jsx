@@ -10,7 +10,7 @@ import {
   SheetFooter,
 } from "@/pages/ui/sheet";
 import { Pencil } from "lucide-react";
-import axios from "axios";
+import api from "../../api.js";
 import { setCustomerDetails } from "../../store/customerAuthSlice";
 
 const CustomerProfile = () => {
@@ -28,7 +28,7 @@ const CustomerProfile = () => {
   };
 
   const handleSave = () => {
-    axios
+    api
       .post("/api/v1/customer/update-customer-details", formData)
       .then((res) => {
         dispatch(setCustomerDetails(res.data.data));
@@ -53,7 +53,7 @@ const CustomerProfile = () => {
     }
     const formData = new FormData();
     formData.append("profilePhoto", selectedFile);
-    axios
+    api
       .patch("/api/v1/customer/update-profilePhoto", formData)
       .then((res) => {
         dispatch(setCustomerDetails(res.data.data));
@@ -160,7 +160,6 @@ const CustomerProfile = () => {
               </div>
 
               <SheetFooter className="mt-6 flex-col gap-2">
-                <Button variant="outline">Cancel</Button>
                 <Button onClick={handleSave}>Save</Button>
               </SheetFooter>
             </SheetContent>

@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useParams } from "react-router-dom";
-import axios from "axios";
+import api from "../../api.js";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLiveServiceId, setIsLiveRequest } from "@/store/customerAuthSlice";
@@ -76,7 +76,7 @@ const ServiceRequestForm = () => {
     formData.append("latitude", locationCoords.lat);
     formData.append("longitude", locationCoords.lon);
 
-    axios
+    api
       .post(`/api/v1/service-request/${category}/create`, formData)
       .then((res) => {
         dispatch(setLiveServiceId(res.data.data._id));

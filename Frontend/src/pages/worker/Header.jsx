@@ -6,7 +6,7 @@ import { useDispatch } from "react-redux";
 import { clearWorkerDetails } from "../../store/workerAuthSlice";
 import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
-import axios from "axios";
+import api from "../../api.js";
 import { toast } from "sonner";
 
 const Header = () => {
@@ -18,7 +18,7 @@ const Header = () => {
   );
   const logout = () => {
     if (isOnline) {
-      axios
+      api
         .patch("/api/v1/worker/toggle-isOnline")
         .then(() => {
           dispatch(clearWorkerDetails());

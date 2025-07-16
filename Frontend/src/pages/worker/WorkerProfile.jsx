@@ -10,7 +10,7 @@ import {
   SheetFooter,
 } from "@/pages/ui/sheet";
 import { Pencil } from "lucide-react";
-import axios from "axios";
+import api from "../../api.js";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
 
 const WorkerProfile = () => {
@@ -34,7 +34,7 @@ const WorkerProfile = () => {
   };
 
   const handleSave = () => {
-    axios
+    api
       .post("/api/v1/worker/update-worker-details", formData)
       .then((res) => {
         dispatch(setWorkerDetails(res.data.data));
@@ -56,7 +56,7 @@ const WorkerProfile = () => {
     }
     const formData = new FormData();
     formData.append("profilePhoto", selectedFile);
-    axios
+    api
       .patch("/api/v1/worker/update-profilePhoto", formData)
       .then((res) => {
         dispatch(setWorkerDetails(res.data.data));
