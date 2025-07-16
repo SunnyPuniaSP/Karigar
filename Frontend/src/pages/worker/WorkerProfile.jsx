@@ -8,16 +8,22 @@ import {
   SheetHeader,
   SheetTitle,
   SheetFooter,
-} from "@/components/ui/sheet";
+} from "@/pages/ui/sheet";
 import { Pencil } from "lucide-react";
 import axios from "axios";
-import { setCustomerDetails } from "../../store/customerAuthSlice";
+import { setWorkerDetails } from "../../store/workerAuthSlice";
 
-const CustomerProfile = () => {
+const WorkerProfile = () => {
   const dispatch = useDispatch();
-  const { fullName, email, phone, address, profilePhoto } = useSelector(
-    (state) => state.customerAuth
-  );
+  const {
+    fullName,
+    email,
+    phone,
+    address,
+    profilePhoto,
+    workingCategory,
+    yearOfExperience,
+  } = useSelector((state) => state.workerAuth);
 
   const [formData, setFormData] = useState({ fullName, email, phone, address });
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
@@ -29,15 +35,12 @@ const CustomerProfile = () => {
 
   const handleSave = () => {
     axios
-      .post("/api/v1/customer/update-customer-details", formData)
+      .post("/api/v1/worker/update-worker-details", formData)
       .then((res) => {
-        dispatch(setCustomerDetails(res.data.data));
+        dispatch(setWorkerDetails(res.data.data));
       })
       .catch((err) => {
-        console.log(
-          "Something went wrong. Unable to update your details.",
-          err
-        );
+        console.log("Something went wrong. Unable to update your details", err);
       });
   };
 
@@ -54,9 +57,9 @@ const CustomerProfile = () => {
     const formData = new FormData();
     formData.append("profilePhoto", selectedFile);
     axios
-      .patch("/api/v1/customer/update-profilePhoto", formData)
+      .patch("/api/v1/worker/update-profilePhoto", formData)
       .then((res) => {
-        dispatch(setCustomerDetails(res.data.data));
+        dispatch(setWorkerDetails(res.data.data));
       })
       .catch((err) => {
         console.log(
@@ -104,7 +107,7 @@ const CustomerProfile = () => {
                 id="profilePhotoInput"
                 accept="image/*"
                 onChange={(e) => setSelectedFile(e.target.files[0])}
-                className="hidden" 
+                className="hidden"
               />
               {selectedFile && (
                 <span className="text-sm text-gray-700">
@@ -121,6 +124,7 @@ const CustomerProfile = () => {
         <p className="text-sm text-gray-500">{phone}</p>
         <p className="text-sm text-gray-500">{address}</p>
       </div>
+
       <div className="flex-1 bg-white shadow-md rounded-2xl p-6 space-y-6">
         <div className="flex justify-between items-center border-b pb-4">
           <h3 className="text-2xl font-semibold text-gray-800">Profile Info</h3>
@@ -166,6 +170,7 @@ const CustomerProfile = () => {
             </SheetContent>
           </Sheet>
         </div>
+
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="text-sm text-gray-500">Full Name</label>
@@ -187,10 +192,28 @@ const CustomerProfile = () => {
               {address}
             </div>
           </div>
+          <div>
+            <label className="text-sm text-gray-500">Experience in Years</label>
+            <div className="text-base font-medium text-gray-800 whitespace-pre-line">
+              {yearOfExperience}
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-gray-500">Serving Category</label>
+            {console.log("serving category:", workingCategory)}
+            {workingCategory.map((category) => (
+              <div
+                id={category}
+                className="text-base font-medium text-gray-800 whitespace-pre-line"
+              >
+                {category}
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     </div>
   );
 };
 
-export default CustomerProfile;
+export default WorkerProfile;

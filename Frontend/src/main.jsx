@@ -3,40 +3,39 @@ import { createRoot } from "react-dom/client";
 import { Toaster } from "sonner";
 import "leaflet/dist/leaflet.css";
 import "./index.css";
-import App from "./App.jsx";
 import {
   createBrowserRouter,
   createRoutesFromElements,
   Route,
 } from "react-router-dom";
 import { RouterProvider } from "react-router-dom";
-import LandingPage from "./components/LandingPage.jsx";
-import LandingPageCustomer from "./components/customer/LandingPageCustomer";
-import LandingPageWorker from "./components/worker/LandingPageWorker";
-import CustomerLogin from "./components/customer/CustomerLogin";
-import CustomerSignUp from "./components/customer/CustomerSignUp";
-import WorkerSignUp from "./components/worker/WorkerSignUp";
-import WorkerLogin from "./components/worker/WorkerLogin";
-import Home from "./components/customer/Home";
-import CustomerLayout from "./components/customer/CustomerLayout";
+import LandingPage from "./pages/LandingPage.jsx";
+import LandingPageCustomer from "./pages/customer/LandingPageCustomer";
+import LandingPageWorker from "./pages/worker/LandingPageWorker";
+import CustomerLogin from "./pages/customer/CustomerLogin";
+import CustomerSignUp from "./pages/customer/CustomerSignUp";
+import WorkerSignUp from "./pages/worker/WorkerSignUp";
+import WorkerLogin from "./pages/worker/WorkerLogin";
+import Home from "./pages/customer/Home";
+import CustomerLayout from "./pages/customer/CustomerLayout";
 import { PersistGate } from "redux-persist/integration/react";
 import { store, persistor } from "./store/store.js";
 import { Provider } from "react-redux";
-import CustomerProfile from "./components/customer/CustomerProfile";
-import SelectCategory from "./components/customer/SelectCategory";
-import ServiceRequestForm from "./components/customer/ServiceRequestForm";
-import ServiceRequest from "./components/customer/ServiceRequest";
-import WorkerLayout from "./components/worker/WorkerLayout";
-import WorkerHome from "./components/worker/Home";
-import WorkerProfile from "./components/worker/WorkerProfile";
-import FindJobs from "./components/worker/FindJobs";
-import JobConnectionPage from "./components/worker/JobConnectionPage";
-import MyRequests from "./components/customer/MyRequests";
-import MyJobs from "./components/worker/MyJobs";
-import Wallet from "./components/worker/Wallet";
-import ProtectedAuthCustomer from "./components/customer/ProtectedAuthCustomer";
-import ProtectedAuthWorker from "./components/worker/ProtectedAuthWorker";
-import ProtectedAuth from "./components/ProtectedAuth";
+import CustomerProfile from "./pages/customer/CustomerProfile";
+import SelectCategory from "./pages/customer/SelectCategory";
+import ServiceRequestForm from "./pages/customer/ServiceRequestForm";
+import ServiceRequest from "./pages/customer/ServiceRequest";
+import WorkerLayout from "./pages/worker/WorkerLayout";
+import WorkerHome from "./pages/worker/Home";
+import WorkerProfile from "./pages/worker/WorkerProfile";
+import FindJobs from "./pages/worker/FindJobs";
+import JobConnectionPage from "./pages/worker/JobConnectionPage";
+import MyRequests from "./pages/customer/MyRequests";
+import MyJobs from "./pages/worker/MyJobs";
+import Wallet from "./pages/worker/Wallet";
+import ProtectedAuthCustomer from "./pages/customer/ProtectedAuthCustomer";
+import ProtectedAuthWorker from "./pages/worker/ProtectedAuthWorker";
+import ProtectedAuth from "./pages/ProtectedAuth";
 
 const router = createBrowserRouter(
   createRoutesFromElements(

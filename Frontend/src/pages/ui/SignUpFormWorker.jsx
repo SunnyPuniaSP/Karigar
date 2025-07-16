@@ -1,10 +1,10 @@
 import { GalleryVerticalEnd } from "lucide-react";
 import React, { useState } from "react";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
+import { Button } from "@/pages/ui/button";
+import { Input } from "@/pages/ui/input";
+import { Label } from "@/pages/ui/label";
+import { Checkbox } from "@/pages/ui/checkbox";
 import { NavLink } from "react-router-dom";
 
 const categories = [
@@ -26,11 +26,10 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
     );
   };
 
-
-
   return (
     <div className={cn("flex flex-col gap-6", className)} {...props}>
-      <form onSubmit={(e) => {
+      <form
+        onSubmit={(e) => {
           e.preventDefault();
           const formData = new FormData(e.target);
           const data = {
@@ -43,7 +42,8 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
             workingCategory: selectedCategories,
           };
           handleSubmit(data);
-        }}>
+        }}
+      >
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
             <a
@@ -54,13 +54,22 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
             </a>
             <h1 className="text-xl font-bold">Welcome to Karigar</h1>
             <div className="text-center text-sm">
-              Already have an account?{" "} <NavLink to="/worker/login"  className="underline">Login</NavLink>
+              Already have an account?{" "}
+              <NavLink to="/worker/login" className="underline">
+                Login
+              </NavLink>
             </div>
           </div>
           <div className="flex flex-col gap-6">
             <div className="grid gap-3">
               <Label htmlFor="fullName">Full Name</Label>
-              <Input id="fullName" name="fullName" type="text" placeholder="" required />
+              <Input
+                id="fullName"
+                name="fullName"
+                type="text"
+                placeholder=""
+                required
+              />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="email">Email</Label>
@@ -74,15 +83,33 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
             </div>
             <div className="grid gap-3">
               <Label htmlFor="phone">Phone</Label>
-              <Input id="phone" name="phone" type="tel" placeholder="" required />
+              <Input
+                id="phone"
+                name="phone"
+                type="tel"
+                placeholder=""
+                required
+              />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="address">Address</Label>
-              <Input id="address" name="address" type="text" placeholder="" required />
+              <Input
+                id="address"
+                name="address"
+                type="text"
+                placeholder=""
+                required
+              />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="password">Password</Label>
-              <Input id="password" name="password" type="Password" placeholder="" required />
+              <Input
+                id="password"
+                name="password"
+                type="Password"
+                placeholder=""
+                required
+              />
             </div>
             <div className="grid gap-3">
               <Label htmlFor="yearOfExperience">Year Of Experience</Label>
