@@ -7,11 +7,10 @@ import { defineConfig } from "vite"
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-// https://vite.dev/config/
 export default defineConfig({
   server:{
     proxy:{
-      '/api':'http://localhost:8000', // Adjust the port as per your backend server
+      '/api':'http://localhost:8000',
     }
   },
   plugins: [react(), tailwindcss()],
