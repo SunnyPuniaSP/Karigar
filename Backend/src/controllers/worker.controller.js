@@ -7,7 +7,7 @@ import jwt from "jsonwebtoken";
 import { ServiceRequest } from "../models/serviceRequest.model.js";
 import { getDistance } from "geolib";
 import { Transaction } from "../models/transaction.model.js";
-
+import ms from "ms";
 
 const generateAccessAndRefreshTokens = async (workerId) => {
   try {
@@ -130,15 +130,22 @@ const loginWorker = asyncHandler(async (req, res) => {
     "-password -refreshToken"
   );
 
-  const options = {
-    httpOnly: true,
-    secure: true,
-    sameSite: "None",
-  };
+  const accessTokenExpiry = ms(process.env.ACCESS_TOKEN_EXPIRY);
+  const refreshTokenExpiry = ms(process.env.REFRESH_TOKEN_EXPIRY);
 
   return res
-    .cookie("refreshToken", refreshToken, options)
-    .cookie("accessToken", accessToken, options)
+    .cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: refreshTokenExpiry,
+    })
+    .cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: accessTokenExpiry,
+    })
     .status(200)
     .json(
       new ApiResponse(
@@ -280,108 +287,113 @@ const updateProfilePhoto = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, worker, "Profile Photo updated successfully"));
 });
 
-const updateWorkerDetails = asyncHandler(async(req, res) => {
-    const {fullName,email,address,phone} = req.body
+const updateWorkerDetails = asyncHandler(async (req, res) => {
+  const { fullName, email, address, phone } = req.body;
 
-    if (!email || !fullName || !address || !phone) {
-        throw new ApiError(400, "all fields are required to update profile")
-    }
+  if (!email || !fullName || !address || !phone) {
+    throw new ApiError(400, "all fields are required to update profile");
+  }
 
-    const worker = await Worker.findByIdAndUpdate(
-        req.worker?._id,
-        {
-            $set: {
-                email: email,
-                fullName: fullName,
-                address: address,
-                phone: phone
-            }
-        },
-        {new: true}
-        
-    ).select("-password -refreshToken");
+  const worker = await Worker.findByIdAndUpdate(
+    req.worker?._id,
+    {
+      $set: {
+        email: email,
+        fullName: fullName,
+        address: address,
+        phone: phone,
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken");
 
-    return res
+  return res
     .status(200)
-    .json(new ApiResponse(200, worker, "Profile updated successfully"))
+    .json(new ApiResponse(200, worker, "Profile updated successfully"));
 });
 
-const getWorkerDetails=asyncHandler(async(req, res)=>{
-    const {workerId}=req.params;
-    
-    const worker=await Worker.findById(workerId).select("-password -refreshToken -suspendedUntil -walletBalance -ratingsCount -ratingsPoints");
+const getWorkerDetails = asyncHandler(async (req, res) => {
+  const { workerId } = req.params;
 
-    if(!worker){
-        throw new ApiError(400, "Worker not found");
-    }
+  const worker = await Worker.findById(workerId).select(
+    "-password -refreshToken -suspendedUntil -walletBalance -ratingsCount -ratingsPoints"
+  );
 
-    return res
+  if (!worker) {
+    throw new ApiError(400, "Worker not found");
+  }
+
+  return res
     .status(200)
     .json(new ApiResponse(200, worker, "Worker details fetched successfully"));
 });
 
-const toggleIsOnline=asyncHandler(async(req,res)=>{
-    const worker=await Worker.findById(req.worker._id);
-    if(!worker){
-      throw new ApiError(400, "Worker not found");
-    }
-    worker.isOnline=!worker.isOnline;
-    await worker.save({ validateBeforeSave: false });
+const toggleIsOnline = asyncHandler(async (req, res) => {
+  const worker = await Worker.findById(req.worker._id);
+  if (!worker) {
+    throw new ApiError(400, "Worker not found");
+  }
+  worker.isOnline = !worker.isOnline;
+  await worker.save({ validateBeforeSave: false });
 
-    const updatedWorker=await Worker.findById(worker._id).select("-password -refreshToken -suspendedUntil -walletBalance -ratingsCount -ratingsPoints")
+  const updatedWorker = await Worker.findById(worker._id).select(
+    "-password -refreshToken -suspendedUntil -walletBalance -ratingsCount -ratingsPoints"
+  );
 
-    return res
+  return res
     .status(200)
-    .json(new ApiResponse(200, updatedWorker, "IsOnline status toggle successfully"));
+    .json(
+      new ApiResponse(200, updatedWorker, "IsOnline status toggle successfully")
+    );
 });
 
-const updateWorkerCurrentLocation=asyncHandler(async(req,res)=>{
-    const {latitude,longitude}=req.body
-    const {serviceRequestId}=req.params
-     if (!latitude || !longitude) {
-        throw new ApiError(400, "Latitude and longitude are required");
-      }
-    const workerLocation = {
-      type: "Point",
-      coordinates: [parseFloat(longitude), parseFloat(latitude)],
-    };
+const updateWorkerCurrentLocation = asyncHandler(async (req, res) => {
+  const { latitude, longitude } = req.body;
+  const { serviceRequestId } = req.params;
+  if (!latitude || !longitude) {
+    throw new ApiError(400, "Latitude and longitude are required");
+  }
+  const workerLocation = {
+    type: "Point",
+    coordinates: [parseFloat(longitude), parseFloat(latitude)],
+  };
 
-    const worker=await Worker.findByIdAndUpdate(
-      req.worker._id,
-      {
-        $set:{
-          currentLocation:workerLocation
-        }
+  const worker = await Worker.findByIdAndUpdate(
+    req.worker._id,
+    {
+      $set: {
+        currentLocation: workerLocation,
       },
-      {new:true}
-    ).select("-password -refreshToken");
+    },
+    { new: true }
+  ).select("-password -refreshToken");
 
-    if (!worker) {
-        throw new ApiError(400, "Worker not found");
-      }
+  if (!worker) {
+    throw new ApiError(400, "Worker not found");
+  }
 
-    const serviceRequest=await ServiceRequest.findById(serviceRequestId);
-    if(!serviceRequest){
-      throw new ApiError(400,"Service request not find");
-    }
+  const serviceRequest = await ServiceRequest.findById(serviceRequestId);
+  if (!serviceRequest) {
+    throw new ApiError(400, "Service request not find");
+  }
 
-    const startCoordinates=worker.startLocation.coordinates;
-    const customerCoordinates=serviceRequest.customerLocation.coordinates;
+  const startCoordinates = worker.startLocation.coordinates;
+  const customerCoordinates = serviceRequest.customerLocation.coordinates;
 
-    if (startCoordinates && customerCoordinates) {
+  if (startCoordinates && customerCoordinates) {
     const startLat = startCoordinates[1];
     const startLng = startCoordinates[0];
     const customerLat = customerCoordinates[1];
     const customerLng = customerCoordinates[0];
 
     const distanceFromStart = getDistance(
-  { latitude: startLat, longitude: startLng },
-  { latitude: latitude, longitude: longitude }
-);
+      { latitude: startLat, longitude: startLng },
+      { latitude: latitude, longitude: longitude }
+    );
     const distanceToCustomer = getDistance(
-  { latitude: latitude, longitude: longitude },
-  { latitude: customerLat, longitude: customerLng }
-);
+      { latitude: latitude, longitude: longitude },
+      { latitude: customerLat, longitude: customerLng }
+    );
 
     let statusUpdated = false;
 
@@ -399,156 +411,193 @@ const updateWorkerCurrentLocation=asyncHandler(async(req,res)=>{
       await serviceRequest.save();
     }
   }
-    return res
+  return res
     .status(200)
-    .json(new ApiResponse(200, worker, "Worker current location updated successfully"))
+    .json(
+      new ApiResponse(
+        200,
+        worker,
+        "Worker current location updated successfully"
+      )
+    );
+});
 
-})
+const updateWorkerStartLocation = asyncHandler(async (req, res) => {
+  const { latitude, longitude } = req.body;
+  if (!latitude || !longitude) {
+    throw new ApiError(400, "Latitude and longitude are required");
+  }
+  const workerLocation = {
+    type: "Point",
+    coordinates: [parseFloat(longitude), parseFloat(latitude)],
+  };
 
-const updateWorkerStartLocation=asyncHandler(async(req,res)=>{
-    const {latitude,longitude}=req.body
-     if (!latitude || !longitude) {
-        throw new ApiError(400, "Latitude and longitude are required");
-      }
-    const workerLocation = {
-      type: "Point",
-      coordinates: [parseFloat(longitude), parseFloat(latitude)],
-    };
-
-    const worker=await Worker.findByIdAndUpdate(
-      req.worker._id,
-      {
-        $set:{
-          startLocation:workerLocation,
-        }
+  const worker = await Worker.findByIdAndUpdate(
+    req.worker._id,
+    {
+      $set: {
+        startLocation: workerLocation,
       },
-      {new:true}
-    ).select("-password -refreshToken");
+    },
+    { new: true }
+  ).select("-password -refreshToken");
 
-    if (!worker) {
-        throw new ApiError(400, "Worker not found");
-      }
+  if (!worker) {
+    throw new ApiError(400, "Worker not found");
+  }
 
-    return res
+  return res
     .status(200)
-    .json(new ApiResponse(200, worker, "Worker start location updated successfully"))
+    .json(
+      new ApiResponse(200, worker, "Worker start location updated successfully")
+    );
+});
 
-})
+const temporaryBlockCustomer = asyncHandler(async (req, res) => {
+  const { customerId } = req.body;
 
-const temporaryBlockCustomer=asyncHandler(async(req,res)=>{
-  const {customerId}=req.body
-  
-  if(!customerId){
-    throw new ApiError(400,"Customer id is required to temporary block customer");
+  if (!customerId) {
+    throw new ApiError(
+      400,
+      "Customer id is required to temporary block customer"
+    );
   }
 
   const blockDurationInMs = 60 * 60 * 1000; // 1 hour
   const blockedUntil = new Date(Date.now() + blockDurationInMs);
 
-  const worker=await Worker.findByIdAndUpdate(req.worker._id, {
-    $push: {
-      temporaryBlockedCustomers: {
-        customerId,
-        blockedUntil
-      }
-    }
-  },{new:true}).select("-password -refreshToken");
-
+  const worker = await Worker.findByIdAndUpdate(
+    req.worker._id,
+    {
+      $push: {
+        temporaryBlockedCustomers: {
+          customerId,
+          blockedUntil,
+        },
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken");
 
   return res
     .status(200)
-    .json(new ApiResponse(200, worker, "Customer temporary blocked successfully"))
+    .json(
+      new ApiResponse(200, worker, "Customer temporary blocked successfully")
+    );
+});
 
-})
+const getWorkerCurrentLocation = asyncHandler(async (req, res) => {
+  const { workerId } = req.params;
 
-const getWorkerCurrentLocation=asyncHandler(async(req,res)=>{
-  const {workerId}=req.params;
+  const worker = await Worker.findById(workerId).select(
+    "-password -refreshToken"
+  );
 
-  const worker=await Worker.findById(workerId).select("-password -refreshToken");
-
-  if(!worker){
-    throw new ApiError(400,"Worker details not found")
+  if (!worker) {
+    throw new ApiError(400, "Worker details not found");
   }
 
-  const location={
-    lng:worker.currentLocation.coordinates[0],
-    lat:worker.currentLocation.coordinates[1],
-  }
+  const location = {
+    lng: worker.currentLocation.coordinates[0],
+    lat: worker.currentLocation.coordinates[1],
+  };
   return res
     .status(201)
-    .json(new ApiResponse(201, location, "Worker current location fetched successfully"))
+    .json(
+      new ApiResponse(
+        201,
+        location,
+        "Worker current location fetched successfully"
+      )
+    );
+});
 
-})
+const toggleIsLiveRequestToFalse = asyncHandler(async (req, res) => {
+  const { workerId } = req.params;
 
-const toggleIsLiveRequestToFalse=asyncHandler(async(req,res)=>{
-    const {workerId}=req.params;
+  const worker = await Worker.findByIdAndUpdate(
+    workerId,
+    {
+      $set: {
+        isLiveRequest: false,
+        liveServiceId: null,
+      },
+    },
+    { new: true }
+  ).select("-password -refreshToken");
 
-    const worker=await Worker.findByIdAndUpdate(
-        workerId,
-        {
-            $set:{
-                isLiveRequest:false,
-                liveServiceId:null
-            }
-        },
-        {new:true}
-    ).select("-password -refreshToken")
+  if (!worker) {
+    throw new ApiError(
+      400,
+      "Something went wrong while fetching worker and update live request status to false"
+    );
+  }
 
-    if(!worker){
-      throw new ApiError(400,"Something went wrong while fetching worker and update live request status to false")
-    }
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        worker,
+        "live request set to false in customer database successfully"
+      )
+    );
+});
 
-    return res.status(200).json(new ApiResponse(200,worker,"live request set to false in customer database successfully"));
-})
+const getPastJobs = asyncHandler(async (req, res) => {
+  const workerId = req.worker._id;
 
-const getPastJobs=asyncHandler(async(req,res)=>{
-    const workerId=req.worker._id;
+  const jobs = await ServiceRequest.aggregate([
+    {
+      $match: {
+        workerId: workerId,
+        orderStatus: "completed",
+      },
+    },
+    {
+      $lookup: {
+        from: "customers",
+        localField: "customerId",
+        foreignField: "_id",
+        as: "customerDetails",
+      },
+    },
+    {
+      $addFields: {
+        customerName: "$customerDetails.fullName",
+        customerPhoto: "$customerDetails.profilePhoto",
+      },
+    },
+    {
+      $project: {
+        customerDetails: 0,
+      },
+    },
+    {
+      $sort: {
+        updatedAt: -1,
+      },
+    },
+  ]);
 
-    const jobs=await ServiceRequest.aggregate([
-        {
-            $match:{
-                workerId: workerId,
-                orderStatus: "completed"
-            }
-        },
-        {
-            $lookup:{
-                from: "customers",
-                localField:"customerId",
-                foreignField:"_id",
-                as:"customerDetails"
-            }
-        },
-        {
-            $addFields:{
-                customerName:"$customerDetails.fullName",
-                customerPhoto:"$customerDetails.profilePhoto"
-            }
-        },
-        {
-            $project:{
-                customerDetails:0
-            }
-        },
-        {
-            $sort:{
-                updatedAt:-1
-            }
-        }
-    ])
+  return res
+    .status(201)
+    .json(new ApiResponse(201, jobs, "Past requests find sucessfully"));
+});
 
-    return res.status(201).json(new ApiResponse(201,jobs,"Past requests find sucessfully"))
-})
+const getOnlineTransactions = asyncHandler(async (req, res) => {
+  const workerId = req.worker._id;
 
-const getOnlineTransactions=asyncHandler(async(req,res)=>{
-  const workerId=req.worker._id;
+  const transactions = await Transaction.find({
+    workerId: workerId,
+  }).sort({ updatedAt: -1 });
 
-  const transactions=await Transaction.find({
-    workerId:workerId
-  }).sort({updatedAt:-1})
-  
-  return res.status(200).json(new ApiResponse(200,transactions,"Transactions fetched successfully"))
-})
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, transactions, "Transactions fetched successfully")
+    );
+});
 
 export {
   registerWorker,
@@ -567,5 +616,5 @@ export {
   updateWorkerStartLocation,
   toggleIsLiveRequestToFalse,
   getPastJobs,
-  getOnlineTransactions
+  getOnlineTransactions,
 };
