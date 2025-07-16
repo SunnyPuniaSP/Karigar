@@ -16,14 +16,17 @@ import "leaflet/dist/leaflet.css";
 import houseIc from "../../assets/3d-house.png";
 import workerIc from "../../assets/mechanic.png";
 import { useDispatch } from "react-redux";
-import { clearIsLiveRequest,clearLiveServiceId } from "../../store/customerAuthSlice";
+import {
+  clearIsLiveRequest,
+  clearLiveServiceId,
+} from "../../store/customerAuthSlice";
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
   const res = await axios.get(url);
   const coordinates = res.data.routes[0].geometry.coordinates.map(
     ([lng, lat]) => [lat, lng]
   );
-  const duration = res.data.routes[0].duration; // in seconds
+  const duration = res.data.routes[0].duration; 
   return { coordinates, duration };
 };
 
@@ -40,7 +43,6 @@ const workerIcon = new L.Icon({
   popupAnchor: [0, -36],
 });
 
-// --- Helper to fit map bounds to both markers ---
 function FitBounds({ workerLocation, customerLocation }) {
   const map = useMap();
   useEffect(() => {
@@ -57,34 +59,33 @@ function FitBounds({ workerLocation, customerLocation }) {
 
 const SearchingWorker = () => {
   const navigate = useNavigate();
-  const dispatch =useDispatch();
+  const dispatch = useDispatch();
   const { serviceRequestId } = useParams();
   const [requestData, setRequestData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [workerAccepted, setWorkerAccepted] = useState(false);
   const [workerDetails, setWorkerDetails] = useState(null);
 
-  // Map-related state
   const [workerLocation, setWorkerLocation] = useState(null);
   const [customerLocation, setCustomerLocation] = useState(null);
   const [routePath, setRoutePath] = useState([]);
   const [etaMinutes, setEtaMinutes] = useState(null);
 
-  const [showCancellButtonByMistake, setShowCancellButtonByMistake] = useState(false);
+  const [showCancellButtonByMistake, setShowCancellButtonByMistake] =
+    useState(false);
   const [showCancellButtonLate, setShowCancellButtonLate] = useState(false);
   const [cancellCountdown, setCancellCountdown] = useState(30);
-  const [showCancellButtons,setShowCancellButtons]=useState(true);
+  const [showCancellButtons, setShowCancellButtons] = useState(true);
   const cancellButtonStarted = useRef(false);
 
-  const [showAcceptRejectButtons,setShowAcceptRejectButton]=useState(false);
+  const [showAcceptRejectButtons, setShowAcceptRejectButton] = useState(false);
 
-  const [showPayButton,setShowPayButton]=useState(false);
+  const [showPayButton, setShowPayButton] = useState(false);
 
   const [jobCompleted, setJobCompleted] = useState(false);
 
-  const toggleIsLiveRequestToFalse =useRef(false);
+  const toggleIsLiveRequestToFalse = useRef(false);
 
-  // Poll for service request status
   useEffect(() => {
     const interval = setInterval(fetchStatus, 4000);
     fetchStatus();
@@ -97,121 +98,137 @@ const SearchingWorker = () => {
       .then((res) => {
         const data = res.data.data;
         setRequestData(data);
-        if(data.orderStatus==="completed" && !toggleIsLiveRequestToFalse.current){
+        if (
+          data.orderStatus === "completed" &&
+          !toggleIsLiveRequestToFalse.current
+        ) {
           setShowPayButton(false);
           setJobCompleted(true);
-          axios.patch(`/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`)
-          .then(()=>{
-            dispatch(clearIsLiveRequest());
-            dispatch(clearLiveServiceId());
-          })
-          .catch(()=>{
-            alert("toglling is live request to false failed");
-          })
-          toggleIsLiveRequestToFalse.current=true;
+          axios
+            .patch(
+              `/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`
+            )
+            .then(() => {
+              dispatch(clearIsLiveRequest());
+              dispatch(clearLiveServiceId());
+            })
+            .catch((err) => {
+              console.log("toglling is live request to false failed", err);
+            });
+          toggleIsLiveRequestToFalse.current = true;
           localStorage.removeItem("connectedStartTime");
         }
-        if(data.orderStatus==="cancelled" && !toggleIsLiveRequestToFalse.current){
+        if (
+          data.orderStatus === "cancelled" &&
+          !toggleIsLiveRequestToFalse.current
+        ) {
           setShowCancellButtons(false);
           setJobCompleted(true);
-          axios.patch(`/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`)
-          .then(()=>{
-            dispatch(clearIsLiveRequest());
-            dispatch(clearLiveServiceId());
-          })
-          .catch(()=>{
-            alert("toglling is live request to false failed");
-          })
-          toggleIsLiveRequestToFalse.current=true;
+          axios
+            .patch(
+              `/api/v1/customer/${data.customerId}/toggle-isliveRequestTo-false`
+            )
+            .then(() => {
+              dispatch(clearIsLiveRequest());
+              dispatch(clearLiveServiceId());
+            })
+            .catch((err) => {
+              console.log("toglling is live request to false failed", err);
+            });
+          toggleIsLiveRequestToFalse.current = true;
           localStorage.removeItem("connectedStartTime");
         }
-        if(data.orderStatus==="repairAmountQuoted"){
+        if (data.orderStatus === "repairAmountQuoted") {
           setShowAcceptRejectButton(true);
         }
-        if(data.orderStatus==="payment_pending_visiting_fee" || data.orderStatus==="payment_pending_quote_amount"){
+        if (
+          data.orderStatus === "payment_pending_visiting_fee" ||
+          data.orderStatus === "payment_pending_quote_amount"
+        ) {
           setShowPayButton(true);
         }
-        if(data.orderStatus!=="searching" && data.orderStatus!=="connected" && data.orderStatus!=="onway"){
+        if (
+          data.orderStatus !== "searching" &&
+          data.orderStatus !== "connected" &&
+          data.orderStatus !== "onway"
+        ) {
           setShowCancellButtons(false);
           setLoading(false);
           setWorkerAccepted(true);
         }
         if (
-  (data.orderStatus === "connected" || data.orderStatus === "onway") &&
-  !cancellButtonStarted.current
-) {
-  setWorkerAccepted(true);
-  setLoading(false);
+          (data.orderStatus === "connected" || data.orderStatus === "onway") &&
+          !cancellButtonStarted.current
+        ) {
+          setWorkerAccepted(true);
+          setLoading(false);
 
-  const existingTimestamp = localStorage.getItem("connectedStartTime");
+          const existingTimestamp = localStorage.getItem("connectedStartTime");
 
-  // If not already set, set it now
-  if (!existingTimestamp) {
-    localStorage.setItem("connectedStartTime", Date.now().toString());
-  }
+          if (!existingTimestamp) {
+            localStorage.setItem("connectedStartTime", Date.now().toString());
+          }
 
-  const timestamp = parseInt(localStorage.getItem("connectedStartTime"), 10);
-  const now = Date.now();
-  const secondsPassed = Math.floor((now - timestamp) / 1000);
+          const timestamp = parseInt(
+            localStorage.getItem("connectedStartTime"),
+            10
+          );
+          const now = Date.now();
+          const secondsPassed = Math.floor((now - timestamp) / 1000);
+          if (secondsPassed < 30) {
+            setShowCancellButtonByMistake(true);
+            setCancellCountdown(30 - secondsPassed);
 
-  // For "Cancel by mistake" (0-30 sec)
-  if (secondsPassed < 30) {
-    setShowCancellButtonByMistake(true);
-    setCancellCountdown(30 - secondsPassed);
+            const countdownInterval = setInterval(() => {
+              setCancellCountdown((prev) => {
+                if (prev <= 1) {
+                  clearInterval(countdownInterval);
+                  setShowCancellButtonByMistake(false);
+                  return 0;
+                }
+                return prev - 1;
+              });
+            }, 1000);
+          }
 
-    const countdownInterval = setInterval(() => {
-      setCancellCountdown((prev) => {
-        if (prev <= 1) {
-          clearInterval(countdownInterval);
-          setShowCancellButtonByMistake(false);
-          return 0;
+          if (secondsPassed >= 30*60) {
+            setShowCancellButtonLate(true);
+          } else {
+            setTimeout(() => {
+              setShowCancellButtonLate(true);
+            }, (30*60 - secondsPassed) * 1000);
+          }
+
+          cancellButtonStarted.current = true;
         }
-        return prev - 1;
-      });
-    }, 1000);
-  }
-
-  // For "Cancel if worker is late" (after 60 sec)
-  if (secondsPassed >= 60) {
-    setShowCancellButtonLate(true);
-  } else {
-    setTimeout(() => {
-      setShowCancellButtonLate(true);
-    }, (60 - secondsPassed) * 1000);
-  }
-
-  cancellButtonStarted.current = true;
-}
-
       })
       .catch((error) => {
-        console.error("Error fetching request status", error);
-        alert("Something went wrong while checking the request status");
+        console.error(
+          "Something went wrong while checking the request status",
+          error
+        );
       });
   };
 
-  // Fetch worker details when assigned
   useEffect(() => {
     if (workerAccepted && requestData?.workerId) {
       axios
         .get(`/api/v1/worker/${requestData.workerId}/get-details`)
         .then((res) => setWorkerDetails(res.data.data))
         .catch((err) => {
-          console.error("Error fetching worker details", err);
-          alert(
-            "Worker accepted your request, but details couldn't be fetched."
+          console.error(
+            "Worker accepted your request, but details couldn't be fetched.",
+            err
           );
         });
     }
   }, [workerAccepted]);
 
-  // Poll for worker and customer locations and fetch the real route
   useEffect(() => {
     let interval;
     const fetchLocations = async () => {
       if (workerAccepted && requestData.workerId) {
         try {
-          // Fetch worker's live location
           const workerRes = await axios.get(
             `/api/v1/worker/${requestData.workerId}/location`
           );
@@ -220,20 +237,15 @@ const SearchingWorker = () => {
             lng: workerRes.data.data.lng,
           };
           setWorkerLocation(wLoc);
-
-          // Extract customer location from requestData (GeoJSON: [lng, lat])
           const cCoords = requestData.customerLocation?.coordinates || [];
           if (cCoords.length === 2) {
             const cLoc = { lat: cCoords[1], lng: cCoords[0] };
             setCustomerLocation(cLoc);
-
-            // Fetch the actual road route from OpenRouteService
             const route = await getRoute(wLoc, cLoc);
             setRoutePath(route.coordinates);
             setEtaMinutes(Math.ceil(route.duration / 60));
           }
         } catch (err) {
-          alert("Error while fetching worker location or route");
           console.log("Error while fetching worker location or route", err);
         }
       }
@@ -252,11 +264,10 @@ const SearchingWorker = () => {
       .then(() => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
-        navigate("/customer/auth/home")
+        navigate("/customer/auth/home");
       })
       .catch((err) => {
         console.log("Something went wrong while deleting request", err);
-        alert("Something went wrong while deleting request");
       });
   };
 
@@ -269,11 +280,13 @@ const SearchingWorker = () => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
         setShowCancellButtons(false);
-        requestData.orderStatus="cancelled";
+        requestData.orderStatus = "cancelled";
       })
       .catch((err) => {
-        console.log("Something went wrong while deleting request", err);
-        alert("Something went wrong while deleting request");
+        console.log(
+          "Something went wrong while cancelling request as byMistake",
+          err
+        );
       });
   };
 
@@ -286,94 +299,95 @@ const SearchingWorker = () => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
         setShowCancellButtons(false);
-        requestData.orderStatus="cancelled";
+        requestData.orderStatus = "cancelled";
       })
       .catch((err) => {
-        console.log("Something went wrong while deleting request", err);
-        alert("Something went wrong while deleting request");
+        console.log(
+          "Something went wrong while cancelling request as worker late or not responding",
+          err
+        );
       });
   };
 
-  const quoteAccepted=()=>{
-    axios.patch(`/api/v1/service-request/${serviceRequestId}/accept-repair-quote`)
-    .then(()=>{
-      setShowAcceptRejectButton(false);
-      setShowPayButton(true);
-      requestData.orderStatus="payment_pending_quote_amount"
-    })
-    .catch(()=>{
-      alert("error while accepting req");
-    })
-  }
+  const quoteAccepted = () => {
+    axios
+      .patch(`/api/v1/service-request/${serviceRequestId}/accept-repair-quote`)
+      .then(() => {
+        setShowAcceptRejectButton(false);
+        setShowPayButton(true);
+        requestData.orderStatus = "payment_pending_quote_amount";
+      })
+      .catch((err) => {
+        console.log("Something went wrong while accepting quote", err);
+      });
+  };
 
-  const quoteRejected=()=>{
-    axios.patch(`/api/v1/service-request/${serviceRequestId}/reject-repair-quote`)
-    .then(()=>{
-      setShowAcceptRejectButton(false);
-      setShowPayButton(true);
-      requestData.orderStatus="payment_pending_visiting_fee"
-    })
-    .catch(()=>{
-      alert("error while accepting req");
-    })
-  }
+  const quoteRejected = () => {
+    axios
+      .patch(`/api/v1/service-request/${serviceRequestId}/reject-repair-quote`)
+      .then(() => {
+        setShowAcceptRejectButton(false);
+        setShowPayButton(true);
+        requestData.orderStatus = "payment_pending_visiting_fee";
+      })
+      .catch((err) => {
+        console.log("Something went wrong while rejecting quote", err);
+      });
+  };
 
   const loadRazorpayScript = () => {
-  return new Promise((resolve) => {
-    const script = document.createElement("script");
-    script.src = "https://checkout.razorpay.com/v1/checkout.js";
-    script.onload = () => {
-      resolve(true);
-    };
-    script.onerror = () => {
-      resolve(false);
-    };
-    document.body.appendChild(script);
-  });
-};
+    return new Promise((resolve) => {
+      const script = document.createElement("script");
+      script.src = "https://checkout.razorpay.com/v1/checkout.js";
+      script.onload = () => {
+        resolve(true);
+      };
+      script.onerror = () => {
+        resolve(false);
+      };
+      document.body.appendChild(script);
+    });
+  };
 
+  const handlePayment = async () => {
+    const isScriptLoaded = await loadRazorpayScript();
 
-const handlePayment = async () => {
-  const isScriptLoaded = await loadRazorpayScript();
+    if (!isScriptLoaded) {
+      alert("Razorpay SDK failed to load. Are you online?");
+      return;
+    }
+    try {
+      const { data } = await axios.post(
+        `/api/v1/payment/${serviceRequestId}/create-order`
+      );
 
-  if (!isScriptLoaded) {
-    alert("Razorpay SDK failed to load. Are you online?");
-    return;
-  }
+      const options = {
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
+        order_id: data.data.id,
+        ...data.data,
+        handler: async function (response) {
+          const options = {
+            razorpayPaymentId: response.razorpay_payment_id,
+            razorpayOrderId: response.razorpay_order_id,
+            razorpaySignature: response.razorpay_signature,
+          };
+          axios
+            .post(`/api/v1/payment/${serviceRequestId}/verify-payment`, options)
+            .then(() => {
+              requestData.orderStatus = "completed";
+            })
+            .catch((err) => {
+              console.log("something went wrong in payment verification", err);
+            });
+        },
+      };
 
-  // Step 1: Call backend to create Razorpay order
-  try {
-    const { data } = await axios.post(`/api/v1/payment/${serviceRequestId}/create-order`);
-  
-    const options = {
-      key: import.meta.env.VITE_RAZORPAY_KEY_ID,
- // put your Razorpay Key ID in .env
-      order_id: data.data.id,
-      ...data.data,
-      handler: async function (response) {
-        const options={
-          razorpayPaymentId: response.razorpay_payment_id,
-                razorpayOrderId: response.razorpay_order_id,
-                razorpaySignature: response.razorpay_signature,
-        }
-        axios.post(`/api/v1/payment/${serviceRequestId}/verify-payment`,options)
-        .then(()=>{
-          requestData.orderStatus="completed"
-        })
-        .catch(()=>{
-          alert("something went wrong in payment verification")
-        })
-      }
-    };
-  
-    const rzp = new window.Razorpay(options);
-    rzp.open();
-  } catch (err) {
-      console.log(err);
-      alert("Failed to initiate payment.");
-  }
-};
-
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (err) {
+      console.log("Failed to initiate payment.", err);
+    }
+  };
 
   const STATUS_MAP = {
     connected: {
@@ -491,17 +505,30 @@ const handlePayment = async () => {
         )}
         {showAcceptRejectButtons && (
           <div className="flex justify-center gap-3">
-            <Button onClick={quoteAccepted} className="min-w-[250px]">Accept Repair Quote</Button>
-            <Button onClick={quoteRejected} variant="destructive" className="min-w-[250px]">Reject Repair Quote</Button>
+            <Button onClick={quoteAccepted} className="min-w-[250px]">
+              Accept Repair Quote
+            </Button>
+            <Button
+              onClick={quoteRejected}
+              variant="destructive"
+              className="min-w-[250px]"
+            >
+              Reject Repair Quote
+            </Button>
           </div>
         )}
         {showPayButton && (
-          <Button onClick={handlePayment} className="min-w-[250px]">Pay Now</Button>
+          <Button onClick={handlePayment} className="min-w-[250px]">
+            Pay Now
+          </Button>
         )}
 
         <div className="w-full max-w-2xl rounded-2xl shadow-lg bg-white overflow-hidden">
           <div className="h-80">
-            {!jobCompleted && workerLocation && customerLocation && routePath.length > 0 ? (
+            {!jobCompleted &&
+            workerLocation &&
+            customerLocation &&
+            routePath.length > 0 ? (
               <MapContainer
                 center={[
                   (workerLocation.lat + customerLocation.lat) / 2,
@@ -534,58 +561,59 @@ const handlePayment = async () => {
                 <Polyline positions={routePath} color="blue" />
               </MapContainer>
             ) : !jobCompleted ? (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
-              <svg
-                className="animate-spin h-6 w-6 text-blue-500"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
+                <svg
+                  className="animate-spin h-6 w-6 text-blue-500"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8H4z"
+                  ></path>
+                </svg>
+                <p className="text-lg font-medium">Loading map…</p>
+                <p className="text-sm text-gray-400">
+                  Please wait while we prepare the map.
+                </p>
+              </div>
+            ) : (
+              <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
+                <svg
+                  className="h-6 w-6 text-green-500"
+                  fill="none"
                   stroke="currentColor"
-                  strokeWidth="4"
-                ></circle>
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8v8H4z"
-                ></path>
-              </svg>
-              <p className="text-lg font-medium">Loading map…</p>
-              <p className="text-sm text-gray-400">
-                Please wait while we prepare the map.
-              </p>
-            </div>
-          ) : (
-            <div className="flex flex-col items-center justify-center h-full text-gray-500 space-y-2">
-              <svg
-                className="h-6 w-6 text-green-500"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M5 13l4 4L19 7"
-                />
-              </svg>
-              <p className="text-lg font-medium">Job ended</p>
-              <p className="text-sm text-gray-400">
-The map is no longer displayed.              </p>
-            </div>
-          )}
+                  strokeWidth="2"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M5 13l4 4L19 7"
+                  />
+                </svg>
+                <p className="text-lg font-medium">Job ended</p>
+                <p className="text-sm text-gray-400">
+                  The map is no longer displayed.{" "}
+                </p>
+              </div>
+            )}
           </div>
         </div>
         {etaMinutes && (
           <div className="text-sm text-gray-700">
             Estimated arrival in:{" "}
-            <span className="font-semibold">{etaMinutes+10} mins</span>
+            <span className="font-semibold">{etaMinutes + 10} mins</span>
           </div>
         )}
         <div>
@@ -595,7 +623,10 @@ The map is no longer displayed.              </p>
         </div>
         <div className="w-full max-w-2xl  rounded-xl shadow bg-white p-4 flex gap-4 items-center">
           <img
-            src={workerDetails.profilePhoto || "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"} 
+            src={
+              workerDetails.profilePhoto ||
+              "https://th.bing.com/th/id/OIP.6UhgwprABi3-dz8Qs85FvwHaHa?w=205&h=205&c=7&r=0&o=7&dpr=1.3&pid=1.7&rm=3"
+            }
             alt="Worker"
             className="w-16 h-16 rounded-full object-cover"
           />
@@ -604,9 +635,7 @@ The map is no longer displayed.              </p>
               Worker Details
             </div>
             <div className="flex items-center gap-5">
-              <div className=" ">
-                {workerDetails.fullName}
-              </div>
+              <div className=" ">{workerDetails.fullName}</div>
               <div className="text-sm text-gray-500">
                 Phone: {workerDetails.phone}
               </div>
@@ -631,8 +660,8 @@ The map is no longer displayed.              </p>
         </div>
         <div className="w-full max-w-2xl rounded-xl shadow bg-white p-4">
           <div style={{ color: "#0B1D3A" }} className="text-lg font-bold">
-              Job Details
-            </div>
+            Job Details
+          </div>
           <div className="flex flex-col gap-2">
             <div className="text-sm text-gray-700">
               Category: {job.category}

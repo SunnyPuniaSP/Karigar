@@ -1,6 +1,7 @@
 import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
+    customerStatus:false,
     fullName:"",
     email: "",
     phone: "",
@@ -16,6 +17,7 @@ const customerAuthSlice = createSlice({
     reducers: {
         setCustomerDetails: (state, action) => {
             const { fullName, email, phone, address, profilePhoto,liveServiceId, isLiveRequest } = action.payload;
+            state.customerStatus = true;
             state.fullName = fullName;
             state.email = email;
             state.phone = phone;
@@ -31,11 +33,14 @@ const customerAuthSlice = createSlice({
             state.isLiveRequest=true;
         },
         clearCustomerDetails: (state) => {
+            state.customerStatus = false;
             state.fullName = "";
             state.email = "";
             state.phone = "";
             state.address = "";
             state.profilePhoto = "";
+            state.liveServiceId = null;
+            state.isLiveRequest = false;
         },
         clearLiveServiceId:(state)=>{
             state.liveServiceId=null;

@@ -12,7 +12,9 @@ export default function CustomerLandingPage() {
 
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-primary">Welcome, Customer</h1>
-        <p className="text-lg text-muted-foreground mt-2">Hire skilled professionals for your needs</p>
+        <p className="text-lg text-muted-foreground mt-2">
+          Hire skilled professionals for your needs
+        </p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-6 w-full max-w-xs">

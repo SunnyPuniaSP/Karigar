@@ -6,9 +6,8 @@ import { useDispatch } from "react-redux";
 import { setCustomerDetails } from "@/store/customerAuthSlice";
 const CustomerSignUp = () => {
   const navigate = useNavigate();
-  const dispatch =useDispatch()
+  const dispatch = useDispatch();
   const handleSubmit = (data) => {
-    console.log("Sending data:", data);
     axios
       .post("/api/v1/customer/register", data)
       .then(() => {
@@ -24,15 +23,14 @@ const CustomerSignUp = () => {
             navigate("/customer/auth/home");
           })
           .catch((error) => {
-            console.error("Login failed:", error);
-            alert(
-              "Registration successful but login failed. Please try logging in manually."
+            console.error(
+              "Registration successful but login failed. Please try logging in manually.",
+              error
             );
           });
       })
       .catch((error) => {
         console.error("Registration failed:", error);
-        alert("Registration failed. Please try again.");
       });
   };
   return (

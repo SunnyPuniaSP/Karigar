@@ -28,8 +28,8 @@ const Wallet = () => {
       .then((res) => {
         setTransactions(res.data.data);
       })
-      .catch(() => {
-        alert("error while fetching online transactions");
+      .catch((err) => {
+        console.log("error while fetching online transactions", err);
       });
 
     axios
@@ -37,8 +37,8 @@ const Wallet = () => {
       .then((res) => {
         setWalletBalance(res.data.data.walletBalance);
       })
-      .catch(() => {
-        alert("error while fetching worker wallet balance");
+      .catch((err) => {
+        console.log("error while fetching worker wallet balance", err);
       });
   }, []);
 
@@ -64,7 +64,6 @@ const Wallet = () => {
       return;
     }
 
-    // Step 1: Call backend to create Razorpay order
     try {
       const { data } = await axios.post(
         `/api/v1/payment/create-order-for-worker`,
@@ -73,7 +72,6 @@ const Wallet = () => {
 
       const options = {
         key: import.meta.env.VITE_RAZORPAY_KEY_ID,
-        // put your Razorpay Key ID in .env
         order_id: data.data.id,
         ...data.data,
         handler: async function (response) {
@@ -92,20 +90,23 @@ const Wallet = () => {
                   setWalletBalance(res.data.data.walletBalance);
                   dispatch(setWorkerDetails(res.data.data));
                 })
-                .catch(() => {
-                  alert("error in getting worker details after job completion");
+                .catch((err) => {
+                  console.log(
+                    "error in getting worker details after job completion",
+                    err
+                  );
                 });
               axios
                 .get("/api/v1/worker/online-transactions")
                 .then((res) => {
                   setTransactions(res.data.data);
                 })
-                .catch(() => {
-                  alert("error while fetching online transactions");
+                .catch((err) => {
+                  console.log("error while fetching online transactions", err);
                 });
             })
-            .catch(() => {
-              alert("something went wrong in payment verification");
+            .catch((err) => {
+              console.log("something went wrong in payment verification", err);
             });
         },
       };
@@ -113,8 +114,7 @@ const Wallet = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.log(err);
-      alert("Failed to initiate payment.");
+      console.log("Failed to initiate payment", err);
     }
   };
 

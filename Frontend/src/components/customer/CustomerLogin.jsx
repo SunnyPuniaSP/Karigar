@@ -19,10 +19,7 @@ const CustomerLogin = () => {
         navigate("/customer/auth/home");
       })
       .catch((error) => {
-        const message =
-          error.data?.message || "Login failed. Please try again.";
-        console.error("Registration failed:", error);
-        alert(message);
+        console.log("Registration failed:", error);
       });
   };
   return (

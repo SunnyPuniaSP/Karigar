@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
-import nopastrequests from "../../assets/nopastrequests.png"
+import nopastrequests from "../../assets/nopastrequests.png";
 
 const MyRequests = () => {
   const [jobs, setJobs] = useState([]);
@@ -11,8 +11,8 @@ const MyRequests = () => {
       .then((res) => {
         setJobs(res.data.data);
       })
-      .catch(() => {
-        alert("Error in finding past requests");
+      .catch((err) => {
+        console.log("Error in finding past requests", err);
       });
   }, []);
 
@@ -27,13 +27,14 @@ const MyRequests = () => {
     <div className="min-h-screen bg-gray-50 py-6 px-4">
       {jobs.length === 0 ? (
         <div className="flex flex-col items-center justify-center mt-24 text-center px-4 text-gray-600 gap-3">
-  <img src={nopastrequests} alt="" className="h-50" />
-  <h2 className="text-xl font-semibold text-gray-700">No Past Requests Yet</h2>
-  <p className="max-w-xs text-sm text-gray-500">
-    Once you complete requests, you'll see them listed here.
-  </p>
-</div>
-
+          <img src={nopastrequests} alt="" className="h-50" />
+          <h2 className="text-xl font-semibold text-gray-700">
+            No Past Requests Yet
+          </h2>
+          <p className="max-w-xs text-sm text-gray-500">
+            Once you complete requests, you'll see them listed here.
+          </p>
+        </div>
       ) : (
         <div className="flex flex-wrap  gap-3  justify-center ">
           {jobs.map((job) => (
@@ -43,7 +44,10 @@ const MyRequests = () => {
             >
               <div className="flex justify-between items-start">
                 <div>
-                  <h2 style={{ color: "#0B1D3A" }} className="text-lg font-semibold">
+                  <h2
+                    style={{ color: "#0B1D3A" }}
+                    className="text-lg font-semibold"
+                  >
                     {job.category}
                   </h2>
                 </div>
@@ -74,15 +78,22 @@ const MyRequests = () => {
                     alt=""
                     className="h-10 w-10 rounded-full"
                   />
-                  <span style={{ color: "#0B1D3A" }} className="font-medium">{job.workerName}</span>
+                  <span style={{ color: "#0B1D3A" }} className="font-medium">
+                    {job.workerName}
+                  </span>
                 </div>
                 <p>
-                  <span style={{ color: "#0B1D3A" }} className="font-medium">Date & Time: </span>
+                  <span style={{ color: "#0B1D3A" }} className="font-medium">
+                    Date & Time:{" "}
+                  </span>
                   {formatDate(job.connectedAt)}
                 </p>
 
                 <p>
-                  <span style={{ color: "#0B1D3A" }} className="font-medium">Payment: </span>₹
+                  <span style={{ color: "#0B1D3A" }} className="font-medium">
+                    Payment:{" "}
+                  </span>
+                  ₹
                   {job.acceptedAt ? (
                     job.quoteAmount
                   ) : (
@@ -91,7 +102,9 @@ const MyRequests = () => {
                 </p>
 
                 <p>
-                  <span style={{ color: "#0B1D3A" }} className="font-medium">Payment Mode: </span>
+                  <span style={{ color: "#0B1D3A" }} className="font-medium">
+                    Payment Mode:{" "}
+                  </span>
                   {job.paymentType === "online" ? (
                     <span>Online</span>
                   ) : (

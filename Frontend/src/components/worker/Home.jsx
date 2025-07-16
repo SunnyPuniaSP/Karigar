@@ -30,19 +30,19 @@ const Home = () => {
                 .then((res) => {
                   dispatch(setWorkerDetails(res.data.data));
                 })
-                .catch(() => {
-                  alert(
-                    "something went wrong while toggle your status at backend"
+                .catch((err) => {
+                  console.log(
+                    "something went wrong while toggle your status at backend",
+                    err
                   );
                 });
             })
-            .catch(() => {
-              alert("Failed to update location at backend");
+            .catch((err) => {
+              console.log("Failed to update location at backend", err);
             });
         },
         (err) => {
           console.error("Geolocation error:", err);
-          alert("Please enable location to go online");
         }
       );
     } else {
@@ -51,8 +51,11 @@ const Home = () => {
         .then((res) => {
           dispatch(setWorkerDetails(res.data.data));
         })
-        .catch(() => {
-          alert("something went wrong while toggle your status at backend");
+        .catch((err) => {
+          console.log(
+            "something went wrong while toggle your status at backend",
+            err
+          );
         });
     }
   };
@@ -68,8 +71,6 @@ const Home = () => {
             Get matched with nearby customers and start earning by providing
             your expert services—flexible, rewarding, and reliable.
           </p>
-
-          {/* Status Toggle */}
           <div className="flex items-center gap-4 mb-2">
             <span className="text-base font-medium">Status:</span>
             <div

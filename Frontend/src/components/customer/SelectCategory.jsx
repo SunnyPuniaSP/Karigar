@@ -4,38 +4,31 @@ import { useNavigate } from "react-router-dom";
 const categories = [
   {
     name: "Electrician",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/2965/2965567.png",
+    image: "https://cdn-icons-png.flaticon.com/512/2965/2965567.png",
   },
   {
     name: "TV",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/3095/3095026.png",
+    image: "https://cdn-icons-png.flaticon.com/512/3095/3095026.png",
   },
   {
     name: "Fridge",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/1137/1137067.png",
+    image: "https://cdn-icons-png.flaticon.com/512/1137/1137067.png",
   },
   {
     name: "AC",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/1986/1986852.png",
+    image: "https://cdn-icons-png.flaticon.com/512/1986/1986852.png",
   },
   {
     name: "Washing-Machine",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/2922/2922553.png",
+    image: "https://cdn-icons-png.flaticon.com/512/2922/2922553.png",
   },
   {
     name: "Laptop",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/865/865808.png",
+    image: "https://cdn-icons-png.flaticon.com/512/865/865808.png",
   },
   {
     name: "Plumber",
-    image:
-      "https://cdn-icons-png.flaticon.com/512/1046/1046842.png",
+    image: "https://cdn-icons-png.flaticon.com/512/1046/1046842.png",
   },
 ];
 

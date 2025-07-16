@@ -33,15 +33,17 @@ const CustomerProfile = () => {
       .then((res) => {
         dispatch(setCustomerDetails(res.data.data));
       })
-      .catch(() => {
-        alert("Something went wrong. Unable to update your details.");
+      .catch((err) => {
+        console.log(
+          "Something went wrong. Unable to update your details.",
+          err
+        );
       });
   };
 
   const handlePhotoEdit = () => {
     setIsEditingPhoto(true);
   };
-
 
   const handlePhotoSave = async () => {
     if (!selectedFile) {
@@ -56,8 +58,11 @@ const CustomerProfile = () => {
       .then((res) => {
         dispatch(setCustomerDetails(res.data.data));
       })
-      .catch(() => {
-        alert("Something went wrong. Unable to update your profile picture.");
+      .catch((err) => {
+        console.log(
+          "Something went wrong. Unable to update your profile picture",
+          err
+        );
       })
       .finally(() => {
         setIsEditingPhoto(false);
@@ -90,7 +95,8 @@ const CustomerProfile = () => {
             <div className="flex items-center gap-4 mt-4">
               <label
                 htmlFor="profilePhotoInput"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer text-sm font-medium shadow">
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer text-sm font-medium shadow"
+              >
                 Choose Image
               </label>
               <input
@@ -98,7 +104,7 @@ const CustomerProfile = () => {
                 id="profilePhotoInput"
                 accept="image/*"
                 onChange={(e) => setSelectedFile(e.target.files[0])}
-                className="hidden" // Hide the ugly input
+                className="hidden" 
               />
               {selectedFile && (
                 <span className="text-sm text-gray-700">
@@ -115,8 +121,6 @@ const CustomerProfile = () => {
         <p className="text-sm text-gray-500">{phone}</p>
         <p className="text-sm text-gray-500">{address}</p>
       </div>
-
-      {/* Right Info Panel */}
       <div className="flex-1 bg-white shadow-md rounded-2xl p-6 space-y-6">
         <div className="flex justify-between items-center border-b pb-4">
           <h3 className="text-2xl font-semibold text-gray-800">Profile Info</h3>
@@ -162,8 +166,6 @@ const CustomerProfile = () => {
             </SheetContent>
           </Sheet>
         </div>
-
-        {/* Display Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="text-sm text-gray-500">Full Name</label>

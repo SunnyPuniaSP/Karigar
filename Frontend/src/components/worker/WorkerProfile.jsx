@@ -15,9 +15,15 @@ import { setWorkerDetails } from "../../store/workerAuthSlice";
 
 const WorkerProfile = () => {
   const dispatch = useDispatch();
-  const { fullName, email, phone, address, profilePhoto, workingCategory,yearOfExperience } = useSelector(
-    (state) => state.workerAuth
-  );
+  const {
+    fullName,
+    email,
+    phone,
+    address,
+    profilePhoto,
+    workingCategory,
+    yearOfExperience,
+  } = useSelector((state) => state.workerAuth);
 
   const [formData, setFormData] = useState({ fullName, email, phone, address });
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
@@ -33,15 +39,14 @@ const WorkerProfile = () => {
       .then((res) => {
         dispatch(setWorkerDetails(res.data.data));
       })
-      .catch(() => {
-        alert("Something went wrong. Unable to update your details.");
+      .catch((err) => {
+        console.log("Something went wrong. Unable to update your details", err);
       });
   };
 
   const handlePhotoEdit = () => {
     setIsEditingPhoto(true);
   };
-
 
   const handlePhotoSave = async () => {
     if (!selectedFile) {
@@ -54,11 +59,13 @@ const WorkerProfile = () => {
     axios
       .patch("/api/v1/worker/update-profilePhoto", formData)
       .then((res) => {
-        console.log("inside then after photo update sucessfully in backend")
         dispatch(setWorkerDetails(res.data.data));
       })
-      .catch(() => {
-        alert("Something went wrong. Unable to update your profile picture.");
+      .catch((err) => {
+        console.log(
+          "Something went wrong. Unable to update your profile picture",
+          err
+        );
       })
       .finally(() => {
         setIsEditingPhoto(false);
@@ -91,7 +98,8 @@ const WorkerProfile = () => {
             <div className="flex items-center gap-4 mt-4">
               <label
                 htmlFor="profilePhotoInput"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer text-sm font-medium shadow">
+                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg cursor-pointer text-sm font-medium shadow"
+              >
                 Choose Image
               </label>
               <input
@@ -99,7 +107,7 @@ const WorkerProfile = () => {
                 id="profilePhotoInput"
                 accept="image/*"
                 onChange={(e) => setSelectedFile(e.target.files[0])}
-                className="hidden" // Hide the ugly input
+                className="hidden"
               />
               {selectedFile && (
                 <span className="text-sm text-gray-700">
@@ -117,7 +125,6 @@ const WorkerProfile = () => {
         <p className="text-sm text-gray-500">{address}</p>
       </div>
 
-      {/* Right Info Panel */}
       <div className="flex-1 bg-white shadow-md rounded-2xl p-6 space-y-6">
         <div className="flex justify-between items-center border-b pb-4">
           <h3 className="text-2xl font-semibold text-gray-800">Profile Info</h3>
@@ -164,7 +171,6 @@ const WorkerProfile = () => {
           </Sheet>
         </div>
 
-        {/* Display Section */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
           <div>
             <label className="text-sm text-gray-500">Full Name</label>
@@ -194,15 +200,15 @@ const WorkerProfile = () => {
           </div>
           <div>
             <label className="text-sm text-gray-500">Serving Category</label>
-            {console.log("serving category:",workingCategory)}
-            {
-                
-                workingCategory.map((category)=>(
-                    <div id={category} className="text-base font-medium text-gray-800 whitespace-pre-line">
-                        {category}
-                    </div>
-                ))
-            }
+            {console.log("serving category:", workingCategory)}
+            {workingCategory.map((category) => (
+              <div
+                id={category}
+                className="text-base font-medium text-gray-800 whitespace-pre-line"
+              >
+                {category}
+              </div>
+            ))}
           </div>
         </div>
       </div>

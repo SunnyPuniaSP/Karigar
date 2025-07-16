@@ -12,7 +12,9 @@ export default function WorkerLandingPage() {
 
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-primary">Welcome, Worker</h1>
-        <p className="text-lg text-muted-foreground mt-2">Find jobs and manage your service requests</p>
+        <p className="text-lg text-muted-foreground mt-2">
+          Find jobs and manage your service requests
+        </p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-6 w-full max-w-xs">

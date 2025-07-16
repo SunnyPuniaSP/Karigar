@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 import { Wallet } from "lucide-react";
 
 const initialState = {
+    workerStatus:false,
     fullName:"",
     email: "",
     phone: "",
@@ -10,7 +11,7 @@ const initialState = {
     isOnline:false,
     workingCategory:[],
     isVerified:false,
-    yearOfExperience:"",
+    yearOfExperience:0,
     liveServiceId: null,
     isLiveRequest:false,
     walletBalance:null
@@ -22,6 +23,7 @@ const workerAuthSlice = createSlice({
     reducers: {
         setWorkerDetails: (state, action) => {
             const { fullName, email, phone, address, profilePhoto, isOnline, workingCategory, isVerified, yearOfExperience, liveServiceId, isLiveRequest, walletBalance} = action.payload;
+            state.workerStatus = true,
             state.fullName = fullName;
             state.email = email;
             state.phone = phone;
@@ -42,6 +44,7 @@ const workerAuthSlice = createSlice({
             state.isLiveRequest=true;
         },
         clearWorkerDetails: (state) => {
+            state.workerStatus = false,
             state.fullName = "";
             state.email = "";
             state.phone = "";
@@ -50,6 +53,10 @@ const workerAuthSlice = createSlice({
             state.isOnline=false;
             state.workingCategory=[];
             state.isVerified=false;
+            state.yearOfExperience=0;
+            state.liveServiceId = null;
+            state.isLiveRequest = false;
+            state.walletBalance = null;
         },
         clearLiveServiceId:(state)=>{
             state.liveServiceId=null;

@@ -3,24 +3,21 @@ import { LoginFormWorker } from "../ui/LoginFormWorker";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setWorkerDetails } from "../../store/workerAuthSlice"
+import { setWorkerDetails } from "../../store/workerAuthSlice";
 const WorkerLogin = () => {
-  const navigate=useNavigate();
-  const dispatch=useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const handleSubmit = (data) => {
     console.log("Sending data:", data);
     axios
       .post("/api/v1/worker/login", data)
       .then((res) => {
         const { data } = res;
-                dispatch(setWorkerDetails(data.data.worker));
-                navigate("/worker/auth/home");
+        dispatch(setWorkerDetails(data.data.worker));
+        navigate("/worker/auth/home");
       })
-      .catch((error) => {
-        const errorMsg =
-          error?.response?.data?.message ||
-          "Something went wrong. Please try again.";
-        alert(errorMsg);
+      .catch((err) => {
+        console.log("Something went wrong. Please try again", err);
       });
   };
   return (

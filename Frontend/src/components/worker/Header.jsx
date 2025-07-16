@@ -24,9 +24,10 @@ const Header = () => {
           dispatch(clearWorkerDetails());
           navigate("/worker");
         })
-        .catch(() => {
-          alert(
-            "something went wrong while toggling your status to offline at backend "
+        .catch((err) => {
+          console.log(
+            "something went wrong while toggling your status to offline at backend",
+            err
           );
         });
     } else {
@@ -54,38 +55,38 @@ const Header = () => {
         duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
-    }
-    else if(!isOnline){
+    } else if (!isOnline) {
       toast("Your status if offline toggle it to online to proceed", {
         duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
-    }
-    else if(walletBalance<0){
+    } else if (walletBalance < 0) {
       toast("Your wallet balance is in negative", {
-        description:(
-          <div>Please recharge your wallet and try again</div>
-      ),
+        description: <div>Please recharge your wallet and try again</div>,
         duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
-    }
-     else {
+    } else {
       navigate("/worker/auth/find-jobs");
     }
   };
   const liveJob = () => {
     if (!isLiveRequest) {
-      toast(<div className="flex justify-between gap-5"><div>You do not have any ongoing request</div><Button
-              onClick={findRequests}
-              className="px-3 py-1 text-sm font-mediumrounded-md transition"
-            >
-              Find Job
-            </Button></div>, {
-       
-        duration: 3000,
-        className: "bg-white shadow-lg border border-gray-200",
-      });
+      toast(
+        <div className="flex justify-between gap-5">
+          <div>You do not have any ongoing request</div>
+          <Button
+            onClick={findRequests}
+            className="px-3 py-1 text-sm font-mediumrounded-md transition"
+          >
+            Find Job
+          </Button>
+        </div>,
+        {
+          duration: 3000,
+          className: "bg-white shadow-lg border border-gray-200",
+        }
+      );
     } else {
       navigate(`/worker/auth/job/${liveServiceId}`);
     }

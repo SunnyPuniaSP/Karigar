@@ -3,10 +3,13 @@ import axios from "axios";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { setIsLiveRequest,setLiveServiceId } from "../../store/workerAuthSlice";
+import {
+  setIsLiveRequest,
+  setLiveServiceId,
+} from "../../store/workerAuthSlice";
 const FindJobs = () => {
-  const navigate=useNavigate();
-  const dispatch =useDispatch();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
   const [jobs, setJobs] = useState([]);
   useEffect(() => {
     const interval = setInterval(() => {
@@ -21,12 +24,10 @@ const FindJobs = () => {
     axios
       .get("/api/v1/service-request/find-requests")
       .then((res) => {
-        console.log(res.data.data);
         setJobs(res.data.data);
       })
       .catch((err) => {
         console.log("error while finding jobs", err);
-        alert("something went wrong when i fetching requests from backend ww");
       });
   };
 
@@ -38,39 +39,34 @@ const FindJobs = () => {
           "error while rejecting and temporary blocking customer ",
           err
         );
-        alert("error while rejecting and temporary blocking customer ");
       });
   };
 
   const handleAccept = (serviceRequestId) => {
     axios
       .post(`/api/v1/service-request/${serviceRequestId}/accept`)
-      .then(()=>{
-          dispatch(setIsLiveRequest())
-          dispatch(setLiveServiceId(serviceRequestId))
-          navigate(`/worker/auth/job/${serviceRequestId}`)
+      .then(() => {
+        dispatch(setIsLiveRequest());
+        dispatch(setLiveServiceId(serviceRequestId));
+        navigate(`/worker/auth/job/${serviceRequestId}`);
       })
       .catch((err) => {
-        console.log(
-          "error while accepting the request",
-          err
-        );
-        alert("error while accepting the request");
+        console.log("error while accepting the request", err);
       });
   };
   return (
     <div className="p-4">
-      {console.log("i am in find jobs page")}
       {jobs.length === 0 ? (
         <div className="min-h-screen flex flex-col justify-center items-center bg-gray-100">
-                <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-4"></div>
-                <h2 className="text-2xl font-semibold text-gray-700">
-                  No job requests at the moment
-                </h2>
-                <p className="text-gray-500 mt-2">
-                  Hang tight! We're actively searching for jobs that match your skills. We'll notify you as soon as something comes up.
-                </p>
-              </div>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-blue-600 mb-4"></div>
+          <h2 className="text-2xl font-semibold text-gray-700">
+            No job requests at the moment
+          </h2>
+          <p className="text-gray-500 mt-2">
+            Hang tight! We're actively searching for jobs that match your
+            skills. We'll notify you as soon as something comes up.
+          </p>
+        </div>
       ) : (
         <div className="flex flex-wrap gap-4 justify-center">
           {jobs.map((job, index) => (
@@ -80,50 +76,48 @@ const FindJobs = () => {
             >
               <div className="space-y-2">
                 <div>
-                  <label style={{color:"#0B1D3A"}} className="font-medium ">
+                  <label style={{ color: "#0B1D3A" }} className="font-medium ">
                     Customer Name :{" "}
                   </label>
                   <span className="text-gray-800">{job.customerName}</span>
                 </div>
                 <div>
-                  <label style={{color:"#0B1D3A"}} className="font-medium ">
+                  <label style={{ color: "#0B1D3A" }} className="font-medium ">
                     Category :{" "}
                   </label>
                   <span className="text-gray-800">{job.category}</span>
                 </div>
                 <div>
-                  <label style={{color:"#0B1D3A"}} className="font-medium ">
+                  <label style={{ color: "#0B1D3A" }} className="font-medium ">
                     Distance :{" "}
                   </label>
                   <span className="text-gray-800">{job.distance_km}KM</span>
                 </div>
                 <div>
                   <div>
-                    <label style={{color:"#0B1D3A"}} className="font-medium ">
+                    <label
+                      style={{ color: "#0B1D3A" }}
+                      className="font-medium "
+                    >
                       Description :{" "}
-                     </label>
+                    </label>
                     <span className="text-gray-800">
-                       {job.description || "Not Provided"}
+                      {job.description || "Not Provided"}
                     </span>
                   </div>
                 </div>
                 <div className="">
-                  <label style={{color:"#0B1D3A"}} className="font-medium ">
-                    Audio Message 
+                  <label style={{ color: "#0B1D3A" }} className="font-medium ">
+                    Audio Message
                   </label>
                   {job.audioNoteUrl ? (
-                    <audio
-                      src={job.audioNoteUrl}
-                      controls
-                      className="mt-2"
-                    />
+                    <audio src={job.audioNoteUrl} controls className="mt-2" />
                   ) : (
                     <span className="text-gray-500"> Not Provided</span>
                   )}
                 </div>
               </div>
               <div className="flex justify-end gap-3 mt-2">
-                
                 <Button
                   onClick={() => {
                     handleReject(job.customerId);
@@ -133,7 +127,9 @@ const FindJobs = () => {
                 >
                   Reject
                 </Button>
-                <Button onClick={()=>handleAccept(job._id)} className="w-35">Accept</Button>
+                <Button onClick={() => handleAccept(job._id)} className="w-35">
+                  Accept
+                </Button>
               </div>
             </div>
           ))}

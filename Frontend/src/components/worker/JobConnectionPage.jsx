@@ -28,7 +28,7 @@ const getRoute = async (start, end) => {
   const coordinates = res.data.routes[0].geometry.coordinates.map(
     ([lng, lat]) => [lat, lng]
   );
-  const duration = res.data.routes[0].duration; // in seconds
+  const duration = res.data.routes[0].duration; 
   return { coordinates, duration };
 };
 
@@ -45,7 +45,6 @@ const workerIcon = new L.Icon({
   popupAnchor: [0, -36],
 });
 
-// --- Helper to fit map bounds to both markers ---
 function FitBounds({ workerLocation, customerLocation }) {
   const map = useMap();
   useEffect(() => {
@@ -66,7 +65,6 @@ const SearchingWorker = () => {
   const [requestData, setRequestData] = useState(null);
   const [customerDetails, setCustomerDetails] = useState(null);
 
-  // Map-related state
   const [workerLocation, setWorkerLocation] = useState(null);
   const [customerLocation, setCustomerLocation] = useState(null);
   const [routePath, setRoutePath] = useState([]);
@@ -87,7 +85,6 @@ const SearchingWorker = () => {
 
   const toggleIsLiveRequestToFalse = useRef(false);
 
-  // Poll for service request status
   useEffect(() => {
     const interval = setInterval(fetchStatus, 4000);
     fetchStatus();
@@ -132,16 +129,19 @@ const SearchingWorker = () => {
               dispatch(clearIsLiveRequest());
               dispatch(clearLiveServiceId());
             })
-            .catch(() => {
-              alert("toglling is live request to false failed");
+            .catch((err) => {
+              console.log("toglling is live request to false failed", err);
             });
           axios
             .get("/api/v1/worker/current-user")
             .then((res) => {
               dispatch(setWorkerDetails(res.data.data));
             })
-            .catch(() => {
-              alert("error in getting worker details after job completion");
+            .catch((err) => {
+              console.log(
+                "error in getting worker details after job completion",
+                err
+              );
             });
           toggleIsLiveRequestToFalse.current = true;
         }
@@ -159,23 +159,25 @@ const SearchingWorker = () => {
               dispatch(clearIsLiveRequest());
               dispatch(clearLiveServiceId());
             })
-            .catch(() => {
-              alert("toglling is live request to false failed");
+            .catch((err) => {
+              console.log("toglling is live request to false failed", err);
             });
           axios
             .get("/api/v1/worker/current-user")
             .then((res) => {
               dispatch(setWorkerDetails(res.data.data));
             })
-            .catch(() => {
-              alert("error in getting worker details after job completion");
+            .catch((err) => {
+              console.log(
+                "error in getting worker details after job completion",
+                err
+              );
             });
           toggleIsLiveRequestToFalse.current = true;
         }
       })
-      .catch((error) => {
-        console.error("Error fetching request status", error);
-        alert("Something went wrong while checking the request status");
+      .catch((err) => {
+        console.error("Error fetching request status", err);
       });
   };
 
@@ -187,8 +189,8 @@ const SearchingWorker = () => {
       .then((res) => {
         setCustomerDetails(res.data.data);
       })
-      .catch(() => {
-        alert("failed to get customer details");
+      .catch((err) => {
+        console.log("failed to get customer details", err);
       });
   }, [requestData]);
 
@@ -210,8 +212,8 @@ const SearchingWorker = () => {
                 longitude,
               }
             )
-            .catch(() => {
-              alert("Failed to update worker location");
+            .catch((err) => {
+              console.log("Failed to update worker location", err);
             });
         },
         (err) => {
@@ -221,20 +223,18 @@ const SearchingWorker = () => {
     };
 
     if (requestData?.workerId) {
-      updateWorkerLocation(); // Call once immediately
-      locationUpdateInterval = setInterval(updateWorkerLocation, 5000); // Poll every 5 seconds
+      updateWorkerLocation();
+      locationUpdateInterval = setInterval(updateWorkerLocation, 5000); 
     }
 
     return () => clearInterval(locationUpdateInterval);
   }, [requestData?.workerId]);
 
-  // Poll for worker and customer locations and fetch the real route
   useEffect(() => {
     let interval;
     const fetchLocations = async () => {
       if (requestData?.workerId) {
         try {
-          // Fetch worker's live location
           const workerRes = await axios.get(
             `/api/v1/worker/${requestData.workerId}/location`
           );
@@ -243,20 +243,16 @@ const SearchingWorker = () => {
             lng: workerRes.data.data.lng,
           };
           setWorkerLocation(wLoc);
-
-          // Extract customer location from requestData (GeoJSON: [lng, lat])
           const cCoords = requestData.customerLocation?.coordinates || [];
           if (cCoords.length === 2) {
             const cLoc = { lat: cCoords[1], lng: cCoords[0] };
             setCustomerLocation(cLoc);
 
-            // Fetch the actual road route from OpenRouteService
             const route = await getRoute(wLoc, cLoc);
             setRoutePath(route.coordinates);
             setEtaMinutes(Math.ceil(route.duration / 60));
           }
         } catch (err) {
-          alert("Error while fetching worker location or route");
           console.log("Error while fetching worker location or route", err);
         }
       }
@@ -278,10 +274,10 @@ const SearchingWorker = () => {
         setShowInspectingButton(false);
         setShowQuoteAmountFields(true);
         setShowCancellCustomerNotResponding(false);
-        requestData.orderStatus="inspecting";
+        requestData.orderStatus = "inspecting";
       })
-      .catch(() => {
-        alert("error while updating status to inspecting");
+      .catch((err) => {
+        console.log("error while updating status to inspecting", err);
       });
   };
 
@@ -293,10 +289,10 @@ const SearchingWorker = () => {
       )
       .then(() => {
         setShowQuoteAmountFields(false);
-        requestData.orderStatus="repairAmountQuoted";
+        requestData.orderStatus = "repairAmountQuoted";
       })
-      .catch(() => {
-        alert("error while updating quote amount");
+      .catch((err) => {
+        console.log("error while updating quote amount", err);
       });
   };
 
@@ -305,10 +301,13 @@ const SearchingWorker = () => {
       .post(`/api/v1/payment/${serviceRequestId}/payment-received-by-cash`)
       .then(() => {
         setShowReceivePaymentButton(false);
-        requestData.orderStatus="completed";
+        requestData.orderStatus = "completed";
       })
-      .catch(() => {
-        alert("error while updating job status on payment received in cash");
+      .catch((err) => {
+        console.log(
+          "error while updating job status on payment received in cash",
+          err
+        );
       });
   };
 
@@ -321,10 +320,10 @@ const SearchingWorker = () => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
         setShowCancellNotAbleToServe(false);
-        requestData.orderStatus="cancelled";
+        requestData.orderStatus = "cancelled";
       })
-      .catch(() => {
-        alert("something went wrong while cancelling request");
+      .catch((err) => {
+        console.log("something went wrong while cancelling request", err);
       });
   };
 
@@ -338,10 +337,10 @@ const SearchingWorker = () => {
         dispatch(clearLiveServiceId());
         setShowCancellCustomerNotResponding(false);
         setShowInspectingButton(false);
-        requestData.orderStatus="cancelled";
+        requestData.orderStatus = "cancelled";
       })
-      .catch(() => {
-        alert("something went wrong while cancelling request");
+      .catch((err) => {
+        console.log("something went wrong while cancelling request", err);
       });
   };
 
@@ -428,19 +427,19 @@ const SearchingWorker = () => {
         </Button>
       )}
       {(showCancelCustomerNotResponding || showInspectingButton) && (
-  <div className="flex gap-3 justify-center">
-    {showCancelCustomerNotResponding && (
-      <Button variant="destructive" onClick={customerNotResponding}>
-        Customer Not Responding
-      </Button>
-    )}
-    {showInspectingButton && (
-      <Button onClick={startInspection} className="w-[200px]">
-        Start Inspecting
-      </Button>
-    )}
-  </div>
-)}
+        <div className="flex gap-3 justify-center">
+          {showCancelCustomerNotResponding && (
+            <Button variant="destructive" onClick={customerNotResponding}>
+              Customer Not Responding
+            </Button>
+          )}
+          {showInspectingButton && (
+            <Button onClick={startInspection} className="w-[200px]">
+              Start Inspecting
+            </Button>
+          )}
+        </div>
+      )}
 
       {showQuoteAmountFields && (
         <div className="flex flex-col sm:flex-row items-center gap-3 bg-white p-4 rounded-xl shadow-md w-full max-w-md mx-auto">
@@ -544,7 +543,8 @@ const SearchingWorker = () => {
               </svg>
               <p className="text-lg font-medium">Job ended</p>
               <p className="text-sm text-gray-400">
-The map is no longer displayed.              </p>
+                The map is no longer displayed.{" "}
+              </p>
             </div>
           )}
         </div>

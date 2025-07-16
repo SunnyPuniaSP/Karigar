@@ -12,7 +12,9 @@ export default function MainLandingPage() {
 
       <div className="text-center mb-10">
         <h1 className="text-4xl font-bold text-primary">Welcome to Karigar</h1>
-        <p className="text-lg text-muted-foreground mt-2">Connecting customers with trusted local professionals</p>
+        <p className="text-lg text-muted-foreground mt-2">
+          Connecting customers with trusted local professionals
+        </p>
       </div>
 
       <div className="flex flex-col sm:flex-row gap-6 w-full max-w-md">

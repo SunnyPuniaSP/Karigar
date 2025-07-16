@@ -1,7 +1,7 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { Toaster } from 'sonner';
-import 'leaflet/dist/leaflet.css';
+import { Toaster } from "sonner";
+import "leaflet/dist/leaflet.css";
 import "./index.css";
 import App from "./App.jsx";
 import {
@@ -34,37 +34,64 @@ import JobConnectionPage from "./components/worker/JobConnectionPage";
 import MyRequests from "./components/customer/MyRequests";
 import MyJobs from "./components/worker/MyJobs";
 import Wallet from "./components/worker/Wallet";
+import ProtectedAuthCustomer from "./components/customer/ProtectedAuthCustomer";
+import ProtectedAuthWorker from "./components/worker/ProtectedAuthWorker";
+import ProtectedAuth from "./components/ProtectedAuth";
 
 const router = createBrowserRouter(
   createRoutesFromElements(
     <Route path="/">
-      <Route path="" element={<LandingPage />} />
+      <Route
+        path=""
+        element={
+          <ProtectedAuth>
+            <LandingPage />
+          </ProtectedAuth>
+        }
+      />
       <Route path="customer/">
         <Route path="" element={<LandingPageCustomer />} />
         <Route path="login" element={<CustomerLogin />} />
         <Route path="signup" element={<CustomerSignUp />} />
-        <Route path="auth/" element={<CustomerLayout />}>
+        <Route
+          path="auth/"
+          element={
+            <ProtectedAuthCustomer>
+              <CustomerLayout />
+            </ProtectedAuthCustomer>
+          }
+        >
           <Route path="home" element={<Home />} />
           <Route path="profile" element={<CustomerProfile />} />
-          <Route path="select-category" element={<SelectCategory/>}/>
-          <Route path="select-category/:category/more-info" element={<ServiceRequestForm/>}/>
+          <Route path="select-category" element={<SelectCategory />} />
+          <Route
+            path="select-category/:category/more-info"
+            element={<ServiceRequestForm />}
+          />
           <Route path="service-request/">
-              <Route path=":serviceRequestId" element={<ServiceRequest/>} />
+            <Route path=":serviceRequestId" element={<ServiceRequest />} />
           </Route>
-          <Route path="past-requests" element={<MyRequests/>} />
+          <Route path="past-requests" element={<MyRequests />} />
         </Route>
       </Route>
       <Route path="worker/">
         <Route path="" element={<LandingPageWorker />} />
         <Route path="login" element={<WorkerLogin />} />
         <Route path="signup" element={<WorkerSignUp />} />
-        <Route path="auth/" element={<WorkerLayout />}>
+        <Route
+          path="auth/"
+          element={
+            <ProtectedAuthWorker>
+              <WorkerLayout />
+            </ProtectedAuthWorker>
+          }
+        >
           <Route path="home" element={<WorkerHome />} />
           <Route path="profile" element={<WorkerProfile />} />
           <Route path="find-jobs" element={<FindJobs />} />
-          <Route path="job/:serviceRequestId" element={<JobConnectionPage/>}/>
-          <Route path="past-jobs" element={<MyJobs/>} />
-          <Route path="wallet" element={<Wallet/>} />
+          <Route path="job/:serviceRequestId" element={<JobConnectionPage />} />
+          <Route path="past-jobs" element={<MyJobs />} />
+          <Route path="wallet" element={<Wallet />} />
         </Route>
       </Route>
     </Route>

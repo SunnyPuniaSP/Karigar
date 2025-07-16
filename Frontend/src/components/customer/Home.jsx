@@ -2,13 +2,15 @@ import React from "react";
 import customerhomehero from "../../assets/customerhomehero.png";
 import { Button } from "../ui/button";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner"
+import { toast } from "sonner";
 import { useSelector } from "react-redux";
 const Home = () => {
-  const navigate=useNavigate();
-  const {liveServiceId,isLiveRequest}=useSelector((state)=>state.customerAuth)
-  const bookService=()=>{
-    if(isLiveRequest){
+  const navigate = useNavigate();
+  const { liveServiceId, isLiveRequest } = useSelector(
+    (state) => state.customerAuth
+  );
+  const bookService = () => {
+    if (isLiveRequest) {
       toast("You already have an ongoing request", {
         description: (
           <div className="mt-2 flex items-center justify-between gap-3">
@@ -16,7 +18,9 @@ const Home = () => {
               Please complete your current request before creating a new one.
             </p>
             <Button
-              onClick={() => navigate(`/customer/auth/service-request/${liveServiceId}`)}
+              onClick={() =>
+                navigate(`/customer/auth/service-request/${liveServiceId}`)
+              }
               className="px-3 py-1 text-sm font-mediumrounded-md transition"
             >
               Track
@@ -26,21 +30,20 @@ const Home = () => {
         duration: 3000,
         className: "bg-white shadow-lg border border-gray-200",
       });
+    } else {
+      navigate("/customer/auth/select-category");
     }
-    else{
-      navigate("/customer/auth/select-category")
-    }
-  }
+  };
   const liveJob = () => {
-      if (!isLiveRequest) {
-        toast("You do not have any ongoing request", {
-          duration: 6000,
-          className: "bg-white shadow-lg border border-gray-200",
-        });
-      } else {
-        navigate(`/customer/auth/service-request/${liveServiceId}`);
-      }
-    };
+    if (!isLiveRequest) {
+      toast("You do not have any ongoing request", {
+        duration: 3000,
+        className: "bg-white shadow-lg border border-gray-200",
+      });
+    } else {
+      navigate(`/customer/auth/service-request/${liveServiceId}`);
+    }
+  };
   return (
     <div>
       <div className="flex justify-center items-center p-5 gap-5">
@@ -54,7 +57,9 @@ const Home = () => {
           </p>
 
           <div className="display flex gap-5">
-            <Button className="w-75" onClick={bookService}>Book a Service</Button>
+            <Button className="w-75" onClick={bookService}>
+              Book a Service
+            </Button>
             <Button variant="secondary" className="w-75" onClick={liveJob}>
               Track Current Request
             </Button>
