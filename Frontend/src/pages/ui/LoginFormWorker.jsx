@@ -32,7 +32,7 @@ export function LoginFormWorker({ className, handleSubmit, ...props }) {
             <div className="text-center text-sm">
               Don&apos;t have an account?{" "}
               <NavLink
-                to="/worker/sign-up"
+                to="/worker/signup"
                 className="underline underline-offset-4"
               >
                 Sign up

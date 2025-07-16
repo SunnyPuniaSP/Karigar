@@ -32,7 +32,7 @@ export function LoginFormCustomer({ className, handleSubmit, ...props }) {
             <div className="text-center text-sm">
               Don&apos;t have an account?{" "}
               <NavLink
-                to="/customer/sign-up"
+                to="/customer/signup"
                 className="underline underline-offset-4"
               >
                 Sign up
