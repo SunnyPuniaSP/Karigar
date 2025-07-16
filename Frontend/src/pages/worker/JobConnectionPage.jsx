@@ -21,10 +21,11 @@ import {
   setWorkerDetails,
 } from "../../store/workerAuthSlice";
 import { useDispatch } from "react-redux";
+import axios from "axios";
 
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
-  const res = await api.get(url);
+  const res = await axios.get(url);
   const coordinates = res.data.routes[0].geometry.coordinates.map(
     ([lng, lat]) => [lat, lng]
   );
