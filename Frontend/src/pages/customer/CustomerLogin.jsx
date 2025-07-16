@@ -10,7 +10,6 @@ const CustomerLogin = () => {
   const dispatch = useDispatch();
 
   const handleSubmit = (data) => {
-    console.log("Sending data:", data);
     api
       .post("/api/v1/customer/login", data)
       .then((res) => {
