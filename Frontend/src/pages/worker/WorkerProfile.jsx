@@ -164,7 +164,6 @@ const WorkerProfile = () => {
               </div>
 
               <SheetFooter className="mt-6 flex-col gap-2">
-                <Button variant="outline">Cancel</Button>
                 <Button onClick={handleSave}>Save</Button>
               </SheetFooter>
             </SheetContent>
