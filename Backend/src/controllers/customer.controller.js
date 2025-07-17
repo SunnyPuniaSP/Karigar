@@ -76,7 +76,7 @@ const loginCustomer = asyncHandler(async (req, res) => {
   const customer = await Customer.findOne({ email });
 
   if (!customer) {
-    throw new ApiError(404, "User does not exist");
+    throw new ApiError(404, "Customer does not exist");
   }
 
   const isPasswordCorrect = await customer.isPasswordCorrect(password);
