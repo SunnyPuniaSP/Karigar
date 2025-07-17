@@ -67,7 +67,6 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
                 id="fullName"
                 name="fullName"
                 type="text"
-                placeholder=""
                 required
               />
             </div>
@@ -87,7 +86,8 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
                 id="phone"
                 name="phone"
                 type="tel"
-                placeholder=""
+                pattern="^\d{10}$"
+                title="Phone number must be 10 digits"
                 required
               />
             </div>
@@ -97,7 +97,6 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
                 id="address"
                 name="address"
                 type="text"
-                placeholder=""
                 required
               />
             </div>
@@ -107,7 +106,8 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
                 id="password"
                 name="password"
                 type="Password"
-                placeholder=""
+                pattern=".{8,}" 
+                title="Password must be at least 8 characters"
                 required
               />
             </div>
@@ -117,7 +117,6 @@ export function SignUpFormWorker({ className, handleSubmit, ...props }) {
                 id="yearOfExperience"
                 name="yearOfExperience"
                 type="number"
-                placeholder=""
                 required
               />
             </div>

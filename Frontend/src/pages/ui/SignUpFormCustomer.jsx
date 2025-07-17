@@ -25,12 +25,6 @@ export function SignUpFormCustomer({ className, handleSubmit, ...props }) {
       >
         <div className="flex flex-col gap-6">
           <div className="flex flex-col items-center gap-2">
-            <a
-              href="#"
-              className="flex flex-col items-center gap-2 font-medium"
-            >
-              <span className="sr-only">Acme Inc.</span>
-            </a>
             <h1 className="text-xl font-bold">Welcome to Karigar</h1>
             <div className="text-center text-sm">
               Already have an account?{" "}
@@ -46,7 +40,6 @@ export function SignUpFormCustomer({ className, handleSubmit, ...props }) {
                 id="fullName"
                 name="fullName"
                 type="text"
-                placeholder=""
                 required
               />
             </div>
@@ -66,7 +59,8 @@ export function SignUpFormCustomer({ className, handleSubmit, ...props }) {
                 id="phone"
                 name="phone"
                 type="tel"
-                placeholder=""
+                pattern="^\d{10}$"
+                title="Phone number must be 10 digits"
                 required
               />
             </div>
@@ -76,7 +70,6 @@ export function SignUpFormCustomer({ className, handleSubmit, ...props }) {
                 id="address"
                 name="address"
                 type="text"
-                placeholder=""
                 required
               />
             </div>
@@ -86,7 +79,8 @@ export function SignUpFormCustomer({ className, handleSubmit, ...props }) {
                 id="password"
                 name="password"
                 type="password"
-                placeholder=""
+                pattern=".{8,}"
+                title="Password must be at least 8 characters"
                 required
               />
             </div>
