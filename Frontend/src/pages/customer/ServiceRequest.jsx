@@ -21,6 +21,7 @@ import {
   clearLiveServiceId,
 } from "../../store/customerAuthSlice";
 import axios from "axios";
+import { toast } from "sonner";
 
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
@@ -28,7 +29,7 @@ const getRoute = async (start, end) => {
   const coordinates = res.data.routes[0].geometry.coordinates.map(
     ([lng, lat]) => [lat, lng]
   );
-  const duration = res.data.routes[0].duration; 
+  const duration = res.data.routes[0].duration;
   return { coordinates, duration };
 };
 
@@ -115,7 +116,12 @@ const SearchingWorker = () => {
               dispatch(clearLiveServiceId());
             })
             .catch((err) => {
-              console.log("toglling is live request to false failed", err);
+              const errorMessage =
+                err.response?.data?.message || "An unexpected error occurred";
+              toast(errorMessage, {
+                duration: 3000,
+                className: "bg-white border border-red-200 shadow",
+              });
             });
           toggleIsLiveRequestToFalse.current = true;
           localStorage.removeItem("connectedStartTime");
@@ -135,7 +141,12 @@ const SearchingWorker = () => {
               dispatch(clearLiveServiceId());
             })
             .catch((err) => {
-              console.log("toglling is live request to false failed", err);
+              const errorMessage =
+                err.response?.data?.message || "An unexpected error occurred";
+              toast(errorMessage, {
+                duration: 3000,
+                className: "bg-white border border-red-200 shadow",
+              });
             });
           toggleIsLiveRequestToFalse.current = true;
           localStorage.removeItem("connectedStartTime");
@@ -193,22 +204,24 @@ const SearchingWorker = () => {
             }, 1000);
           }
 
-          if (secondsPassed >= 30*60) {
+          if (secondsPassed >= 30 * 60) {
             setShowCancellButtonLate(true);
           } else {
             setTimeout(() => {
               setShowCancellButtonLate(true);
-            }, (30*60 - secondsPassed) * 1000);
+            }, (30 * 60 - secondsPassed) * 1000);
           }
 
           cancellButtonStarted.current = true;
         }
       })
-      .catch((error) => {
-        console.error(
-          "Something went wrong while checking the request status",
-          error
-        );
+      .catch((err) => {
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -218,10 +231,12 @@ const SearchingWorker = () => {
         .get(`/api/v1/worker/${requestData.workerId}/get-details`)
         .then((res) => setWorkerDetails(res.data.data))
         .catch((err) => {
-          console.error(
-            "Worker accepted your request, but details couldn't be fetched.",
-            err
-          );
+          const errorMessage =
+            err.response?.data?.message || "An unexpected error occurred";
+          toast(errorMessage, {
+            duration: 3000,
+            className: "bg-white border border-red-200 shadow",
+          });
         });
     }
   }, [workerAccepted]);
@@ -248,7 +263,12 @@ const SearchingWorker = () => {
             setEtaMinutes(Math.ceil(route.duration / 60));
           }
         } catch (err) {
-          console.log("Error while fetching worker location or route", err);
+          const errorMessage =
+            err.response?.data?.message || "An unexpected error occurred";
+          toast(errorMessage, {
+            duration: 3000,
+            className: "bg-white border border-red-200 shadow",
+          });
         }
       }
     };
@@ -269,7 +289,12 @@ const SearchingWorker = () => {
         navigate("/customer/auth/home");
       })
       .catch((err) => {
-        console.log("Something went wrong while deleting request", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -285,10 +310,12 @@ const SearchingWorker = () => {
         requestData.orderStatus = "cancelled";
       })
       .catch((err) => {
-        console.log(
-          "Something went wrong while cancelling request as byMistake",
-          err
-        );
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -304,10 +331,12 @@ const SearchingWorker = () => {
         requestData.orderStatus = "cancelled";
       })
       .catch((err) => {
-        console.log(
-          "Something went wrong while cancelling request as worker late or not responding",
-          err
-        );
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -320,7 +349,12 @@ const SearchingWorker = () => {
         requestData.orderStatus = "payment_pending_quote_amount";
       })
       .catch((err) => {
-        console.log("Something went wrong while accepting quote", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -333,7 +367,12 @@ const SearchingWorker = () => {
         requestData.orderStatus = "payment_pending_visiting_fee";
       })
       .catch((err) => {
-        console.log("Something went wrong while rejecting quote", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -379,7 +418,12 @@ const SearchingWorker = () => {
               requestData.orderStatus = "completed";
             })
             .catch((err) => {
-              console.log("something went wrong in payment verification", err);
+              const errorMessage =
+                err.response?.data?.message || "An unexpected error occurred";
+              toast(errorMessage, {
+                duration: 3000,
+                className: "bg-white border border-red-200 shadow",
+              });
             });
         },
       };
@@ -387,7 +431,12 @@ const SearchingWorker = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.log("Failed to initiate payment.", err);
+      const errorMessage =
+        err.response?.data?.message || "An unexpected error occurred";
+      toast(errorMessage, {
+        duration: 3000,
+        className: "bg-white border border-red-200 shadow",
+      });
     }
   };
 

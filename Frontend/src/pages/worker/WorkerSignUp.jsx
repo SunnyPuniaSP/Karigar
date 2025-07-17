@@ -4,6 +4,7 @@ import api from "../../api.js";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
+import { toast } from "sonner";
 const WorkerSignUp = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
@@ -23,14 +24,21 @@ const WorkerSignUp = () => {
             navigate("/worker/auth/home");
           })
           .catch((err) => {
-            console.log(
-              "Registration successful but login failed. Please try logging in manually",
-              err
-            );
+            const errorMessage =
+              err.response?.data?.message || "An unexpected error occurred";
+            toast(errorMessage, {
+              duration: 3000,
+              className: "bg-white border border-red-200 shadow",
+            });
           });
       })
       .catch((err) => {
-        console.log("Registration failed. Please try again", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
   return (

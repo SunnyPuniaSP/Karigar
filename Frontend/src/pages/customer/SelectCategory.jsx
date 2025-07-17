@@ -1,12 +1,12 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-import ac from "../../assets/air-conditioner.png"
-import electrician from "../../assets/electrical-service.png"
-import plumber from "../../assets/faucet.png"
-import laptop from "../../assets/laptop.png"
-import washingMachine from "../../assets/laundry-machine.png"
-import tv from "../../assets/monitor.png"
-import fridge from "../../assets/fridge.png"
+import ac from "../../assets/air-conditioner.png";
+import electrician from "../../assets/electrical-service.png";
+import plumber from "../../assets/faucet.png";
+import laptop from "../../assets/laptop.png";
+import washingMachine from "../../assets/laundry-machine.png";
+import tv from "../../assets/monitor.png";
+import fridge from "../../assets/fridge.png";
 
 const categories = [
   {

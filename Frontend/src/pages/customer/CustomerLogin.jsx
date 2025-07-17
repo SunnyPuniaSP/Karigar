@@ -4,6 +4,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCustomerDetails } from "../../store/customerAuthSlice.js";
 import api from "../../api.js";
+import { toast } from "sonner";
 
 const CustomerLogin = () => {
   const navigate = useNavigate();
@@ -17,8 +18,13 @@ const CustomerLogin = () => {
         dispatch(setCustomerDetails(data.data.customer));
         navigate("/customer/auth/home");
       })
-      .catch((error) => {
-        console.log("Registration failed:", error);
+      .catch((err) => {
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
   return (

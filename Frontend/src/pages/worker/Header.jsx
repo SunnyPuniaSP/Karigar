@@ -25,10 +25,12 @@ const Header = () => {
           navigate("/worker");
         })
         .catch((err) => {
-          console.log(
-            "something went wrong while toggling your status to offline at backend",
-            err
-          );
+          const errorMessage =
+            err.response?.data?.message || "An unexpected error occurred";
+          toast(errorMessage, {
+            duration: 3000,
+            className: "bg-white border border-red-200 shadow",
+          });
         });
     } else {
       dispatch(clearWorkerDetails());

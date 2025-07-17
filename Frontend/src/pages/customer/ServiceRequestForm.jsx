@@ -4,6 +4,7 @@ import api from "../../api.js";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLiveServiceId, setIsLiveRequest } from "@/store/customerAuthSlice";
+import { toast } from "sonner";
 
 const ServiceRequestForm = () => {
   const navigate = useNavigate();
@@ -30,7 +31,7 @@ const ServiceRequestForm = () => {
           });
         },
         (error) => {
-          console.error("Location access denied:", error);
+          alert("Location access denied:", error);
         }
       );
     } else {
@@ -84,7 +85,12 @@ const ServiceRequestForm = () => {
         navigate(`/customer/auth/service-request/${res.data.data._id}`);
       })
       .catch((err) => {
-        console.log("something went wrong request not created", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 

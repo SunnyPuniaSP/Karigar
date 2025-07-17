@@ -12,6 +12,7 @@ import {
 import { Pencil } from "lucide-react";
 import api from "../../api.js";
 import { setCustomerDetails } from "../../store/customerAuthSlice";
+import { toast } from "sonner";
 
 const CustomerProfile = () => {
   const dispatch = useDispatch();
@@ -34,10 +35,12 @@ const CustomerProfile = () => {
         dispatch(setCustomerDetails(res.data.data));
       })
       .catch((err) => {
-        console.log(
-          "Something went wrong. Unable to update your details.",
-          err
-        );
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -59,10 +62,12 @@ const CustomerProfile = () => {
         dispatch(setCustomerDetails(res.data.data));
       })
       .catch((err) => {
-        console.log(
-          "Something went wrong. Unable to update your profile picture",
-          err
-        );
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       })
       .finally(() => {
         setIsEditingPhoto(false);

@@ -5,6 +5,7 @@ import api from "../../api.js";
 import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
+import { toast } from "sonner";
 
 const Home = () => {
   const dispatch = useDispatch();
@@ -31,18 +32,30 @@ const Home = () => {
                   dispatch(setWorkerDetails(res.data.data));
                 })
                 .catch((err) => {
-                  console.log(
-                    "something went wrong while toggle your status at backend",
-                    err
-                  );
+                  const errorMessage =
+                    err.response?.data?.message ||
+                    "An unexpected error occurred";
+                  toast(errorMessage, {
+                    duration: 3000,
+                    className: "bg-white border border-red-200 shadow",
+                  });
                 });
             })
             .catch((err) => {
-              console.log("Failed to update location at backend", err);
+              const errorMessage =
+                err.response?.data?.message || "An unexpected error occurred";
+              toast(errorMessage, {
+                duration: 3000,
+                className: "bg-white border border-red-200 shadow",
+              });
             });
         },
         (err) => {
-          console.error("Geolocation error:", err);
+          alert(
+            "Geolocation error: " +
+              (err.message ||
+                "Unable to retrieve your location. Please check your device's location settings.")
+          );
         }
       );
     } else {
@@ -52,10 +65,12 @@ const Home = () => {
           dispatch(setWorkerDetails(res.data.data));
         })
         .catch((err) => {
-          console.log(
-            "something went wrong while toggle your status at backend",
-            err
-          );
+          const errorMessage =
+            err.response?.data?.message || "An unexpected error occurred";
+          toast(errorMessage, {
+            duration: 3000,
+            className: "bg-white border border-red-200 shadow",
+          });
         });
     }
   };

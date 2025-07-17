@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import api from "../../api.js";
 import nopastrequests from "../../assets/nopastrequests.png";
+import { toast } from "sonner";
 
 const MyRequests = () => {
   const [jobs, setJobs] = useState([]);
@@ -12,7 +13,12 @@ const MyRequests = () => {
         setJobs(res.data.data);
       })
       .catch((err) => {
-        console.log("Error in finding past requests", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   }, []);
 

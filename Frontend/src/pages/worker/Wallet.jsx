@@ -29,7 +29,12 @@ const Wallet = () => {
         setTransactions(res.data.data);
       })
       .catch((err) => {
-        console.log("error while fetching online transactions", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
 
     api
@@ -38,7 +43,12 @@ const Wallet = () => {
         setWalletBalance(res.data.data.walletBalance);
       })
       .catch((err) => {
-        console.log("error while fetching worker wallet balance", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   }, []);
 
@@ -91,10 +101,13 @@ const Wallet = () => {
                   dispatch(setWorkerDetails(res.data.data));
                 })
                 .catch((err) => {
-                  console.log(
-                    "error in getting worker details after job completion",
-                    err
-                  );
+                  const errorMessage =
+                    err.response?.data?.message ||
+                    "An unexpected error occurred";
+                  toast(errorMessage, {
+                    duration: 3000,
+                    className: "bg-white border border-red-200 shadow",
+                  });
                 });
               api
                 .get("/api/v1/worker/online-transactions")
@@ -102,11 +115,22 @@ const Wallet = () => {
                   setTransactions(res.data.data);
                 })
                 .catch((err) => {
-                  console.log("error while fetching online transactions", err);
+                  const errorMessage =
+                    err.response?.data?.message ||
+                    "An unexpected error occurred";
+                  toast(errorMessage, {
+                    duration: 3000,
+                    className: "bg-white border border-red-200 shadow",
+                  });
                 });
             })
             .catch((err) => {
-              console.log("something went wrong in payment verification", err);
+              const errorMessage =
+                err.response?.data?.message || "An unexpected error occurred";
+              toast(errorMessage, {
+                duration: 3000,
+                className: "bg-white border border-red-200 shadow",
+              });
             });
         },
       };
@@ -114,7 +138,12 @@ const Wallet = () => {
       const rzp = new window.Razorpay(options);
       rzp.open();
     } catch (err) {
-      console.log("Failed to initiate payment", err);
+      const errorMessage =
+        err.response?.data?.message || "An unexpected error occurred";
+      toast(errorMessage, {
+        duration: 3000,
+        className: "bg-white border border-red-200 shadow",
+      });
     }
   };
 

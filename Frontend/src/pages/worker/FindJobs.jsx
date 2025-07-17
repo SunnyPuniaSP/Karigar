@@ -7,6 +7,8 @@ import {
   setIsLiveRequest,
   setLiveServiceId,
 } from "../../store/workerAuthSlice";
+import { toast } from "sonner";
+
 const FindJobs = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -27,7 +29,12 @@ const FindJobs = () => {
         setJobs(res.data.data);
       })
       .catch((err) => {
-        console.log("error while finding jobs", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -35,10 +42,12 @@ const FindJobs = () => {
     api
       .patch("/api/v1/worker/temporary-blockCustomer", { customerId })
       .catch((err) => {
-        console.log(
-          "error while rejecting and temporary blocking customer ",
-          err
-        );
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
 
@@ -51,7 +60,12 @@ const FindJobs = () => {
         navigate(`/worker/auth/job/${serviceRequestId}`);
       })
       .catch((err) => {
-        console.log("error while accepting the request", err);
+        const errorMessage =
+          err.response?.data?.message || "An unexpected error occurred";
+        toast(errorMessage, {
+          duration: 3000,
+          className: "bg-white border border-red-200 shadow",
+        });
       });
   };
   return (
