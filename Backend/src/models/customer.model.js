@@ -31,7 +31,7 @@ const customerSchema = new mongoose.Schema({
         trim: true
     },
     profilePhoto: {
-        type: String, // URL to image
+        type: String,
         default: ""
     },
     password: {

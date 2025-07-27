@@ -15,6 +15,7 @@ const categories = [
   "AC",
   "Washing-Machine",
   "Laptop",
+  "Carpenter"
 ];
 
 export function SignUpFormWorker({ className, handleSubmit, ...props }) {

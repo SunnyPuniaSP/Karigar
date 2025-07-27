@@ -1,9 +1,9 @@
 import mongoose from "mongoose";
 
 const transactionSchema = new mongoose.Schema({
-  workerId: {  // Changed from userId
+  workerId: { 
     type: mongoose.Schema.Types.ObjectId,
-    ref: "Worker",  // Reference Worker model
+    ref: "Worker", 
     required: true,
   },
   dateAndTime:{

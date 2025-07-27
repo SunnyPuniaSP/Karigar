@@ -7,6 +7,7 @@ import laptop from "../../assets/laptop.png";
 import washingMachine from "../../assets/laundry-machine.png";
 import tv from "../../assets/monitor.png";
 import fridge from "../../assets/fridge.png";
+import carpenter from "../../assets/carpenter.png";
 
 const categories = [
   {
@@ -36,6 +37,10 @@ const categories = [
   {
     name: "Plumber",
     image: plumber,
+  },
+  {
+    name: "Carpenter",
+    image: carpenter,
   },
 ];
 

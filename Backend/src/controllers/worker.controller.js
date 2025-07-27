@@ -57,6 +57,7 @@ const registerWorker = asyncHandler(async (req, res) => {
     "AC",
     "Washing-Machine",
     "Laptop",
+    "Carpenter"
   ];
   for (const category of workingCategory) {
     if (!validCategories.includes(category)) {

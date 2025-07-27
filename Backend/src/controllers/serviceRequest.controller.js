@@ -368,8 +368,7 @@ const rejectRepairQuote = asyncHandler(async (req, res) => {
 const updateWorkerLocation = asyncHandler(async (req, res) => {
   const { serviceRequestId } = req.params;
   const workerId = req.worker?._id;
-  const { coordinates } = req.body; // coordinates = [lng, lat]
-
+  const { coordinates } = req.body; 
   if (
     !workerId ||
     !serviceRequestId ||
@@ -382,7 +381,6 @@ const updateWorkerLocation = asyncHandler(async (req, res) => {
     );
   }
 
-  // Update worker's current location
   const worker = await Worker.findById(workerId);
   if (!worker || !worker.startLocation) {
     throw new ApiError(404, "Worker or worker start location not found");
@@ -394,7 +392,6 @@ const updateWorkerLocation = asyncHandler(async (req, res) => {
   };
   await worker.save();
 
-  // Calculate distance from startLocation to currentLocation
   const distanceFromStart = geolib.getDistance(
     {
       latitude: worker.startLocation.coordinates[1],
@@ -403,7 +400,6 @@ const updateWorkerLocation = asyncHandler(async (req, res) => {
     { latitude: coordinates[1], longitude: coordinates[0] }
   );
 
-  // Calculate distance from currentLocation to customerLocation
   const serviceRequest = await ServiceRequest.findById(serviceRequestId);
   if (!serviceRequest || !serviceRequest.customerLocation) {
     throw new ApiError(404, "Service request or customer location not found");
@@ -417,13 +413,11 @@ const updateWorkerLocation = asyncHandler(async (req, res) => {
     }
   );
 
-  // Update serviceRequest.workerLocation
   serviceRequest.workerLocation = {
     type: "Point",
     coordinates,
   };
 
-  // Update orderStatus based on distances
   if (distanceFromStart >= 100 && serviceRequest.orderStatus === "connected") {
     serviceRequest.orderStatus = "onway";
   }
@@ -464,13 +458,10 @@ const cancelledByWorkerAsCustomerNotResponding = asyncHandler(
     const { serviceRequestId } = req.params;
     const workerId = req.worker?._id;
 
-    // Find the service request
     const serviceRequest = await ServiceRequest.findById(serviceRequestId);
     if (!serviceRequest) {
       throw new ApiError(404, "Service request not found");
     }
-
-    
 
     if (serviceRequest.orderStatus !== "arrived") {
       throw new ApiError(
@@ -478,7 +469,7 @@ const cancelledByWorkerAsCustomerNotResponding = asyncHandler(
         "Worker has not arrived at the Customer location, cannot cancel"
       );
     }
-    // Update the service request status
+
     serviceRequest.orderStatus = "cancelled";
     serviceRequest.cancelledBy = "worker";
     serviceRequest.cancelledAt = new Date();
@@ -589,13 +580,11 @@ const cancelledByWorkerAsNotAbleToServe = asyncHandler(async (req, res) => {
   const { serviceRequestId } = req.params;
   const workerId = req.worker?._id;
 
-  // Find the service request
   const serviceRequest = await ServiceRequest.findById(serviceRequestId);
   if (!serviceRequest) {
     throw new ApiError(404, "Service request not found");
   }
 
-  // Check if the request is accepted by this worker
   if (
     serviceRequest.orderStatus === "searching"
   ) {
@@ -605,12 +594,11 @@ const cancelledByWorkerAsNotAbleToServe = asyncHandler(async (req, res) => {
     );
   }
 
-  // Update the service request status
   serviceRequest.orderStatus = "cancelled";
   serviceRequest.cancelledBy = "worker";
   serviceRequest.cancelledAt = new Date();
   serviceRequest.cancellationReason = "workerNotAbleToServe";
-  serviceRequest.jobStatus = "completed"; // Mark job as completed since worker is cancelling
+  serviceRequest.jobStatus = "completed"; 
   serviceRequest.completedAt = new Date();
   await serviceRequest.save();
 
@@ -713,7 +701,6 @@ const cancelledByCustomerAsWorkerNotRespondingOrLate = asyncHandler(
     const { serviceRequestId } = req.params;
     const customerId = req.customer?._id;
 
-    // Find the service request
     const serviceRequest = await ServiceRequest.findById(serviceRequestId);
     if (!serviceRequest) {
       throw new ApiError(404, "Service request not found");
@@ -731,12 +718,12 @@ const cancelledByCustomerAsWorkerNotRespondingOrLate = asyncHandler(
         "Worker has already arrived at the location, cannot cancel"
       );
     }
-    // Update the service request status
+
     serviceRequest.orderStatus = "cancelled";
     serviceRequest.cancelledBy = "customer";
     serviceRequest.cancelledAt = new Date();
     serviceRequest.cancellationReason = "workerNotRespondingOrLate";
-    serviceRequest.jobStatus = "completed"; // Mark job as completed since customer is cancelling
+    serviceRequest.jobStatus = "completed"; 
     serviceRequest.completedAt = new Date();
     await serviceRequest.save();
 
@@ -839,7 +826,6 @@ const cancelledByCustomerAsByMistake = asyncHandler(async (req, res) => {
   const { serviceRequestId } = req.params;
   const customerId = req.customer?._id;
 
-  // Find the service request
   const serviceRequest = await ServiceRequest.findById(serviceRequestId);
   if (!serviceRequest) {
     throw new ApiError(404, "Service request not found");
@@ -851,9 +837,9 @@ const cancelledByCustomerAsByMistake = asyncHandler(async (req, res) => {
       "Cannot cancel service request after 30sec of connection"
     );
   }
-  // Update the service request status
+
   serviceRequest.orderStatus = "cancelled";
-  serviceRequest.jobStatus = "completed"; // Mark job as completed since customer is cancelling
+  serviceRequest.jobStatus = "completed";
   serviceRequest.completedAt = new Date();
   serviceRequest.cancelledBy = "customer";
   serviceRequest.cancelledAt = new Date();
@@ -963,28 +949,23 @@ const rateWorker = asyncHandler(async (req, res) => {
   const { rating } = req.body;
   const customerId = req.customer?._id;
 
-  // Validate rating
   if (typeof rating !== "number" || rating < 1 || rating > 5) {
     throw new ApiError(400, "Rating must be a number between 1 and 5");
   }
 
-  // Find the service request
   const serviceRequest = await ServiceRequest.findById(serviceRequestId);
   if (!serviceRequest) {
     throw new ApiError(404, "Service request not found");
   }
 
-  // Check if the request belongs to this customer
   if (serviceRequest.customerId?.toString() !== customerId) {
     throw new ApiError(400, "Service request not belonging to this customer");
   }
 
-  // Check if the service request is completed
   if (serviceRequest.orderStatus !== "completed") {
     throw new ApiError(400, "Service request is not completed yet");
   }
 
-  // Update worker's rating
   const worker = await Worker.findById(serviceRequest.workerId);
   if (!worker) {
     throw new ApiError(404, "Worker not found");
@@ -1012,7 +993,6 @@ const rateWorker = asyncHandler(async (req, res) => {
 const reportWorker = asyncHandler(async (req, res) => {
   const { serviceRequestId } = req.params;
 
-  // Find the service request
   const serviceRequest = await ServiceRequest.findById(serviceRequestId);
   if (!serviceRequest) {
     throw new ApiError(404, "Service request not found");

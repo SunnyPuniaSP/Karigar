@@ -60,6 +60,7 @@ const workerSchema = new mongoose.Schema(
             "AC",
             "Washing-Machine",
             "Laptop",
+            "Carpenter"
           ],
         },
       ],

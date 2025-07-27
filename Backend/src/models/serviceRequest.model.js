@@ -23,6 +23,7 @@ const serviceRequestSchema = new mongoose.Schema(
         "AC",
         "Washing-Machine",
         "Laptop",
+        "Carpenter"
       ],
       required: true,
     },

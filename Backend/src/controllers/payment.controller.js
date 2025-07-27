@@ -25,7 +25,7 @@ const createOrder = asyncHandler(async (req, res) => {
   }
 
   let amount;
-  let currency = "INR"; // Default currency
+  let currency = "INR";
 
   if (serviceRequest.orderStatus === "payment_pending_quote_amount") {
     amount = serviceRequest.quoteAmount;
@@ -39,7 +39,7 @@ const createOrder = asyncHandler(async (req, res) => {
   }
 
   const options = {
-    amount: amount * 100, // Amount in paise
+    amount: amount * 100, 
     currency: currency,
     receipt: `receipt_${new Date().getTime()}`,
   };
@@ -72,7 +72,7 @@ const createOrderForWorker = asyncHandler(async (req, res) => {
   }
 
   const options = {
-    amount: amount * 100, // Amount in paise
+    amount: amount * 100,
     currency: currency,
     receipt: `receipt_${new Date().getTime()}`,
   };
