@@ -1,13 +1,13 @@
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-
+import logo from "../assets/logo2.png";
 export default function MainLandingPage() {
   const navigate = useNavigate();
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-background text-foreground px-4">
-      <div className="absolute top-6 left-6 text-2xl font-bold text-primary">
-        Karigar
+      <div className="absolute top-0 left-6">
+        <img src={logo} className="w-40" />
       </div>
 
       <div className="text-center mb-10">
