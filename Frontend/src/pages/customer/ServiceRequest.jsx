@@ -555,17 +555,28 @@ const SearchingWorker = () => {
           </Button>
         )}
         {showAcceptRejectButtons && (
-          <div className="flex justify-center gap-3">
-            <Button onClick={quoteAccepted} className="min-w-[250px]">
-              Accept Repair Quote
-            </Button>
-            <Button
-              onClick={quoteRejected}
-              variant="destructive"
-              className="min-w-[250px]"
-            >
-              Reject Repair Quote
-            </Button>
+          <div className="flex flex-col gap-5">
+            <div className="flex justify-center mb-4">
+              <div className="bg-gradient-to-r from-blue-100 to-blue-200 border border-blue-300 text-blue-900 rounded-xl px-6 py-4 shadow-md min-w-[320px] text-center">
+                <span className="text-lg font-medium">Repair Quote Amount</span>
+                <div className="text-2xl font-bold mt-1">
+                  ₹{job.quoteAmount}
+                </div>
+              </div>
+            </div>
+
+            <div className="flex justify-center gap-3">
+              <Button onClick={quoteAccepted} className="min-w-[250px]">
+                Accept Repair Quote
+              </Button>
+              <Button
+                onClick={quoteRejected}
+                variant="destructive"
+                className="min-w-[250px]"
+              >
+                Reject Repair Quote
+              </Button>
+            </div>
           </div>
         )}
         {showPayButton && (
