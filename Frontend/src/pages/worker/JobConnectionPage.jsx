@@ -310,7 +310,10 @@ const SearchingWorker = () => {
         setShowInspectingButton(false);
         setShowQuoteAmountFields(true);
         setShowCancellCustomerNotResponding(false);
-        requestData.orderStatus = "inspecting";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "inspecting",
+        }));
       })
       .catch((err) => {
         const errorMessage =
@@ -330,7 +333,10 @@ const SearchingWorker = () => {
       )
       .then(() => {
         setShowQuoteAmountFields(false);
-        requestData.orderStatus = "repairAmountQuoted";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "repairAmountQuoted",
+        }));
       })
       .catch((err) => {
         const errorMessage =
@@ -347,7 +353,10 @@ const SearchingWorker = () => {
       .post(`/api/v1/payment/${serviceRequestId}/payment-received-by-cash`)
       .then(() => {
         setShowReceivePaymentButton(false);
-        requestData.orderStatus = "completed";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "completed",
+        }));
       })
       .catch((err) => {
         const errorMessage =
@@ -368,7 +377,10 @@ const SearchingWorker = () => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
         setShowCancellNotAbleToServe(false);
-        requestData.orderStatus = "cancelled";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "cancelled",
+        }));
       })
       .catch((err) => {
         const errorMessage =
@@ -390,7 +402,10 @@ const SearchingWorker = () => {
         dispatch(clearLiveServiceId());
         setShowCancellCustomerNotResponding(false);
         setShowInspectingButton(false);
-        requestData.orderStatus = "cancelled";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "cancelled",
+        }));
       })
       .catch((err) => {
         const errorMessage =

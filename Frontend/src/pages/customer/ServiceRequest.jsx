@@ -307,7 +307,10 @@ const SearchingWorker = () => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
         setShowCancellButtons(false);
-        requestData.orderStatus = "cancelled";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "cancelled",
+        }));
       })
       .catch((err) => {
         const errorMessage =
@@ -328,7 +331,10 @@ const SearchingWorker = () => {
         dispatch(clearIsLiveRequest());
         dispatch(clearLiveServiceId());
         setShowCancellButtons(false);
-        requestData.orderStatus = "cancelled";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "cancelled",
+        }));
       })
       .catch((err) => {
         const errorMessage =
@@ -346,7 +352,10 @@ const SearchingWorker = () => {
       .then(() => {
         setShowAcceptRejectButton(false);
         setShowPayButton(true);
-        requestData.orderStatus = "payment_pending_quote_amount";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "payment_pending_quote_amount",
+        }));
       })
       .catch((err) => {
         const errorMessage =
@@ -364,7 +373,10 @@ const SearchingWorker = () => {
       .then(() => {
         setShowAcceptRejectButton(false);
         setShowPayButton(true);
-        requestData.orderStatus = "payment_pending_visiting_fee";
+        setRequestData((prevState) => ({
+          ...prevState,
+          orderStatus: "payment_pending_visiting_fee",
+        }));
       })
       .catch((err) => {
         const errorMessage =
