@@ -6,7 +6,6 @@ import {
     setQuoteAmount,
     acceptRepairQuote,
     rejectRepairQuote,
-    updateWorkerLocation,
     cancelledByWorkerAsCustomerNotResponding,
     cancelledByWorkerAsNotAbleToServe,
     cancelledByCustomerAsWorkerNotRespondingOrLate,
@@ -32,9 +31,7 @@ router.route("/:serviceRequestId/status").get( getServiceRequestStatus);
 router.route("/:serviceRequestId/accept").post(verifyJWTWorker, acceptRequest);
 router.route("/:serviceRequestId/set-quote-amount").patch(verifyJWTWorker, setQuoteAmount);
 router.route("/:serviceRequestId/accept-repair-quote").patch(verifyJWTCustomer, acceptRepairQuote);
-router.route("/:serviceRequestId/reject-repair-quote").patch(verifyJWTCustomer, rejectRepairQuote);
-router.route("/:serviceRequestId/update-worker-location").patch(verifyJWTWorker, updateWorkerLocation);
-router.route("/:serviceRequestId/cancelled-by-worker-as-customer-not-responding").patch(verifyJWTWorker, cancelledByWorkerAsCustomerNotResponding);
+router.route("/:serviceRequestId/reject-repair-quote").patch(verifyJWTCustomer, rejectRepairQuote);router.route("/:serviceRequestId/cancelled-by-worker-as-customer-not-responding").patch(verifyJWTWorker, cancelledByWorkerAsCustomerNotResponding);
 router.route("/:serviceRequestId/cancelled-by-worker-as-not-able-to-serve").patch(verifyJWTWorker, cancelledByWorkerAsNotAbleToServe);
 router.route("/:serviceRequestId/cancelled-by-customer-as-worker-not-responding-or-late").patch(verifyJWTCustomer, cancelledByCustomerAsWorkerNotRespondingOrLate);
 router.route("/:serviceRequestId/cancelled-by-customer-as-by-mistake").patch(verifyJWTCustomer, cancelledByCustomerAsByMistake);

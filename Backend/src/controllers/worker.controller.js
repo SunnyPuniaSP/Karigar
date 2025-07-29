@@ -403,7 +403,7 @@ const updateWorkerCurrentLocation = asyncHandler(async (req, res) => {
       statusUpdated = true;
     }
 
-    if (distanceToCustomer < 100 && serviceRequest.orderStatus === "onway") {
+    if (distanceToCustomer < 100 && (serviceRequest.orderStatus === "onway" || serviceRequest.orderStatus === "connected")) {
       serviceRequest.orderStatus = "arrived";
       statusUpdated = true;
     }

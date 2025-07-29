@@ -365,94 +365,6 @@ const rejectRepairQuote = asyncHandler(async (req, res) => {
     );
 });
 
-const updateWorkerLocation = asyncHandler(async (req, res) => {
-  const { serviceRequestId } = req.params;
-  const workerId = req.worker?._id;
-  const { coordinates } = req.body; 
-  if (
-    !workerId ||
-    !serviceRequestId ||
-    !coordinates ||
-    coordinates.length !== 2
-  ) {
-    throw new ApiError(
-      400,
-      "workerId, serviceRequestId and valid coordinates are required"
-    );
-  }
-
-  const worker = await Worker.findById(workerId);
-  if (!worker || !worker.startLocation) {
-    throw new ApiError(404, "Worker or worker start location not found");
-  }
-
-  worker.currentLocation = {
-    type: "Point",
-    coordinates,
-  };
-  await worker.save();
-
-  const distanceFromStart = geolib.getDistance(
-    {
-      latitude: worker.startLocation.coordinates[1],
-      longitude: worker.startLocation.coordinates[0],
-    },
-    { latitude: coordinates[1], longitude: coordinates[0] }
-  );
-
-  const serviceRequest = await ServiceRequest.findById(serviceRequestId);
-  if (!serviceRequest || !serviceRequest.customerLocation) {
-    throw new ApiError(404, "Service request or customer location not found");
-  }
-
-  const distanceToCustomer = geolib.getDistance(
-    { latitude: coordinates[1], longitude: coordinates[0] },
-    {
-      latitude: serviceRequest.customerLocation.coordinates[1],
-      longitude: serviceRequest.customerLocation.coordinates[0],
-    }
-  );
-
-  serviceRequest.workerLocation = {
-    type: "Point",
-    coordinates,
-  };
-
-  if (distanceFromStart >= 100 && serviceRequest.orderStatus === "connected") {
-    serviceRequest.orderStatus = "onway";
-  }
-
-  if (distanceToCustomer <= 50 && serviceRequest.orderStatus !== "arrived") {
-    serviceRequest.orderStatus = "arrived";
-    serviceRequest.arrivedAt = new Date();
-  }
-
-  await serviceRequest.save();
-
-  const updatedServiceRequest = await ServiceRequest.findById(
-    serviceRequestId
-  ).select(
-    "_id customerId workerId category description customerLocation workerLocation orderStatus audioNoteUrl"
-  );
-
-  if (!updatedServiceRequest) {
-    throw new ApiError(
-      404,
-      "Service request not found after updating worker location"
-    );
-  }
-
-  return res
-    .status(200)
-    .json(
-      new ApiResponse(
-        200,
-        updatedServiceRequest,
-        "Worker location and order status updated"
-      )
-    );
-});
-
 const cancelledByWorkerAsCustomerNotResponding = asyncHandler(
   async (req, res) => {
     const { serviceRequestId } = req.params;
@@ -1121,7 +1033,6 @@ export {
   setQuoteAmount,
   acceptRepairQuote,
   rejectRepairQuote,
-  updateWorkerLocation,
   cancelledByWorkerAsCustomerNotResponding,
   cancelledByWorkerAsNotAbleToServe,
   cancelledByCustomerAsWorkerNotRespondingOrLate,
