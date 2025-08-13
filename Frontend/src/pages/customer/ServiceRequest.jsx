@@ -3,6 +3,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api.js";
 import { Button } from "../ui/button";
+import Loader from "../style/Loader.jsx";
 import {
   MapContainer,
   TileLayer,
@@ -88,6 +89,8 @@ const SearchingWorker = () => {
   const [jobCompleted, setJobCompleted] = useState(false);
 
   const toggleIsLiveRequestToFalse = useRef(false);
+
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     const interval = setInterval(fetchStatus, 4000);
@@ -281,6 +284,7 @@ const SearchingWorker = () => {
   }, [workerAccepted]);
 
   const cancelSearch = () => {
+    setLoader(true);
     api
       .post(`/api/v1/service-request/${serviceRequestId}/delete-request`)
       .then(() => {
@@ -295,10 +299,14 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const cancelReqAsByMistake = () => {
+    setLoader(true);
     api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-customer-as-by-mistake`
@@ -319,10 +327,14 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const cancelReqAsWorkerLateOrNotResponding = () => {
+    setLoader(true);
     api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-customer-as-worker-not-responding-or-late`
@@ -343,10 +355,14 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const quoteAccepted = () => {
+    setLoader(true);
     api
       .patch(`/api/v1/service-request/${serviceRequestId}/accept-repair-quote`)
       .then(() => {
@@ -364,10 +380,14 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const quoteRejected = () => {
+    setLoader(true);
     api
       .patch(`/api/v1/service-request/${serviceRequestId}/reject-repair-quote`)
       .then(() => {
@@ -385,6 +405,9 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
@@ -753,6 +776,7 @@ const SearchingWorker = () => {
             ) : null}
           </div>
         </div>
+        {loader && <Loader />}
       </div>
     );
   }

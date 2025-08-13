@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import { Button } from "../ui/button";
+import Loader from "../style/Loader.jsx";
 import {
   Sheet,
   SheetContent,
@@ -23,12 +24,14 @@ const CustomerProfile = () => {
   const [formData, setFormData] = useState({ fullName, email, phone, address });
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [loader, setLoader] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSave = () => {
+    setLoader(true);
     api
       .post("/api/v1/customer/update-customer-details", formData)
       .then((res) => {
@@ -41,6 +44,9 @@ const CustomerProfile = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
@@ -54,6 +60,7 @@ const CustomerProfile = () => {
       setSelectedFile(null);
       return;
     }
+    setLoader(true);
     const formData = new FormData();
     formData.append("profilePhoto", selectedFile);
     api
@@ -72,6 +79,7 @@ const CustomerProfile = () => {
       .finally(() => {
         setIsEditingPhoto(false);
         setSelectedFile(null);
+        setLoader(false);
       });
   };
 
@@ -193,6 +201,7 @@ const CustomerProfile = () => {
           </div>
         </div>
       </div>
+      {loader && <Loader />}
     </div>
   );
 };

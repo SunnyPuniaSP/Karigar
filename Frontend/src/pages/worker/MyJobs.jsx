@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import api from "../../api.js";
 import nopastjobs from "../../assets/nopastjobs.png";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 
 const MyJobs = () => {
   const [jobs, setJobs] = useState([]);
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
+    setLoader(true);
     api
       .get("/api/v1/worker/past-jobs")
       .then((res) => {
@@ -19,6 +22,9 @@ const MyJobs = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   }, []);
 
@@ -118,6 +124,7 @@ const MyJobs = () => {
           ))}
         </div>
       )}
+      {loader && <Loader />}
     </div>
   );
 };

@@ -23,6 +23,7 @@ import {
 import { useDispatch } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 
 const getRoute = async (start, end) => {
   const url = `https://router.project-osrm.org/route/v1/driving/${start.lng},${start.lat};${end.lng},${end.lat}?overview=full&geometries=geojson`;
@@ -71,6 +72,7 @@ const SearchingWorker = () => {
   const [customerLocation, setCustomerLocation] = useState(null);
   const [routePath, setRoutePath] = useState([]);
   const [etaMinutes, setEtaMinutes] = useState(null);
+  const [loader, setLoader] = useState(false);
 
   const [showQuoteAmountFields, setShowQuoteAmountFields] = useState(false);
   const [showInspectingButton, setShowInspectingButton] = useState(false);
@@ -302,6 +304,7 @@ const SearchingWorker = () => {
   }, [requestData]);
 
   const startInspection = () => {
+    setLoader(true);
     api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/update-status-to-inspecting`
@@ -322,10 +325,14 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const sendQuoteAmount = () => {
+    setLoader(true);
     api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/update-quote-amount`,
@@ -345,10 +352,14 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const paymentReceived = () => {
+    setLoader(true);
     api
       .post(`/api/v1/payment/${serviceRequestId}/payment-received-by-cash`)
       .then(() => {
@@ -365,10 +376,14 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const notAbleToServe = () => {
+    setLoader(true);
     api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-worker-as-not-able-to-serve`
@@ -389,10 +404,14 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const customerNotResponding = () => {
+    setLoader(true);
     api
       .patch(
         `/api/v1/service-request/${serviceRequestId}/cancelled-by-worker-as-customer-not-responding`
@@ -414,6 +433,9 @@ const SearchingWorker = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
@@ -675,6 +697,7 @@ const SearchingWorker = () => {
           ) : null}
         </div>
       </div>
+      {loader && <Loader />}
     </div>
   );
 };

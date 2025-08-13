@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 import logo from "../../assets/logo.png";
 import { Button } from "../ui/button";
@@ -8,16 +8,19 @@ import { useNavigate } from "react-router-dom";
 import { useSelector } from "react-redux";
 import api from "../../api.js";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 
 const Header = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const [loader, setLoader] = useState(false);
   const { profilePhoto, isOnline } = useSelector((state) => state.workerAuth);
   const { liveServiceId, isLiveRequest, walletBalance } = useSelector(
     (state) => state.workerAuth
   );
   const logout = () => {
     if (isOnline) {
+      setLoader(true);
       api
         .patch("/api/v1/worker/toggle-isOnline")
         .then(() => {
@@ -31,6 +34,9 @@ const Header = () => {
             duration: 3000,
             className: "bg-white border border-red-200 shadow",
           });
+        })
+        .finally(() => {
+          setLoader(false);
         });
     } else {
       dispatch(clearWorkerDetails());
@@ -149,6 +155,7 @@ const Header = () => {
             Logout
           </Button>
         </div>
+        {loader && <Loader />}
       </div>
     </nav>
   );

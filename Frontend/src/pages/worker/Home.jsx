@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import customerhomehero from "../../assets/customerhomehero.png";
 import { Button } from "../ui/button";
 import api from "../../api.js";
@@ -6,9 +6,11 @@ import { useSelector } from "react-redux";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 
 const Home = () => {
   const dispatch = useDispatch();
+  const [loader, setLoader] = useState(false);
   const { fullName, isOnline } = useSelector((state) => state.workerAuth);
 
   const toggleStatus = () => {
@@ -22,7 +24,7 @@ const Home = () => {
             latitude: lat,
             longitude: lng,
           };
-
+          setLoader(true);
           api
             .patch("/api/v1/worker/update-start-location", location)
             .then(() => {
@@ -48,6 +50,9 @@ const Home = () => {
                 duration: 3000,
                 className: "bg-white border border-red-200 shadow",
               });
+            })
+            .finally(() => {
+              setLoader(false);
             });
         },
         (err) => {
@@ -59,6 +64,7 @@ const Home = () => {
         }
       );
     } else {
+      setLoader(true);
       api
         .patch("/api/v1/worker/toggle-isOnline")
         .then((res) => {
@@ -71,6 +77,9 @@ const Home = () => {
             duration: 3000,
             className: "bg-white border border-red-200 shadow",
           });
+        })
+        .finally(() => {
+          setLoader(false);
         });
     }
   };
@@ -118,6 +127,7 @@ const Home = () => {
           />
         </div>
       </div>
+      {loader && <Loader />}
     </div>
   );
 };

@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import api from "../../api.js";
 import nopastrequests from "../../assets/nopastrequests.png";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 
 const MyRequests = () => {
   const [jobs, setJobs] = useState([]);
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
+    setLoader(true);
     api
       .get("/api/v1/customer/past-requests")
       .then((res) => {
@@ -19,6 +22,9 @@ const MyRequests = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   }, []);
 
@@ -122,6 +128,7 @@ const MyRequests = () => {
           ))}
         </div>
       )}
+      {loader && <Loader />}
     </div>
   );
 };

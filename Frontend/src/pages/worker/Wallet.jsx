@@ -6,6 +6,7 @@ import { Button } from "../ui/button";
 import { useDispatch } from "react-redux";
 import { setWorkerDetails } from "@/store/workerAuthSlice";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 import {
   Dialog,
   DialogContent,
@@ -21,8 +22,10 @@ const Wallet = () => {
   const [walletBalance, setWalletBalance] = useState([]);
   const [open, setOpen] = useState(false);
   const [addAmount, setAddAmount] = useState();
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
+    setLoader(true);
     api
       .get("/api/v1/worker/online-transactions")
       .then((res) => {
@@ -35,8 +38,12 @@ const Wallet = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
 
+    setLoader(true);
     api
       .get("/api/v1/worker/current-user")
       .then((res) => {
@@ -49,6 +56,9 @@ const Wallet = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   }, []);
 
@@ -91,6 +101,7 @@ const Wallet = () => {
             razorpaySignature: response.razorpay_signature,
             amount: addAmount,
           };
+          setLoader(true);
           api
             .post(`/api/v1/payment/verify-payment-for-worker`, options)
             .then(() => {
@@ -131,6 +142,9 @@ const Wallet = () => {
                 duration: 3000,
                 className: "bg-white border border-red-200 shadow",
               });
+            })
+            .finally(() => {
+              setLoader(false);
             });
         },
       };
@@ -260,6 +274,7 @@ const Wallet = () => {
           })}
         </div>
       )}
+      {loader && <Loader />}
     </div>
   );
 };

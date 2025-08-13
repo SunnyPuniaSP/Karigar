@@ -1,14 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 import { SignUpFormCustomer } from "../ui/SignUpFormCustomer";
 import api from "../../api.js";
 import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setCustomerDetails } from "@/store/customerAuthSlice";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
+
 const CustomerSignUp = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const [loader, setLoader] = useState(false);
+
   const handleSubmit = (data) => {
+    setLoader(true);
     api
       .post("/api/v1/customer/register", data)
       .then(() => {
@@ -39,6 +44,9 @@ const CustomerSignUp = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
   return (
@@ -46,6 +54,7 @@ const CustomerSignUp = () => {
       <div className="w-full max-w-sm">
         <SignUpFormCustomer handleSubmit={handleSubmit} />
       </div>
+      {loader && <Loader />}
     </div>
   );
 };

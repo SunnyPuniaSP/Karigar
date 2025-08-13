@@ -13,6 +13,7 @@ import { Pencil } from "lucide-react";
 import api from "../../api.js";
 import { setWorkerDetails } from "../../store/workerAuthSlice";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 
 const WorkerProfile = () => {
   const dispatch = useDispatch();
@@ -29,12 +30,14 @@ const WorkerProfile = () => {
   const [formData, setFormData] = useState({ fullName, email, phone, address });
   const [isEditingPhoto, setIsEditingPhoto] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
+  const [loader, setLoader] = useState(false);
 
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
   const handleSave = () => {
+    setLoader(true);
     api
       .post("/api/v1/worker/update-worker-details", formData)
       .then((res) => {
@@ -47,6 +50,9 @@ const WorkerProfile = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
@@ -60,6 +66,7 @@ const WorkerProfile = () => {
       setSelectedFile(null);
       return;
     }
+    setLoader(true);
     const formData = new FormData();
     formData.append("profilePhoto", selectedFile);
     api
@@ -78,6 +85,7 @@ const WorkerProfile = () => {
       .finally(() => {
         setIsEditingPhoto(false);
         setSelectedFile(null);
+        setLoader(false);
       });
   };
 
@@ -219,6 +227,7 @@ const WorkerProfile = () => {
           </div>
         </div>
       </div>
+      {loader && <Loader />}
     </div>
   );
 };

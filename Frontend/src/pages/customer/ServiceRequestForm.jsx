@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
 import { setLiveServiceId, setIsLiveRequest } from "@/store/customerAuthSlice";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 
 const ServiceRequestForm = () => {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ const ServiceRequestForm = () => {
     lat: null,
     lon: null,
   });
+  const [loader, setLoader] = useState(false);
 
   useEffect(() => {
     if ("geolocation" in navigator) {
@@ -66,6 +68,7 @@ const ServiceRequestForm = () => {
   };
 
   const handleSubmit = () => {
+    setLoader(true);
     const formData = new FormData();
     formData.append("description", message);
     if (audioBlob) formData.append("audioNote", audioBlob);
@@ -91,6 +94,9 @@ const ServiceRequestForm = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
@@ -163,6 +169,7 @@ const ServiceRequestForm = () => {
           </button>
         </div>
       </div>
+      {loader && <Loader />}
     </div>
   );
 };

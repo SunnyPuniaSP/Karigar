@@ -8,11 +8,14 @@ import {
   setLiveServiceId,
 } from "../../store/workerAuthSlice";
 import { toast } from "sonner";
+import Loader from "../style/Loader.jsx";
 
 const FindJobs = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
   const [jobs, setJobs] = useState([]);
+  const [loader, setLoader] = useState(false);
+
   useEffect(() => {
     const interval = setInterval(() => {
       fetchJobs();
@@ -39,6 +42,7 @@ const FindJobs = () => {
   };
 
   const handleReject = (customerId) => {
+    setLoader(true);
     api
       .patch("/api/v1/worker/temporary-blockCustomer", { customerId })
       .catch((err) => {
@@ -48,10 +52,14 @@ const FindJobs = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
 
   const handleAccept = (serviceRequestId) => {
+    setLoader(true);
     api
       .post(`/api/v1/service-request/${serviceRequestId}/accept`)
       .then(() => {
@@ -66,6 +74,9 @@ const FindJobs = () => {
           duration: 3000,
           className: "bg-white border border-red-200 shadow",
         });
+      })
+      .finally(() => {
+        setLoader(false);
       });
   };
   return (
@@ -149,6 +160,7 @@ const FindJobs = () => {
           ))}
         </div>
       )}
+      {loader && <Loader />}
     </div>
   );
 };
