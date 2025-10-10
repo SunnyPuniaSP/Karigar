@@ -172,19 +172,27 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
       throw new ApiError(401, "Refresh token is expired or used"); //ud....................
     }
 
-    const options = {
-      httpOnly: true,
-      secure: true,
-    };
-
     const { accessToken, refreshToken } = await generateAccessAndRefreshTokens(
       customer._id
     );
 
+    const accessTokenExpiry = ms(process.env.ACCESS_TOKEN_EXPIRY);
+    const refreshTokenExpiry = ms(process.env.REFRESH_TOKEN_EXPIRY);
+
     return res
       .status(200)
-      .cookie("accessToken", accessToken, options)
-      .cookie("refreshToken", refreshToken, options)
+      .cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: refreshTokenExpiry,
+    })
+    .cookie("accessToken", accessToken, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+      maxAge: accessTokenExpiry,
+    })
       .json(
         new ApiResponse(
           200,
