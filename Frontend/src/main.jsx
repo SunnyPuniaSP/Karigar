@@ -1,5 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
+import { Analytics } from "@vercel/analytics/react"
 import { Toaster } from "sonner";
 import InitUserType from "./InitUserType";
 import "leaflet/dist/leaflet.css";
@@ -107,6 +108,7 @@ createRoot(document.getElementById("root")).render(
       <PersistGate loading={null} persistor={persistor}>
         <RouterProvider router={router} />
         <Toaster position="bottom-right" richColors />
+        <Analytics/>
       </PersistGate>
     </Provider>
   </StrictMode>
